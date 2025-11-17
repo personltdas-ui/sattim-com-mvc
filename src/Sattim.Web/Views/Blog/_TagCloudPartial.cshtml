@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Blog.BlogTagCloudViewModel>
+
+@* Bu partial, AJAX veya ViewComponent ile blog sidebar'ına yüklenir. *@
+
+<div classcard mb-3">
+    <div class="card-header">Etiket Bulutu</div>
+    <div class="card-body">
+        @if (!Model.Any())
+        {
+            <p>Etiket bulunamadı.</p>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var tag in Model)
+                {
+                    <a asp-controller="Blog" asp-action="Index" asp-route-tag="@tag.Slug"
+                       class="btn btn-sm btn-outline-secondary">
+                        @tag.Name <span class="badge bg-dark ms-1">@tag.PostCount</span>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>

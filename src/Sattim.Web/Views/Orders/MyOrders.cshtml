@@ -1,0 +1,672 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Order.OrderSummaryViewModel>
+@using Sattim.Web.Models.Escrow
+@{
+    ViewData["Title"] = "Siparişlerim";
+}
+
+<style>
+    /* Page Header */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+        .page-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin: 0 0 0.25rem 0;
+            letter-spacing: -0.5px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+    /* Stats Summary */
+    .stats-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem;
+        transition: all 0.2s;
+    }
+
+        .stat-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.5px;
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0;
+        border: none;
+        border-left: 3px solid;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        border-left-color: #22c55e;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        border-left-color: #ef4444;
+        color: #991b1b;
+    }
+
+    .alert-info {
+        background-color: #eff6ff;
+        border-left-color: #3b82f6;
+        color: #1e40af;
+    }
+
+    /* Orders List */
+    .orders-list {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .orders-list-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .orders-list-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .orders-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Order Item */
+    .order-item {
+        display: grid;
+        grid-template-columns: 90px 1fr auto;
+        gap: 1.25rem;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+        align-items: center;
+    }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item:hover {
+            background-color: #fafafa;
+        }
+
+        .order-item.pending {
+            background-color: #fef3c7;
+            border-left: 3px solid #f59e0b;
+        }
+
+    /* Product Image */
+    .order-image {
+        width: 80px;
+        height: 80px;
+        border: 1px solid #e5e5e5;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #fafafa;
+    }
+
+        .order-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .order-image-placeholder {
+        width: 80px;
+        height: 80px;
+        background-color: #f5f5f5;
+        border: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 2rem;
+    }
+
+    /* Product Info */
+    .order-info {
+        min-width: 0;
+    }
+
+    .order-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+        .order-title:hover {
+            color: #666;
+        }
+
+    .order-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+        .order-meta-item i {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-funded {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-shipped {
+        background-color: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .status-completed {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-disputed {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-cancelled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* Order Actions */
+    .order-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.75rem;
+        min-width: 180px;
+    }
+
+    .order-price {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.5px;
+    }
+
+    .order-action-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+        text-align: center;
+        justify-content: center;
+        width: 100%;
+        border: 1px solid;
+    }
+
+    .btn-pay {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+
+        .btn-pay:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    .btn-details {
+        background-color: #1a1a1a;
+        border-color: #1a1a1a;
+        color: white;
+    }
+
+        .btn-details:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-disabled {
+        background-color: #f5f5f5;
+        border-color: #e5e5e5;
+        color: #999;
+        cursor: not-allowed;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: #ccc;
+    }
+
+    .empty-state-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .empty-state-link {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .empty-state-link:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Payment Warning */
+    .payment-warning {
+        background-color: #fef3c7;
+        border-left: 3px solid #f59e0b;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+        .payment-warning i {
+            color: #92400e;
+            font-size: 1.25rem;
+            margin-top: 0.1rem;
+        }
+
+    .payment-warning-content {
+        flex: 1;
+    }
+
+    .payment-warning-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #92400e;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .payment-warning-text {
+        font-size: 0.85rem;
+        color: #92400e;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    /* Responsive */
+    @@media (max-width: 991px) {
+        .order-item {
+            grid-template-columns: 70px 1fr;
+            gap: 1rem;
+        }
+
+        .order-actions {
+            grid-column: 1 / -1;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            min-width: 0;
+            margin-top: 0.5rem;
+        }
+
+        .order-action-btn {
+            width: auto;
+            flex: 1;
+        }
+
+        .order-image,
+        .order-image-placeholder {
+            width: 60px;
+            height: 60px;
+        }
+
+        .stats-summary {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .order-item {
+            grid-template-columns: 60px 1fr;
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+
+        .order-meta {
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .order-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-action-btn {
+            width: 100%;
+        }
+
+        .stats-summary {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            @await Html.PartialAsync("_ProfileNav")
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h2>@ViewData["Title"]</h2>
+                <p>Kazandığınız ihaleleri ve sipariş durumlarını buradan takip edebilirsiniz</p>
+            </div>
+
+            <!-- Alerts -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i>
+                    <span>@TempData["SuccessMessage"]</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>@TempData["ErrorMessage"]</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (Model.Any())
+            {
+                <!-- Payment Warning -->
+                @if (Model.Any(o => o.Status == EscrowStatus.Pending))
+                {
+                    <div class="payment-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div class="payment-warning-content">
+                            <div class="payment-warning-title">Ödeme Bekleyen Siparişleriniz Var!</div>
+                            <p class="payment-warning-text">
+                                Kazandığınız ihalelerin ödemesini en kısa sürede yapmanız gerekmektedir.
+                                Aksi takdirde siparişiniz iptal edilebilir.
+                            </p>
+                        </div>
+                    </div>
+                }
+
+                <!-- Stats Summary -->
+                <div class="stats-summary">
+                    <div class="stat-card">
+                        <div class="stat-label">Toplam Sipariş</div>
+                        <div class="stat-value">@Model.Count()</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Toplam Harcama</div>
+                        <div class="stat-value">@Model.Sum(o => o.FinalPrice).ToString("C0")</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Bekleyen Ödeme</div>
+                        <div class="stat-value">@Model.Count(o => o.Status == EscrowStatus.Pending)</div>
+                    </div>
+                </div>
+
+                <!-- Orders List -->
+                <div class="orders-list">
+                    <div class="orders-list-header">
+                        <h3 class="orders-list-title">Sipariş Geçmişi</h3>
+                        <span class="orders-count">@Model.Count() sipariş</span>
+                    </div>
+
+                    @foreach (var order in Model.OrderByDescending(o => o.OrderDate))
+                    {
+                        <div class="order-item @(order.Status == EscrowStatus.Pending ? "pending" : "")">
+                            <!-- Product Image -->
+                            <div>
+                                @if (!string.IsNullOrEmpty(order.ProductImageUrl) && !order.ProductImageUrl.EndsWith("placeholder.png"))
+                                {
+                                    <div class="order-image">
+                                        <img src="@order.ProductImageUrl"
+                                             alt="@order.ProductTitle"
+                                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-image\'></i>';">
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="order-image-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Product Info -->
+                            <div class="order-info">
+                                <a asp-action="Details"
+                                   asp-route-id="@order.ProductId"
+                                   class="order-title">
+                                    @order.ProductTitle
+                                </a>
+                                <div class="order-meta">
+                                    <div class="order-meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>@order.OrderDate.ToString("dd MMMM yyyy")</span>
+                                    </div>
+                                    <div class="order-meta-item">
+                                        <i class="fas fa-hashtag"></i>
+                                        <span>Sipariş #@order.ProductId</span>
+                                    </div>
+                                </div>
+                                @switch (order.Status)
+                                {
+                                    case EscrowStatus.Pending:
+                                        <span class="status-badge status-pending">Ödeme Bekliyor</span>
+                                        break;
+                                    case EscrowStatus.Funded:
+                                        <span class="status-badge status-funded">Ödeme Alındı</span>
+                                        break;
+                                    case EscrowStatus.Shipped:
+                                        <span class="status-badge status-shipped">Kargoda</span>
+                                        break;
+                                    case EscrowStatus.Released:
+                                        <span class="status-badge status-completed">Tamamlandı</span>
+                                        break;
+                                    case EscrowStatus.Disputed:
+                                        <span class="status-badge status-disputed">İhtilaf Var</span>
+                                        break;
+                                    
+                                    default:
+                                        <span class="status-badge status-pending">@order.Status.ToString()</span>
+                                        break;
+                                }
+                            </div>
+
+                            <!-- Order Actions -->
+                            <div class="order-actions">
+                                <div class="order-price">@order.FinalPrice.ToString("C")</div>
+                                @if (order.Status == EscrowStatus.Pending)
+                                {
+                                    <a asp-action="Pay" asp-route-id="@order.ProductId" class="order-action-btn btn-pay">
+                                        <i class="fas fa-credit-card"></i>
+                                        Ödeme Yap
+                                    </a>
+                                }
+                                else if (order.Status == EscrowStatus.Shipped)
+                                {
+                                    <a asp-action="Details" asp-route-id="@order.ProductId" class="order-action-btn btn-details">
+                                        <i class="fas fa-truck"></i>
+                                        Kargo Takibi
+                                    </a>
+                                }
+                                else if (order.Status == EscrowStatus.Released)
+                                {
+                                    <a asp-action="Details" asp-route-id="@order.ProductId" class="order-action-btn btn-details">
+                                        <i class="fas fa-info-circle"></i>
+                                        Detaylar
+                                    </a>
+                                }
+                                else if (order.Status == EscrowStatus.Disputed)
+                                {
+                                    <a asp-action="Details" asp-route-id="@order.ProductId" class="order-action-btn btn-details" style="background-color: #dc2626; border-color: #dc2626;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        İhtilaf Detayı
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Details" asp-route-id="@order.ProductId" class="order-action-btn btn-details">
+                                        <i class="fas fa-info-circle"></i>
+                                        Detayları Gör
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3 class="empty-state-title">Henüz Siparişiniz Yok</h3>
+                    <p class="empty-state-text">
+                        Açık artırmalara katılarak ürün kazandığınızda<br>
+                        siparişleriniz burada görünecektir.
+                    </p>
+                    <a asp-controller="Products" asp-action="Index" asp-area="" class="empty-state-link">
+                        <i class="fas fa-search"></i>
+                        Ürünlere Göz At
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

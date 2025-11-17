@@ -1,0 +1,75 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Sattim.Web.Models.User
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    // Mevcut kullanıcının "FullName" (Ad Soyad) gibi detaylarına
+    // erişmek için ApplicationUser nesnesini alıyoruz.
+    ApplicationUser user = null;
+    if (SignInManager.IsSignedIn(User))
+    {
+        // Not: Bu async çağrı, her sayfa yüklemesinde küçük bir
+        // performans maliyeti yaratır. Yüksek trafikte bu
+        // 'FullName' bilgisi 'Claim' içinde saklanmalıdır.
+        user = await UserManager.GetUserAsync(User);
+    }
+}
+
+<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+    @if (user != null) // Kullanıcı giriş yapmışsa
+    {
+        <li class="nav-item">
+            <a class="nav-link text-light position-relative" asp-controller="Notification" asp-action="Index" title="Bildirimler">
+                <i class="fa-regular fa-bell fs-5"></i>
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6em;">
+                    3 <span class="visually-hidden">okunmamış bildirim</span>
+                </span>
+            </a>
+        </li>
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa-regular fa-user me-1"></i>
+                Merhaba, @user.FullName!
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" asp-controller="Profile" asp-action="Index"><i class="fa-solid fa-address-card fa-fw me-2"></i>Profilim & Adreslerim</a></li>
+
+                <li><a class="dropdown-item" asp-controller="Wallet" asp-action="Index"><i class="fa-solid fa-wallet fa-fw me-2"></i>Cüzdanım</a></li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <li><a class="dropdown-item" asp-controller="Order" asp-action="MyOrders"><i class="fa-solid fa-basket-shopping fa-fw me-2"></i>Siparişlerim (Alıcı)</a></li>
+                <li><a class="dropdown-item" asp-controller="Order" asp-action="MySales"><i class="fa-solid fa-tag fa-fw me-2"></i>Satışlarım (Satıcı)</a></li>
+
+                <li><a class="dropdown-item" asp-controller="Product" asp-action="MyProducts"><i class="fa-solid fa-boxes-stacked fa-fw me-2"></i>Ürünlerim (Satıcı)</a></li>
+
+                <li><a class="dropdown-item" asp-controller="Bid" asp-action="MyBids"><i class="fa-solid fa-gavel fa-fw me-2"></i>Tekliflerim</a></li>
+
+                <li><a class="dropdown-item" asp-controller="Dispute" asp-action="Index"><i class="fa-solid fa-shield-halved fa-fw me-2"></i>İhtilaflarım</a></li>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-user-shield fa-fw me-2"></i>Yönetim Paneli</a></li>
+                }
+            </ul>
+        </li>
+
+        <li class="nav-item">
+            <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="nav-link btn btn-link text-light"><i class="fa-solid fa-arrow-right-from-bracket me-1"></i>Çıkış Yap</button>
+            </form>
+        </li>
+    }
+    else // Kullanıcı giriş yapmamışsa
+    {
+        <li class="nav-item">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+        </li>
+    }
+</ul>

@@ -1,0 +1,59 @@
+﻿@model Sattim.Web.ViewModels.Bid.AutoBidSettingViewModel
+
+
+
+@{
+    var productId = (int)ViewBag.ProductId;
+
+    
+    if (Model == null || !Model.IsActive)
+    {
+        <p class="text-muted">
+            Siz teklif vermeseniz bile, biz sizin adınıza belirlediğiniz limite kadar
+            en düşük artış tutarıyla teklif veririz.
+        </p>
+
+        <form asp-controller="Bids" asp-action="PlaceAutoBid" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ProductId" value="@productId" />
+
+            <div class="mb-3">
+                <label for="MaxAmount" class="form-label">Verebileceğim Maksimum Tutar:</label>
+                <div class="input-group">
+                    <span class="input-group-text">TL</span>
+                    <input type="number" name="MaxAmount" class="form-control" step="0.01" required
+                           placeholder="Örn: 150.00" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="IncrementAmount" class="form-label">Her Seferinde Artır (Opsiyonel):</label>
+                <div class="input-group">
+                    <span class="input-group-text">TL</span>
+                    <input type="number" name="IncrementAmount" class="form-control" step="0.01"
+                           placeholder="Min. artış kullanılır" />
+                </div>
+                <small class="form-text text-muted">Boş bırakırsanız, ihale için belirlenen minimum artış tutarı kullanılır.</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Otomatik Teklifi Ayarla</button>
+        </form>
+    }
+    // Model dolu ve aktifse, İPTAL etme formunu göster
+    else
+    {
+        <div class="alert alert-success">
+            <h5 class="alert-heading">Otomatik Teklif Aktif!</h5>
+            <p>
+                Maksimum limitiniz <strong>@Model.MaxAmount.ToString("C")</strong> olarak ayarlanmıştır.
+                Siz geçilmediğiniz sürece bu limite kadar teklifler otomatik verilecektir.
+            </p>
+        </div>
+
+        <form asp-controller="Bids" asp-action="CancelAutoBid" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="productId" value="@Model.ProductId" />
+            <button type="submit" class="btn btn-danger w-100">Otomatik Teklifi İptal Et</button>
+        </form>
+    }
+}

@@ -1,0 +1,464 @@
+﻿@model Sattim.Web.ViewModels.Content.BlogPostFormViewModel
+@using Sattim.Web.Models.Blog
+@{
+    ViewData["Title"] = "Yazıyı Düzenle";
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .form-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 1.5rem;
+    }
+
+    .form-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .form-label-required::after {
+        content: "*";
+        color: #dc2626;
+        margin-left: 0.25rem;
+    }
+
+    /* Form Controls */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        background-color: white;
+        transition: border-color 0.2s;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .form-input-lg {
+        padding: 0.85rem 1.25rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-textarea-editor {
+        min-height: 400px;
+        font-family: 'Courier New', monospace;
+        line-height: 1.8;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: #1a1a1a;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: #999;
+        font-size: 0.8rem;
+    }
+
+    /* Validation */
+    .text-danger {
+        color: #dc2626;
+        font-size: 0.75rem;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    .validation-summary {
+        background-color: #fef2f2;
+        border-left: 3px solid #dc2626;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        color: #991b1b;
+        font-size: 0.85rem;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .validation-summary li {
+            margin-bottom: 0.25rem;
+        }
+
+    /* Form Help Text */
+    .form-help {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-secondary {
+        background-color: #6b7280;
+        border: 1px solid #6b7280;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-secondary:hover {
+            background-color: #9ca3af;
+            border-color: #9ca3af;
+            color: white;
+        }
+
+    /* Info Badge */
+    .info-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        padding: 0.75rem 1rem;
+        font-size: 0.8rem;
+        border-left: 3px solid #3b82f6;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .info-badge i {
+            font-size: 1rem;
+        }
+
+    /* Preview Section */
+    .preview-section {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .preview-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .preview-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .preview-body {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        height: auto;
+        border: 1px solid #e5e5e5;
+        display: inline-block;
+    }
+
+    /* Grid Layout */
+    .editor-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    
+
+    /* Meta Info */
+    .meta-info {
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        font-size: 0.8rem;
+        color: #666;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .meta-item i {
+            color: #999;
+        }
+
+        .meta-item strong {
+            color: #1a1a1a;
+        }
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Blog yazısını düzenleyin. Değişiklikler kaydedildikten sonra yayında olan içerik güncellenecektir.
+</p>
+
+<form asp-action="EditBlogPost" asp-route-id="@Model.Id" method="post">
+    @Html.AntiForgeryToken()
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+    }
+
+    <!-- Info Badge -->
+    <div class="info-badge">
+        <i class="fas fa-info-circle"></i>
+        <span>Yazı ID: <strong>#@Model.Id</strong> - Bu yazıyı düzenliyorsunuz</span>
+    </div>
+
+    
+
+    <!-- Featured Image Preview -->
+    @if (!string.IsNullOrEmpty(Model.FeaturedImage))
+    {
+        <div class="preview-section">
+            <div class="preview-header">
+                <h3 class="preview-title">
+                    <i class="fas fa-eye me-2"></i>Öne Çıkan Görsel Önizleme
+                </h3>
+            </div>
+            <div class="preview-body">
+                <img src="@Model.FeaturedImage" alt="@Model.Title" class="preview-image" />
+                <div style="margin-top: 1rem; color: #666; font-size: 0.8rem;">
+                    Mevcut öne çıkan görsel
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="editor-layout">
+        <!-- Main Content Column -->
+        <div>
+            <!-- Title & Content Card -->
+            <div class="form-card">
+                <div class="form-card-body">
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label class="form-label form-label-required">Başlık</label>
+                        <input asp-for="Title"
+                               class="form-input form-input-lg"
+                               placeholder="Yazı başlığını buraya girin..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                        <small class="form-help">Dikkat çekici ve açıklayıcı bir başlık seçin</small>
+                    </div>
+
+                    <!-- Slug -->
+                    <div class="form-group">
+                        <label class="form-label">SEO Link (Slug)</label>
+                        <input asp-for="Slug"
+                               class="form-input"
+                               placeholder="ornek-yazi-basligi" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <small class="form-help">URL'de görünecek kısa link</small>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="form-group">
+                        <label class="form-label form-label-required">İçerik</label>
+                        <textarea asp-for="Content"
+                                  class="form-textarea form-textarea-editor"
+                                  id="richTextEditor"
+                                  placeholder="Blog yazınızın içeriğini buraya yazın..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                        <small class="form-help">HTML etiketleri kullanabilirsiniz</small>
+                    </div>
+
+                    <!-- Excerpt -->
+                    <div class="form-group">
+                        <label class="form-label">Özet (Excerpt)</label>
+                        <textarea asp-for="Excerpt"
+                                  class="form-textarea"
+                                  rows="3"
+                                  placeholder="Yazının kısa özetini girin (liste görünümlerinde kullanılır)"></textarea>
+                        <span asp-validation-for="Excerpt" class="text-danger"></span>
+                        <small class="form-help">Maksimum 200 karakter önerilir</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div>
+            <!-- Publish Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3 class="form-card-title">
+                        <i class="fas fa-paper-plane me-2"></i>Yayın Durumu
+                    </h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="form-group">
+                        <label class="form-label form-label-required">Durum</label>
+                        <select asp-for="Status"
+                                asp-items="@Html.GetEnumSelectList<BlogPostStatus>()"
+                                class="form-select">
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                        <small class="form-help">Mevcut durum: <strong>@Model.Status</strong></small>
+                    </div>
+                </div>
+                <div class="form-card-footer">
+                    <a asp-action="BlogPosts" class="btn-secondary">
+                        <i class="fas fa-times"></i>İptal
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-check"></i>Güncelle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3 class="form-card-title">
+                        <i class="fas fa-cog me-2"></i>Ayarlar
+                    </h3>
+                </div>
+                <div class="form-card-body">
+                    <!-- Featured Image -->
+                    <div class="form-group">
+                        <label class="form-label">Öne Çıkan Görsel</label>
+                        <input asp-for="FeaturedImage"
+                               class="form-input"
+                               placeholder="https://example.com/image.jpg" />
+                        <span asp-validation-for="FeaturedImage" class="text-danger"></span>
+                        <small class="form-help">Yazı listesinde gösterilecek görsel URL'si</small>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-group">
+                        <label class="form-label">Etiketler</label>
+                        <input asp-for="CommaSeparatedTags"
+                               class="form-input"
+                               placeholder="teknoloji, yazılım, web" />
+                        <span asp-validation-for="CommaSeparatedTags" class="text-danger"></span>
+                        <small class="form-help">Virgülle ayırarak etiket ekleyin</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Card -->
+            <div class="form-card" style="background-color: #fafafa;">
+                <div class="form-card-body">
+                    <div style="font-size: 0.8rem; color: #666; line-height: 1.6;">
+                        <div style="font-weight: 600; margin-bottom: 0.75rem; color: #1a1a1a;">
+                            <i class="fas fa-chart-line" style="margin-right: 0.5rem;"></i>Yazı İstatistikleri
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Durum:</span>
+                                <strong style="color: #1a1a1a;">@Model.Status</strong>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.Slug))
+                            {
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Slug:</span>
+                                    <code style="background: white; padding: 0.15rem 0.5rem; font-size: 0.7rem;">@Model.Slug</code>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

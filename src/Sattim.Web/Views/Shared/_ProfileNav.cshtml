@@ -1,0 +1,315 @@
+﻿@{
+    // Mevcut aktif olan eylemi (Action) ve controller'ı al
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
+}
+
+<style>
+    /* Profile Navigation Container */
+    .profile-nav {
+        background: white;
+        border: 1px solid #e5e5e5;
+        position: sticky;
+        top: 20px;
+    }
+
+    /* Section Header */
+    .profile-nav-section {
+        padding: 1rem 1.25rem;
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .profile-nav-section-title {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 0;
+    }
+
+    /* Navigation List */
+    .profile-nav-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* Navigation Item */
+    .profile-nav-item {
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .profile-nav-item:last-child {
+            border-bottom: none;
+        }
+
+    .profile-nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.875rem 1.25rem;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+        border-left: 3px solid transparent;
+    }
+
+        .profile-nav-link:hover {
+            background-color: #fafafa;
+            color: #1a1a1a;
+            border-left-color: #e5e5e5;
+        }
+
+        .profile-nav-link.active {
+            background-color: #fafafa;
+            color: #1a1a1a;
+            border-left-color: #1a1a1a;
+            font-weight: 600;
+        }
+
+    /* Link Content */
+    .profile-nav-link-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+    .profile-nav-link-icon {
+        width: 20px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .profile-nav-link.active .profile-nav-link-icon {
+        color: #1a1a1a;
+    }
+
+    .profile-nav-link-text {
+        flex: 1;
+    }
+
+    /* Badge */
+    .profile-nav-badge {
+        font-size: 0.7rem;
+        color: #999;
+        font-style: italic;
+        padding: 0.25rem 0.5rem;
+        background-color: #f5f5f5;
+        border: 1px solid #e5e5e5;
+    }
+
+    .profile-nav-link.active .profile-nav-badge {
+        background-color: #1a1a1a;
+        color: white;
+        border-color: #1a1a1a;
+    }
+
+    /* Spacing between sections */
+    .profile-nav-section + .profile-nav-list {
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 768px) {
+        .profile-nav
+
+    {
+        position: static;
+        margin-bottom: 2rem;
+    }
+
+    .profile-nav-link {
+        padding: 0.75rem 1rem;
+    }
+
+    .profile-nav-section {
+        padding: 0.75rem 1rem;
+    }
+
+    }
+
+    /* Collapsed Mobile Menu (Optional) */
+    @@media (max-width: 768px) {
+        .profile-nav-toggle
+
+    {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 1.25rem;
+        background-color: #1a1a1a;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .profile-nav-toggle i {
+        transition: transform 0.3s;
+    }
+
+    .profile-nav-toggle.collapsed i {
+        transform: rotate(180deg);
+    }
+
+    .profile-nav-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+        .profile-nav-content.show {
+            max-height: 2000px;
+        }
+
+    }
+
+    @@media (min-width: 769px) {
+        .profile-nav-toggle
+
+    {
+        display: none;
+    }
+
+    .profile-nav-content {
+        max-height: none !important;
+    }
+
+    }
+</style>
+
+<nav class="profile-nav">
+    <!-- Mobile Toggle Button -->
+    <button class="profile-nav-toggle" onclick="toggleProfileNav()">
+        <span><i class="fas fa-user-circle me-2"></i>Profil Menüsü</span>
+        <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <!-- Navigation Content -->
+    <div class="profile-nav-content">
+        <!-- Section: Alış & Satış -->
+        <div class="profile-nav-section">
+            <h6 class="profile-nav-section-title">Alış & Satış</h6>
+        </div>
+        <ul class="profile-nav-list">
+            <li class="profile-nav-item">
+                <a asp-controller="MyProducts" asp-action="Index"
+                   class="profile-nav-link @(currentController == "MyProducts" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-box-open profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Ürünlerim</span>
+                    </div>
+                    <span class="profile-nav-badge">Satıcı</span>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="Orders" asp-action="MySales"
+                   class="profile-nav-link @(currentController == "Orders" && currentAction == "MySales" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-tag profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Satışlarım</span>
+                    </div>
+                    <span class="profile-nav-badge">Satıcı</span>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="Orders" asp-action="MyOrders"
+                   class="profile-nav-link @(currentController == "Orders" && (currentAction == "MyOrders" || currentAction == "Pay") ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-shopping-basket profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Siparişlerim</span>
+                    </div>
+                    <span class="profile-nav-badge">Alıcı</span>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="Bids" asp-action="MyBids"
+                   class="profile-nav-link @(currentController == "Bids" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-gavel profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Tekliflerim</span>
+                    </div>
+                    <span class="profile-nav-badge">Alıcı</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Section: Finans & Destek -->
+        <div class="profile-nav-section">
+            <h6 class="profile-nav-section-title">Finans & Destek</h6>
+        </div>
+        <ul class="profile-nav-list">
+            <li class="profile-nav-item">
+                <a asp-controller="Wallet" asp-action="Index"
+                   class="profile-nav-link @(currentController == "Wallet" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-wallet profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Cüzdanım</span>
+                    </div>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="Disputes" asp-action="Index"
+                   class="profile-nav-link @(currentController == "Disputes" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-shield-halved profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">İhtilaflarım</span>
+                    </div>
+                </a>
+            </li>
+        </ul>
+
+        <!-- Section: Hesap & Ayarlar -->
+        <div class="profile-nav-section">
+            <h6 class="profile-nav-section-title">Hesap & Ayarlar</h6>
+        </div>
+        <ul class="profile-nav-list">
+            <li class="profile-nav-item">
+                <a asp-controller="UserProfile" asp-action="Index"
+                   class="profile-nav-link @(currentController == "UserProfile" && currentAction == "Index" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-user-edit profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Profil Bilgileri</span>
+                    </div>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="UserProfile" asp-action="Addresses"
+                   class="profile-nav-link @(currentController == "UserProfile" && (currentAction == "Addresses" || currentAction == "AddAddress" || currentAction == "EditAddress") ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-map-marker-alt profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Adres Defterim</span>
+                    </div>
+                </a>
+            </li>
+            <li class="profile-nav-item">
+                <a asp-controller="Notifications" asp-action="Index"
+                   class="profile-nav-link @(currentController == "Notifications" ? "active" : "")">
+                    <div class="profile-nav-link-content">
+                        <i class="fas fa-bell profile-nav-link-icon"></i>
+                        <span class="profile-nav-link-text">Bildirimlerim</span>
+                    </div>
+                </a>
+            </li>
+            
+        </ul>
+    </div>
+</nav>
+
+<script>
+    function toggleProfileNav() {
+        const toggle = document.querySelector('.profile-nav-toggle');
+        const content = document.querySelector('.profile-nav-content');
+
+        toggle.classList.toggle('collapsed');
+        content.classList.toggle('show');
+    }
+</script>

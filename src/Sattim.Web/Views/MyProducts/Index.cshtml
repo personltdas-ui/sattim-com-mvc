@@ -1,0 +1,667 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Product.UserProductViewModel>
+@using Sattim.Web.Models.Product
+@{
+    ViewData["Title"] = "Ürünlerim";
+    var currentFilter = Context.Request.Query["filter"].ToString();
+}
+
+<style>
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-header-info h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.25rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .page-header-info p {
+        color: #666;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    /* Create Button */
+    .create-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .create-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Filter Tabs */
+    .filter-tabs {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+        display: flex;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+        .filter-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .filter-tabs::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+
+        .filter-tabs::-webkit-scrollbar-thumb {
+            background: #ccc;
+        }
+
+    .filter-tab {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        color: #666;
+        text-decoration: none;
+        border-right: 1px solid #e5e5e5;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        min-width: 150px;
+    }
+
+        .filter-tab:last-child {
+            border-right: none;
+        }
+
+        .filter-tab:hover {
+            background-color: #fafafa;
+            color: #1a1a1a;
+        }
+
+        .filter-tab.active {
+            background-color: #1a1a1a;
+            color: white;
+        }
+
+        .filter-tab i {
+            margin-right: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+    /* Products Table Card */
+    .products-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .products-table {
+        width: 100%;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+        .products-table thead {
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+        }
+
+        .products-table th {
+            padding: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+            white-space: nowrap;
+        }
+
+        .products-table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .products-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .products-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    /* Product Image */
+    .product-image-cell {
+        width: 100px;
+    }
+
+    .product-thumbnail {
+        width: 80px;
+        height: 80px;
+        border: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+        .product-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    .no-image {
+        width: 80px;
+        height: 80px;
+        background-color: #f5f5f5;
+        border: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 2rem;
+    }
+
+    /* Product Info */
+    .product-title-link {
+        color: #1a1a1a;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.25rem;
+        transition: color 0.2s;
+    }
+
+        .product-title-link:hover {
+            color: #666;
+        }
+
+    .product-meta {
+        font-size: 0.75rem;
+        color: #999;
+    }
+
+    /* Status Badges */
+    .product-status-badge {
+        padding: 0.3rem 0.65rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-active {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-ended {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-sold {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-cancelled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* Price & Meta */
+    .product-price {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 0.9rem;
+    }
+
+    .bid-count {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+        .bid-count i {
+            color: #f59e0b;
+        }
+
+    .date-cell {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .date-time {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.15rem;
+    }
+
+    /* Action Buttons */
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+        text-decoration: none;
+    }
+
+    .btn-edit {
+        background-color: #0284c7;
+        border-color: #0284c7;
+        color: white;
+    }
+
+        .btn-edit:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+    .btn-cancel {
+        background-color: #dc2626;
+        border-color: #dc2626;
+        color: white;
+    }
+
+        .btn-cancel:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: #ccc;
+    }
+
+    .empty-state-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0;
+        border: none;
+        border-left: 3px solid;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        border-left-color: #22c55e;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        border-left-color: #ef4444;
+        color: #991b1b;
+    }
+
+    /* Responsive */
+    @@media (max-width: 991px) {
+        .page-header {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 1rem;
+        }
+
+        .create-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .products-table {
+            font-size: 0.8rem;
+        }
+
+            .products-table th,
+            .products-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+        .product-thumbnail,
+        .no-image {
+            width: 60px;
+            height: 60px;
+        }
+
+        .filter-tab {
+            min-width: 120px;
+            padding: 0.875rem 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .product-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 0.75rem 0.35rem;
+            font-size: 0.75rem;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .filter-tab {
+            min-width: 110px;
+            padding: 0.75rem 0.75rem;
+            font-size: 0.8rem;
+        }
+
+            .filter-tab i {
+                display: block;
+                margin: 0 0 0.25rem 0;
+                font-size: 1rem;
+            }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            @await Html.PartialAsync("_ProfileNav")
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-info">
+                    <h2>@ViewData["Title"]</h2>
+                    <p>Açık artırmaya koyduğunuz ürünleri yönetin</p>
+                </div>
+                <a asp-action="Create" class="create-btn">
+                    <i class="fas fa-plus"></i>
+                    Yeni Ürün Ekle
+                </a>
+            </div>
+
+            <!-- Alerts -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <a asp-action="Index" class="filter-tab @(string.IsNullOrEmpty(currentFilter) ? "active" : "")">
+                    <i class="fas fa-th"></i>
+                    Tümü
+                </a>
+                <a asp-action="Index" asp-route-filter="@ProductStatus.Active"
+                   class="filter-tab @(currentFilter == ProductStatus.Active.ToString() ? "active" : "")">
+                    <i class="fas fa-check-circle"></i>
+                    Aktif
+                </a>
+                <a asp-action="Index" asp-route-filter="@ProductStatus.Pending"
+                   class="filter-tab @(currentFilter == ProductStatus.Pending.ToString() ? "active" : "")">
+                    <i class="fas fa-clock"></i>
+                    Onay Bekliyor
+                </a>
+                <a asp-action="Index" asp-route-filter="@ProductStatus.Sold"
+                   class="filter-tab @(currentFilter == ProductStatus.Sold.ToString() ? "active" : "")">
+                    <i class="fas fa-gavel"></i>
+                    Satıldı
+                </a>
+                <a asp-action="Index" asp-route-filter="@ProductStatus.Closed"
+                   class="filter-tab @(currentFilter == ProductStatus.Closed.ToString() ? "active" : "")">
+                    <i class="fas fa-flag-checkered"></i>
+                    Sona Erdi
+                </a>
+                <a asp-action="Index" asp-route-filter="@ProductStatus.Cancelled"
+                   class="filter-tab @(currentFilter == ProductStatus.Cancelled.ToString() ? "active" : "")">
+                    <i class="fas fa-ban"></i>
+                    İptal
+                </a>
+            </div>
+
+            <!-- Products Table -->
+            @if (Model != null && Model.Any())
+            {
+                <div class="products-table-card">
+                    <div class="table-responsive">
+                        <table class="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Resim</th>
+                                    <th>Ürün</th>
+                                    <th>Durum</th>
+                                    <th>Fiyat</th>
+                                    <th>Teklif</th>
+                                    <th>Bitiş</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var product in Model)
+                                {
+                                    <tr>
+                                        <!-- Image -->
+                                        <td class="product-image-cell">
+                                            @if (!string.IsNullOrEmpty(product.PrimaryImageUrl) && !product.PrimaryImageUrl.EndsWith("placeholder.png"))
+                                            {
+                                                <div class="product-thumbnail">
+                                                    <img src="@product.PrimaryImageUrl"
+                                                         alt="@product.Title"
+                                                         onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fas fa-image\'></i>';">
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="no-image">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            }
+                                        </td>
+
+                                        <!-- Product Info -->
+                                        <td>
+                                            <a asp-controller="Products"
+                                               asp-action="Details"
+                                               asp-route-id="@product.Id"
+                                               asp-area=""
+                                               class="product-title-link"
+                                               target="_blank">
+                                                @product.Title
+                                            </a>
+                                            <div class="product-meta">ID: #@product.Id</div>
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td>
+                                            @switch (product.Status)
+                                            {
+                                                case ProductStatus.Active:
+                                                    <span class="product-status-badge status-active">Aktif</span>
+                                                    break;
+                                                case ProductStatus.Pending:
+                                                    <span class="product-status-badge status-pending">Bekliyor</span>
+                                                    break;
+                                                case ProductStatus.Closed:
+                                                    <span class="product-status-badge status-ended">Bitti</span>
+                                                    break;
+                                                case ProductStatus.Sold:
+                                                    <span class="product-status-badge status-sold">Satıldı</span>
+                                                    break;
+                                                case ProductStatus.Cancelled:
+                                                    <span class="product-status-badge status-cancelled">İptal</span>
+                                                    break;
+                                                default:
+                                                    <span class="product-status-badge status-cancelled">@product.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+
+                                        <!-- Price -->
+                                        <td class="product-price">
+                                            @product.CurrentPrice.ToString("C")
+                                        </td>
+
+                                        <!-- Bid Count -->
+                                        <td>
+                                            <div class="bid-count">
+                                                <i class="fas fa-gavel"></i>
+                                                @product.BidCount
+                                            </div>
+                                        </td>
+
+                                        <!-- End Date -->
+                                        <td>
+                                            <div class="date-cell">
+                                                @product.EndDate.ToString("dd.MM.yyyy")
+                                                <div class="date-time">
+                                                    @product.EndDate.ToString("HH:mm")
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td>
+                                            <div class="product-actions">
+                                                <a asp-action="Edit"
+                                                   asp-route-id="@product.Id"
+                                                   class="action-btn btn-edit">
+                                                    <i class="fas fa-edit"></i>
+                                                    Düzenle
+                                                </a>
+
+                                                @if (product.Status == ProductStatus.Active || product.Status == ProductStatus.Pending)
+                                                {
+                                                    <form asp-action="Cancel"
+                                                          asp-route-id="@product.Id"
+                                                          method="post"
+                                                          style="display: inline; margin: 0;"
+                                                          onsubmit="return confirm('Bu ürünü iptal etmek istediğinize emin misiniz?')">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="action-btn btn-cancel">
+                                                            <i class="fas fa-times"></i>
+                                                            İptal Et
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h3 class="empty-state-title">Henüz Ürününüz Yok</h3>
+                    <p class="empty-state-text">
+                        Bu filtreye uygun ürün bulunamadı.<br>
+                        İlk ürününüzü ekleyerek açık artırmalara başlayın.
+                    </p>
+                    <a asp-action="Create" class="create-btn">
+                        <i class="fas fa-plus"></i>
+                        Yeni Ürün Ekle
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

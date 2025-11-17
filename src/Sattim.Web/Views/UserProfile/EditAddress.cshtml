@@ -1,0 +1,38 @@
+﻿@model Sattim.Web.ViewModels.Profile.AddressViewModel
+
+@{
+    ViewData["Title"] = "Adresi Düzenle";
+    // Controller'dan gelen ID'yi al
+    var addressId = ViewContext.RouteData.Values["id"];
+}
+
+<div class="container mt-4">
+    <div class="row">
+
+        <div class="col-md-3">
+            @await Html.PartialAsync("_ProfileNav")
+        </div>
+
+        <div class="col-md-9">
+            <h2>@ViewData["Title"]</h2>
+            <hr />
+
+            <div class="col-lg-8">
+                <form asp-action="EditAddress" asp-route-id="@addressId" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @await Html.PartialAsync("_AddressFormFields", Model)
+
+                    <a asp-action="Addresses" class="btn btn-secondary">Vazgeç</a>
+                    <button typet="submit" class="btn btn-success">Değişiklikleri Kaydet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

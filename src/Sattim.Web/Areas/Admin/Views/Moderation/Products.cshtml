@@ -1,0 +1,458 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Moderation.ProductModerationViewModel>
+@{
+    ViewData["Title"] = "Onay Bekleyen Ürünler";
+}
+
+<style>
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    /* Products Table */
+    .products-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .products-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .products-table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .products-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .products-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .products-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .products-table tbody td {
+            padding: 1rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .products-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    .product-title {
+        font-weight: 500;
+        color: #1a1a1a;
+        max-width: 300px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-price {
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    /* Category Badge */
+    .category-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+        margin-right: 0.35rem;
+    }
+
+    .btn-approve {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+
+        .btn-approve:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    .btn-reject {
+        background-color: #dc2626;
+        border-color: #dc2626;
+        color: white;
+    }
+
+        .btn-reject:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    .btn-preview {
+        background-color: #0284c7;
+        border-color: #0284c7;
+        color: white;
+    }
+
+        .btn-preview:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+    /* Modal */
+    .modal-content {
+        border-radius: 0;
+        border: 1px solid #e5e5e5;
+    }
+
+    .modal-header {
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        background-color: #fafafa;
+        border-top: 1px solid #e5e5e5;
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-body p {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal textarea {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 120px;
+    }
+
+        .modal textarea:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+        .modal-close:hover {
+            color: #1a1a1a;
+        }
+
+    /* Product Info in Modal */
+    .product-info-box {
+        background-color: #f9fafb;
+        border-left: 3px solid #0284c7;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.85rem;
+    }
+
+        .product-info-box strong {
+            color: #1a1a1a;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+    .product-info-item {
+        color: #666;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Kullanıcıların onaya gönderdiği ürünleri inceleyin. Onaylanan ürünler yayına alınır, reddedilenler kullanıcıya bildirilir.
+</p>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-item">
+        <div class="stat-value">@Model.Count()</div>
+        <div class="stat-label">Bekleyen Ürün</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(p => p.CreatedDate >= DateTime.Now.AddDays(-7)).Count()</div>
+        <div class="stat-label">Son 7 Gün</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(p => p.CreatedDate >= DateTime.Now.AddDays(-1)).Count()</div>
+        <div class="stat-label">Bugün</div>
+    </div>
+</div>
+
+<!-- Products Table -->
+<div class="products-table-card">
+    <div class="products-table-header">
+        <h3 class="products-table-title">Onay Kuyruğu</h3>
+        <span class="products-count">@Model.Count() ürün bekliyor</span>
+    </div>
+
+    <div class="products-table-wrapper">
+        @if (Model != null && Model.Any())
+        {
+            <table class="products-table" id="pendingProductsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Ürün Adı</th>
+                        <th>Satıcı</th>
+                        <th>Kategori</th>
+                        <th>Başlangıç Fiyatı</th>
+                        <th>Gönderim Tarihi</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var product in Model)
+                    {
+                        <tr>
+                            <td style="font-weight: 600; color: #666;">#@product.ProductId</td>
+                            <td>
+                                <div class="product-title">@product.Title</div>
+                            </td>
+                            <td style="color: #666;">@product.SellerFullName</td>
+                            <td>
+                                <span class="category-badge">@product.CategoryName</span>
+                            </td>
+                            <td class="product-price">@product.StartingPrice.ToString("C2")</td>
+                            <td style="color: #666; font-size: 0.8rem;">
+                                @product.CreatedDate.ToString("dd.MM.yyyy")
+                                <div style="font-size: 0.75rem; color: #999;">
+                                    @product.CreatedDate.ToString("HH:mm")
+                                </div>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <a href="#" class="action-btn btn-preview" title="Ön İzleme">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+
+                                <form asp-area="Admin" asp-controller="AdminProducts" asp-action="Approve"
+                                      asp-route-id="@product.ProductId" method="post" style="display: inline;"
+                                      onsubmit="return confirm('Bu ürünü onaylamak istediğinize emin misiniz?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="action-btn btn-approve" title="Onayla">
+                                        <i class="fas fa-check"></i>Onayla
+                                    </button>
+                                </form>
+
+                                <button type="button" class="action-btn btn-reject"
+                                        data-bs-toggle="modal" data-bs-target="#rejectModal-@product.ProductId"
+                                        title="Reddet">
+                                    <i class="fas fa-times"></i>Reddet
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <div class="empty-state-title">Onay Bekleyen Ürün Yok</div>
+                <div>Tüm ürünler işlenmiş durumda.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Reject Modals -->
+@foreach (var product in Model)
+{
+    <div class="modal fade" id="rejectModal-@product.ProductId" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ürünü Reddet</h5>
+                    <button type="button" class="modal-close" data-bs-dismiss="modal">
+                        <span>×</span>
+                    </button>
+                </div>
+
+                <form asp-area="Admin" asp-controller="AdminProducts" asp-action="Reject" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@product.ProductId" />
+
+                    <div class="modal-body">
+                        <div class="product-info-box">
+                            <strong>Ürün Bilgileri</strong>
+                            <div class="product-info-item"><strong>ID:</strong> #@product.ProductId</div>
+                            <div class="product-info-item"><strong>Başlık:</strong> @product.Title</div>
+                            <div class="product-info-item"><strong>Satıcı:</strong> @product.SellerFullName</div>
+                            <div class="product-info-item"><strong>Kategori:</strong> @product.CategoryName</div>
+                            <div class="product-info-item"><strong>Fiyat:</strong> @product.StartingPrice.ToString("C2")</div>
+                        </div>
+
+                        <p>Bu ürünü neden reddediyorsunuz? Sebep kullanıcıya bildirilecektir.</p>
+
+                        <div class="form-group">
+                            <label for="reason-@product.ProductId">Reddetme Sebebi (Zorunlu):</label>
+                            <textarea name="reason" id="reason-@product.ProductId" class="form-control"
+                                  required placeholder="Örn: Yetersiz ürün açıklaması, yasaklı ürün, uygunsuz içerik..."></textarea>
+                        </div>
+
+                        <div style="background-color: #fef3c7; border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; margin-top: 1rem; font-size: 0.85rem; color: #92400e;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Dikkat:</strong> Reddedilen ürün satıcıya e-posta ile bildirilecektir.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="action-btn" type="button" data-bs-dismiss="modal"
+                                style="background-color: #6b7280; border-color: #6b7280; color: white;">
+                            İptal
+                        </button>
+                        <button class="action-btn btn-reject" type="submit">
+                            <i class="fas fa-paper-plane me-2"></i>Reddetmeyi Onayla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Auto-hide success/error messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}

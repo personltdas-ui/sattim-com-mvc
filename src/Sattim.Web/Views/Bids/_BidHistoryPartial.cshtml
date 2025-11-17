@@ -1,0 +1,41 @@
+﻿@model Sattim.Web.ViewModels.Bid.ProductBidHistoryViewModel
+
+
+
+@if (Model == null)
+{
+    <div class="alert alert-warning">Teklif geçmişi yüklenemedi.</div>
+    return;
+}
+
+@if (!Model.Bids.Any())
+{
+    <div class="alert alert-info text-center">
+        <p class="mb-0">Henüz teklif verilmemiş. İlk teklifi siz verin!</p>
+    </div>
+}
+else
+{
+    <table class="table table-striped table-sm">
+        <thead class="table-light">
+            <tr>
+                <th>Kullanıcı</th>
+                <th>Teklif Tutarı</th>
+                <th>Tarih</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Servis zaten sıralı gönderir, ancak emin olmak için burada tekrar sıralayabiliriz *@
+            @foreach (var bid in Model.Bids.OrderByDescending(b => b.BidDate))
+            {
+                <tr>
+                    <td>
+                        <strong>@bid.BidderFullName</strong>
+                    </td>
+                    <td><strong>@bid.Amount.ToString("C")</strong></td>
+                    <td>@bid.BidDate.ToString("dd MMM, HH:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

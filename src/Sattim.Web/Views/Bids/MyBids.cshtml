@@ -1,0 +1,380 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Bid.UserBidItemViewModel>
+@using Sattim.Web.Services.Bid
+@using Sattim.Web.ViewModels.Bid
+
+@{
+    ViewData["Title"] = "Tekliflerim";
+    var currentFilter = (BidFilterType)ViewBag.CurrentFilter;
+}
+
+
+@section Styles {
+    <style>
+        
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        
+        .profile-content-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+       
+        .filter-nav {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .filter-nav .nav-link {
+                border: none;
+                border-bottom: 3px solid transparent;
+                color: #666;
+                font-size: 0.9rem;
+                font-weight: 500;
+                padding: 0.75rem 1rem;
+                margin-bottom: -1px; 
+                border-radius: 0;
+                transition: all 0.2s;
+            }
+
+                .filter-nav .nav-link:hover {
+                    color: var(--primary-color);
+                }
+
+                .filter-nav .nav-link.active {
+                    background-color: transparent;
+                    color: var(--primary-color);
+                    border-bottom-color: var(--primary-color);
+                }
+
+        
+        .bid-list-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        
+        .bid-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+            gap: 1rem;
+        }
+
+            .bid-item:hover {
+                border-color: var(--primary-color);
+                background-color: var(--bg-light);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+                transform: translateY(-2px);
+            }
+
+        .bid-item-image {
+            width: 80px;
+            height: 80px;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+
+            .bid-item-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .bid-item-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .bid-item-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .bid-item-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .bid-item-pricing {
+            flex-shrink: 0;
+            text-align: right;
+            margin-left: auto; 
+            padding: 0 1.5rem;
+            font-size: 0.9rem;
+        }
+
+            .bid-item-pricing .price-label {
+                font-size: 0.75rem;
+                color: #666;
+                margin-bottom: 0.25rem;
+            }
+
+            .bid-item-pricing .price-value {
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            .bid-item-pricing .my-bid {
+                color: #22c55e; /* Green */
+            }
+
+        
+        .bid-item-status {
+            flex-shrink: 0;
+            text-align: center;
+            width: 140px;
+        }
+
+        .badge-status {
+            padding: 0.6rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        
+        .badge-status-winning {
+            background-color: #22c55e;
+        }
+       
+        .badge-status-losing {
+            background-color: #f59e0b;
+        }
+        
+        .badge-status-won {
+            background-color: #3b82f6;
+        }
+        
+        .badge-status-lost {
+            background-color: #666;
+        }
+        
+        .alert-info-custom {
+            background-color: #f3f4f6;
+            border-left: 3px solid #6b7280;
+            color: #374151;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0;
+        }
+
+            .alert-info-custom i {
+                font-size: 1.25rem;
+            }
+
+        /* Responsive */
+        @@media (max-width: 767px) {
+            .bid-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .bid-item-pricing {
+                text-align: left;
+                padding: 0;
+                margin-left: 0;
+                margin-top: 0.5rem;
+                display: flex;
+                gap: 1.5rem;
+            }
+
+            .bid-item-status {
+                margin-top: 1rem;
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="UserProfile" asp-action="Index">Profilim</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-3">
+        @await Html.PartialAsync("_ProfileNav")
+    </div>
+
+    <div class="col-md-9">
+        <div class="profile-content-card">
+
+            <h1 class="section-title">
+                <i class="fa-solid fa-gavel"></i>
+                @ViewData["Title"]
+            </h1>
+
+            <ul class="nav filter-nav mb-4">
+                <li class="nav-item">
+                    <a class="nav-link @(currentFilter == BidFilterType.All ? "active" : "")"
+                       asp-action="MyBids" asp-route-filter="@BidFilterType.All">Tümü</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentFilter == BidFilterType.Active ? "active" : "")"
+                       asp-action="MyBids" asp-route-filter="@BidFilterType.Active">Aktif</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentFilter == BidFilterType.Won ? "active" : "")"
+                       asp-action="MyBids" asp-route-filter="@BidFilterType.Won">Kazandıklarım</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentFilter == BidFilterType.Lost ? "active" : "")"
+                       asp-action="MyBids" asp-route-filter="@BidFilterType.Lost">Kaybettiklerim</a>
+                </li>
+            </ul>
+
+            @if (!Model.Any())
+            {
+                <div class="alert-info-custom">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div>Bu filtreye uygun teklifiniz bulunmuyor.</div>
+                </div>
+            }
+            else
+            {
+                <div class="bid-list-wrapper">
+                    @foreach (var item in Model.OrderByDescending(i => i.EndDate))
+                    {
+                        string badgeClass, badgeText, badgeIcon;
+
+                        // Duruma göre stil belirle
+                        switch (item.Status)
+                        {
+                            case UserBidStatus.Active_Winning:
+                                badgeClass = "badge-status-winning";
+                                badgeText = "Kazanıyorsun";
+                                badgeIcon = "fa-solid fa-gavel";
+                                break;
+                            case UserBidStatus.Active_Losing:
+                                badgeClass = "badge-status-losing";
+                                badgeText = "Kaybediyorsun";
+                                badgeIcon = "fa-solid fa-triangle-exclamation";
+                                break;
+                            case UserBidStatus.Won:
+                                badgeClass = "badge-status-won";
+                                badgeText = "Kazandın";
+                                badgeIcon = "fa-solid fa-trophy";
+                                break;
+                            case UserBidStatus.Lost:
+                            default:
+                                badgeClass = "badge-status-lost";
+                                badgeText = "Kaybettin";
+                                badgeIcon = "fa-solid fa-times";
+                                break;
+                        }
+
+                        <a asp-controller="Products" asp-action="Details" asp-route-id="@item.ProductId"
+                           class="bid-item">
+
+                            <div class="bid-item-image">
+                                <img src="@(item.PrimaryImageUrl ?? "/images/placeholder.png")" alt="@item.Title">
+                            </div>
+
+                            <div class="bid-item-details">
+                                <h5 class="bid-item-title">@item.Title</h5>
+                                <div class="bid-item-date">
+                                    Bitiş: @item.EndDate.ToString("dd MMM HH:mm")
+                                </div>
+                            </div>
+
+                            <div class="bid-item-pricing">
+                                <div>
+                                    <div class="price-label">İhale Fiyatı</div>
+                                    <div class="price-value">@item.CurrentPrice.ToString("C")</div>
+                                </div>
+                                <div class="ms-3">
+                                    <div class="price-label">Teklifim</div>
+                                    <div class="price-value my-bid">@item.MyHighestBid.ToString("C")</div>
+                                </div>
+                            </div>
+
+                            <div class="bid-item-status">
+                                <span class="badge-status @badgeClass">
+                                    <i class="@badgeIcon"></i>
+                                    @badgeText
+                                </span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,512 @@
+﻿@model Sattim.Web.ViewModels.Wallet.WalletDashboardViewModel
+@using Sattim.Web.Models.Wallet
+@using Sattim.Web.ViewModels.Wallet
+
+@{
+    ViewData["Title"] = "Cüzdanım";
+    var payoutForm = (PayoutRequestViewModel)ViewBag.PayoutForm;
+}
+
+
+
+@section Styles {
+    <style>
+        
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        
+        .profile-content-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+       
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        
+        .balance-card {
+            background: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            border: 1px solid var(--primary-color);
+        }
+
+        .balance-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .balance-amount {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        
+        .form-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+            .form-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: none;
+                outline: none;
+            }
+
+        .input-group-text-modern {
+            border: 1px solid var(--border-color);
+            border-right: 0;
+            border-radius: 0;
+            background-color: var(--bg-light);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-input-grouped {
+            border-left: 0;
+        }
+
+        .form-btn {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+            padding: 0.875rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 0;
+            transition: all 0.2s;
+            width: 100%;
+            cursor: pointer;
+        }
+
+            .form-btn:hover {
+                background-color: var(--hover-color);
+                border-color: var(--hover-color);
+                color: white;
+            }
+
+        
+        .filter-nav {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .filter-nav .nav-link {
+                border: none;
+                border-bottom: 3px solid transparent;
+                color: #666;
+                font-size: 0.9rem;
+                font-weight: 500;
+                padding: 0.75rem 1rem;
+                margin-bottom: -1px;
+                border-radius: 0;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+
+                .filter-nav .nav-link:hover {
+                    color: var(--primary-color);
+                }
+
+                .filter-nav .nav-link.active {
+                    background-color: transparent;
+                    color: var(--primary-color);
+                    border-bottom-color: var(--primary-color);
+                }
+
+        .tab-content {
+            border: 1px solid var(--border-color);
+            border-top: 0;
+        }
+
+        /* İşlem Listesi */
+        .tx-list-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tx-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .tx-item:last-child {
+                border-bottom: none;
+            }
+
+        .tx-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .tx-icon-deposit {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .tx-icon-withdraw {
+            background-color: #fef2f2;
+            color: #991b1b;
+        }
+
+        .tx-icon-payout {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .tx-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .tx-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tx-description {
+            font-size: 0.8rem;
+            color: #666;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tx-amount {
+            text-align: right;
+            margin-left: auto;
+        }
+
+        .tx-amount-value {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tx-amount-value-deposit {
+            color: #166534;
+        }
+
+        .tx-amount-value-withdraw {
+            color: #991b1b;
+        }
+
+        .tx-date {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Durum Rozetleri (MyBids'den uyarlandı) */
+        .badge-status {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            gap: 0.4rem;
+            border-radius: 4px; 
+        }
+
+        .badge-status-pending {
+            background-color: #f59e0b;
+        }
+
+        .badge-status-completed {
+            background-color: #22c55e;
+        }
+
+        .badge-status-approved {
+            background-color: #3b82f6;
+        }
+
+        .badge-status-rejected {
+            background-color: #dc2626;
+        }
+
+        .badge-status-secondary {
+            background-color: #666;
+        }
+
+        
+        .alert-info-custom {
+            background-color: #f3f4f6;
+            border-left: 3px solid #6b7280;
+            color: #374151;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0;
+            margin: 1.5rem;
+        }
+    </style>
+}
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="UserProfile" asp-action="Index">Profilim</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-3">
+        @await Html.PartialAsync("_ProfileNav")
+    </div>
+
+    <div class="col-md-9">
+        <div class="profile-content-card">
+
+            <h1 class="section-title">
+                <i class="fa-solid fa-wallet"></i>
+                @ViewData["Title"]
+            </h1>
+
+            <div class="row g-4">
+                <div class="col-lg-5">
+
+                    <div class="balance-card mb-4">
+                        <div class="balance-label">Mevcut Bakiye</div>
+                        <div class="balance-amount">@Model.CurrentBalance.ToString("C")</div>
+                    </div>
+
+                    <div class="form-card">
+                        <h3 class="form-title">
+                            <i class="fa-solid fa-hand-holding-dollar"></i>
+                            Yeni Para Çekme Talebi
+                        </h3>
+
+                        <form asp-action="RequestPayout" method="post" class="form-modern">
+                            @Html.AntiForgeryToken()
+
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius:0; font-size: 0.85rem;"></div>
+
+                            <div class="form-group">
+                                <label asp-for="@payoutForm.Amount" class="form-label">Çekilecek Tutar</label>
+                                <div class="input-group">
+                                    <span class="input-group-text input-group-text-modern">₺</span>
+                                    <input asp-for="@payoutForm.Amount" type="number" step="0.01" class="form-input form-input-grouped" placeholder="50.00" />
+                                </div>
+                                <span asp-validation-for="@payoutForm.Amount" class="text-danger" style="font-size: 0.8rem;"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="@payoutForm.BankName" class="form-label">Banka Adı</label>
+                                <input asp-for="@payoutForm.BankName" class="form-input" />
+                                <span asp-validation-for="@payoutForm.BankName" class="text-danger" style="font-size: 0.8rem;"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="@payoutForm.FullName" class="form-label">Hesap Sahibi Adı Soyadı</label>
+                                <input asp-for="@payoutForm.FullName" class="form-input" />
+                                <span asp-validation-for="@payoutForm.FullName" class="text-danger" style="font-size: 0.8rem;"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="@payoutForm.IBAN" class="form-label"></label>
+                                <input asp-for="@payoutForm.IBAN" class="form-input" placeholder="TR..." />
+                                <span asp-validation-for="@payoutForm.IBAN" class="text-danger" style="font-size: 0.8rem;"></span>
+                            </div>
+
+                            <button type="submit" class="form-btn">Talep Gönder</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-lg-7">
+                    <ul class="nav filter-nav" id="walletTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="transactions-tab" data-bs-toggle="tab" data-bs-target="#transactions" type="button" role="tab" aria-controls="transactions" aria-selected="true">
+                                Son İşlemler
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="payouts-tab" data-bs-toggle="tab" data-bs-target="#payouts" type="button" role="tab" aria-controls="payouts" aria-selected="false">
+                                Para Çekme Geçmişi
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="walletTabsContent">
+
+                        <div class="tab-pane fade show active" id="transactions" role="tabpanel" aria-labelledby="transactions-tab">
+                            <div class="tx-list-wrapper">
+                                @if (!Model.RecentTransactions.Any())
+                                {
+                                    <div class="alert-info-custom">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        <span>Son işleminiz bulunmuyor.</span>
+                                    </div>
+                                }
+                                @foreach (var tx in Model.RecentTransactions)
+                                {
+                                    bool isDeposit = tx.Amount > 0;
+                                    string amountColor = isDeposit ? "tx-amount-value-deposit" : "tx-amount-value-withdraw";
+                                    string iconClass = isDeposit ? "fa-arrow-up" : "fa-arrow-down";
+                                    string iconBgClass = isDeposit ? "tx-icon-deposit" : "tx-icon-withdraw";
+
+                                    <div class="tx-item">
+                                        <div class="tx-icon @iconBgClass">
+                                            <i class="fas @iconClass"></i>
+                                        </div>
+                                        <div class="tx-details">
+                                            <div class="tx-title">@tx.Type.ToString()</div>
+                                            <div class="tx-description">@tx.Description</div>
+                                        </div>
+                                        <div class="tx-amount">
+                                            <div class="tx-amount-value @amountColor">@tx.Amount.ToString("C")</div>
+                                            <div class="tx-date">@tx.CreatedDate.ToString("dd MMM, HH:mm")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="payouts" role="tabpanel" aria-labelledby="payouts-tab">
+                            <div class="tx-list-wrapper">
+                                @if (!Model.PayoutHistory.Any())
+                                {
+                                    <div class="alert-info-custom">
+                                        <i class="fa-solid fa-circle-info"></i>
+                                        <span>Para çekme talebiniz bulunmuyor.</span>
+                                    </div>
+                                }
+                                @foreach (var payout in Model.PayoutHistory)
+                                {
+                                    string statusClass = payout.Status switch
+                                    {
+                                        PayoutStatus.Pending => "badge-status-pending",
+                                        PayoutStatus.Approved => "badge-status-approved",
+                                        PayoutStatus.Completed => "badge-status-completed",
+                                        PayoutStatus.Rejected => "badge-status-rejected",
+                                        _ => "badge-status-secondary"
+                                    };
+
+                                    <div class="tx-item">
+                                        <div class="tx-icon tx-icon-payout">
+                                            <i class="fa-solid fa-university"></i>
+                                        </div>
+                                        <div class="tx-details">
+                                            <div class="tx-title">@payout.Amount.ToString("C")</div>
+                                            <div class="tx-description">@payout.IBAN</div>
+                                        </div>
+                                        <div class="tx-amount">
+                                            <span class="badge-status @statusClass">@payout.Status.ToString()</span>
+                                            <div class="tx-date mt-1">@payout.RequestedDate.ToString("dd MMM yyyy")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

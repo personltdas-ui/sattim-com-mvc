@@ -1,0 +1,330 @@
+﻿@model Sattim.Web.ViewModels.Product.ProductFormViewModel
+
+<style>
+    .form-section {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .form-section-title i {
+            color: #666;
+            font-size: 1rem;
+        }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-label-required::after {
+        content: ' *';
+        color: #dc2626;
+    }
+
+    .form-control,
+    .form-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+        width: 100%;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6;
+    }
+
+    .input-group {
+        display: flex;
+        width: 100%;
+    }
+
+    .input-group-text {
+        border: 1px solid #e5e5e5;
+        border-right: none;
+        border-radius: 0;
+        background-color: #fafafa;
+        color: #666;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .input-group .form-control {
+        border-left: none;
+    }
+
+        .input-group .form-control:focus {
+            border-left: 1px solid #1a1a1a;
+        }
+
+    .form-text {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.35rem;
+        display: block;
+        line-height: 1.4;
+    }
+
+    .form-help {
+        background-color: #f0f9ff;
+        border-left: 3px solid #0284c7;
+        padding: 0.75rem 1rem;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        color: #075985;
+        line-height: 1.5;
+    }
+
+        .form-help i {
+            margin-right: 0.5rem;
+        }
+
+    .text-danger {
+        color: #dc2626;
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .row {
+        margin: 0 -0.75rem;
+    }
+
+        .row > [class*="col-"] {
+            padding: 0 0.75rem;
+        }
+
+    .mb-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    .section-divider {
+        height: 1px;
+        background-color: #e5e5e5;
+        margin: 2rem 0;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .form-section
+
+    {
+        padding: 1.5rem;
+    }
+
+    .row {
+        margin: 0;
+    }
+
+        .row > [class*="col-"] {
+            padding: 0;
+        }
+
+    }
+</style>
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+<!-- Basic Information Section -->
+<div class="form-section">
+    <h3 class="form-section-title">
+        <i class="fas fa-info-circle"></i>
+        Temel Bilgiler
+    </h3>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label form-label-required">Ürün Başlığı</label>
+                <input asp-for="Title" class="form-control" placeholder="Ürününüz için açıklayıcı bir başlık girin" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+                <small class="form-text">Maksimum 200 karakter. Açık ve anlaşılır bir başlık kullanın.</small>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label form-label-required">Ürün Açıklaması</label>
+                <textarea asp-for="Description" class="form-control" rows="8"
+                          placeholder="Ürününüzün özelliklerini, durumunu ve önemli detayları açıklayın..."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+                <small class="form-text">Detaylı ve dürüst bir açıklama, alıcıların güvenini kazanmanıza yardımcı olur.</small>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label asp-for="CategoryId" class="form-label form-label-required">Kategori</label>
+                <select asp-for="CategoryId" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))" class="form-select">
+                    <option value="">Kategori Seçiniz</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                <small class="form-text">Ürününüze en uygun kategoriyi seçin.</small>
+            </div>
+
+            <div class="form-help">
+                <i class="fas fa-lightbulb"></i>
+                <strong>İpucu:</strong> Doğru kategori seçimi, ürününüzün daha fazla kişi tarafından bulunmasını sağlar.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pricing Section -->
+<div class="form-section">
+    <h3 class="form-section-title">
+        <i class="fas fa-tag"></i>
+        Fiyatlandırma
+    </h3>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label asp-for="StartingPrice" class="form-label form-label-required">Başlangıç Fiyatı</label>
+                <div class="input-group">
+                    <span class="input-group-text">₺</span>
+                    <input asp-for="StartingPrice" type="number" step="0.01" min="0" class="form-control" placeholder="0,00" />
+                </div>
+                <span asp-validation-for="StartingPrice" class="text-danger"></span>
+                <small class="form-text">Açık artırmanın başlangıç fiyatı.</small>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label asp-for="BidIncrement" class="form-label form-label-required">Minimum Artış Miktarı</label>
+                <div class="input-group">
+                    <span class="input-group-text">₺</span>
+                    <input asp-for="BidIncrement" type="number" step="0.01" min="0" class="form-control" placeholder="0,00" />
+                </div>
+                <span asp-validation-for="BidIncrement" class="text-danger"></span>
+                <small class="form-text">Her teklifin minimum artış tutarı.</small>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="mb-3">
+                <label asp-for="ReservePrice" class="form-label">Rezerv Fiyat (Opsiyonel)</label>
+                <div class="input-group">
+                    <span class="input-group-text">₺</span>
+                    <input asp-for="ReservePrice" type="number" step="0.01" min="0" class="form-control" placeholder="0,00" />
+                </div>
+                <span asp-validation-for="ReservePrice" class="text-danger"></span>
+                <small class="form-text">Bu fiyata ulaşılmazsa ürün satılmaz (gizli kalır).</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-help">
+        <i class="fas fa-info-circle"></i>
+        <strong>Fiyatlandırma İpuçları:</strong>
+        <ul style="margin: 0.5rem 0 0 1.25rem; padding: 0;">
+            <li style="margin-bottom: 0.25rem;">Başlangıç fiyatını düşük tutarak daha fazla ilgi çekebilirsiniz</li>
+            <li style="margin-bottom: 0.25rem;">Artış miktarı, ürün değerine göre mantıklı olmalıdır</li>
+            <li>Rezerv fiyat, minimum satış fiyatınızı korur</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Date & Time Section -->
+<div class="form-section">
+    <h3 class="form-section-title">
+        <i class="fas fa-calendar-alt"></i>
+        Tarih ve Saat
+    </h3>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="StartDate" class="form-label form-label-required">Başlangıç Tarihi</label>
+                <input asp-for="StartDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+                <small class="form-text">Açık artırmanın başlayacağı tarih ve saat.</small>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label asp-for="EndDate" class="form-label form-label-required">Bitiş Tarihi</label>
+                <input asp-for="EndDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+                <small class="form-text">Açık artırmanın sona ereceği tarih ve saat.</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-help">
+        <i class="fas fa-clock"></i>
+        <strong>Önemli:</strong> Açık artırma süresi en az 1 gün, en fazla 30 gün olmalıdır.
+        Bitiş tarihi başlangıç tarihinden sonra olmalıdır.
+    </div>
+</div>
+
+<script>
+    // Set minimum dates
+    document.addEventListener('DOMContentLoaded', function() {
+        const now = new Date();
+        const startInput = document.querySelector('input[name="StartDate"]');
+        const endInput = document.querySelector('input[name="EndDate"]');
+
+        if (startInput && endInput) {
+            // Format datetime for input
+            const formatDateTime = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${year}-${month}-${day}T${hours}:${minutes}`;
+            };
+
+            // Set minimum start date to now
+            startInput.min = formatDateTime(now);
+
+            // Update end date minimum when start date changes
+            startInput.addEventListener('change', function() {
+                const startDate = new Date(this.value);
+                const minEndDate = new Date(startDate);
+                minEndDate.setHours(minEndDate.getHours() + 24); // Minimum 1 day
+                endInput.min = formatDateTime(minEndDate);
+
+                // If current end date is before new minimum, update it
+                if (endInput.value && new Date(endInput.value) < minEndDate) {
+                    endInput.value = formatDateTime(minEndDate);
+                }
+            });
+
+            // Trigger change on page load if start date has value
+            if (startInput.value) {
+                startInput.dispatchEvent(new Event('change'));
+            }
+        }
+    });
+</script>

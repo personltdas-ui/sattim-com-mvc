@@ -1,0 +1,392 @@
+﻿@model Sattim.Web.ViewModels.Blog.BlogPostDetailViewModel
+@using Sattim.Web.ViewModels.Blog
+
+@{
+    ViewData["Title"] = Model.Title;
+    var commentForm = (PostCommentViewModel)ViewBag.CommentForm;
+}
+
+
+
+@section Styles {
+    <style>
+        
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        
+        .article-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1.3;
+            margin-bottom: 1.5rem;
+        }
+
+        
+        .article-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+        }
+
+        .author-meta-details {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+            .author-meta-details strong {
+                color: var(--primary-color);
+            }
+
+        /* Ana Resim */
+        .article-image {
+            width: 100%;
+            max-height: 450px;
+            object-fit: cover;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        
+        .article-content {
+            color: #333;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+            .article-content p {
+                margin-bottom: 1.5rem;
+            }
+
+            .article-content h1,
+            .article-content h2,
+            .article-content h3 {
+                font-weight: 600;
+                color: var(--primary-color);
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .article-content blockquote {
+                border-left: 3px solid var(--primary-color);
+                padding-left: 1.5rem;
+                margin: 1.5rem 0;
+                font-style: italic;
+                color: #666;
+            }
+
+        
+        .author-box {
+            display: flex;
+            gap: 1.5rem;
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .author-box-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+        }
+
+        .author-box-details h5 {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .author-box-details p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        
+        .comment-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+            .comment-item:last-of-type {
+                border-bottom: none;
+            }
+
+        .comment-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .comment-content strong {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .comment-content small {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .comment-content p {
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.7;
+            margin-top: 0.5rem;
+            margin-bottom: 0;
+        }
+
+       
+        .form-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+            .form-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: none;
+                outline: none;
+            }
+
+        .form-btn {
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+            .form-btn:hover {
+                background-color: var(--hover-color);
+                border-color: var(--hover-color);
+                color: white;
+            }
+
+        
+        .sidebar-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        
+        .alert-info-custom {
+            background-color: #f3f4f6;
+            border-left: 3px solid #6b7280;
+            color: #374151;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            border-radius: 0;
+        }
+
+            .alert-info-custom a {
+                color: var(--primary-color);
+                font-weight: 600;
+            }
+
+    </style>
+}
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Blog" asp-action="Index">Blog</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-lg-8">
+
+        <h1 class="article-title">@Model.Title</h1>
+
+        <div class="article-meta">
+            <img src="@(Model.Author.ProfileImageUrl ?? "/images/default-avatar.png")"
+                 class="author-avatar"
+                 alt="@Model.Author.FullName">
+            <div class="author-meta-details">
+                <div>Yazar: <strong>@Model.Author.FullName</strong></div>
+                <div>
+                    <span>Yayınlanma: @Model.PublishedDate.ToString("dd MMMM yyyy")</span> |
+                    <span>@Model.ViewCount Görüntülenme</span>
+                </div>
+            </div>
+        </div>
+
+        <img src="@(Model.FeaturedImage ?? "/images/placeholder-blog-large.png")"
+             class="article-image"
+             alt="@Model.Title">
+
+        <article class="article-content">
+            @Html.Raw(Model.Content)
+        </article>
+
+        <hr class="my-4">
+
+        <h3 class="section-title" style="border:none; margin-bottom: 1rem;">
+            <i class="fa-solid fa-user-edit"></i> Yazar Hakkında
+        </h3>
+        <div class="author-box">
+            <img src="@(Model.Author.ProfileImageUrl ?? "/images/default-avatar.png")"
+                 class="author-box-avatar"
+                 alt="@Model.Author.FullName">
+            <div class="author-box-details">
+                <h5>@Model.Author.FullName</h5>
+                <p>@Model.Author.Bio</p>
+            </div>
+        </div>
+
+        <h3 class="section-title" id="comments">
+            <i class="fa-solid fa-comments"></i> Yorumlar (@Model.Comments.Count)
+        </h3>
+
+        <div class="mb-4">
+            @foreach (var comment in Model.Comments.OrderBy(c => c.CreatedDate))
+            {
+                <div class="comment-item">
+                    <img src="@(comment.AuthorProfileImageUrl ?? "/images/default-avatar.png")"
+                         class="comment-avatar"
+                         alt="@comment.AuthorFullName">
+                    <div class="comment-content">
+                        <strong>@comment.AuthorFullName</strong>
+                        <small class="ms-2">@comment.CreatedDate.ToString("dd MMM, HH:mm")</small>
+                        <p>@Html.Raw(comment.Content.Replace("\n", "<br />"))</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <h3 class="section-title" style="border:none; margin-bottom: 1rem;">
+            <i class="fa-solid fa-pen-to-square"></i> Yorum Ekle
+        </h3>
+
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="form-card">
+                <form asp-action="PostComment" asp-route-slug="@Model.Slug" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="BlogPostId" value="@commentForm.BlogPostId" />
+
+                    <div class="mb-3">
+                        <label asp-for="@commentForm.Content" class="form-label">Yorumunuz</label>
+                        <textarea name="Content" class="form-input" rows="4"></textarea>
+                    </div>
+                    <button type="submit" class="form-btn">Yorumu Gönder</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div class="alert-info-custom">
+                Yorum yapabilmek için lütfen
+                <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path">giriş yapın</a>.
+            </div>
+        }
+
+    </div>
+
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 2rem;">
+            <div class="sidebar-card">
+                @await Html.PartialAsync("_TagCloudPartial",
+                (List<BlogTagCloudViewModel>)ViewBag.TagCloudData)
+            </div>
+        </div>
+    </div>
+
+</div>

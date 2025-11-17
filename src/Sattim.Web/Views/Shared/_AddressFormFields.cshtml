@@ -1,0 +1,45 @@
+﻿@model Sattim.Web.ViewModels.Profile.AddressViewModel
+
+<div class="form-group">
+    <label asp-for="Title" class="form-label required">Adres Başlığı</label>
+    <input asp-for="Title" class="form-control" placeholder="Örn: Ev Adresi, İş Adresi" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+    <small class="form-hint">Bu adres defterinizde görünecek başlık</small>
+</div>
+
+<div class="form-group">
+    <label asp-for="FullName" class="form-label required">Ad Soyad</label>
+    <input asp-for="FullName" class="form-control" placeholder="Alıcının tam adı" />
+    <span asp-validation-for="FullName" class="text-danger"></span>
+</div>
+
+<div class="form-group">
+    <label asp-for="Phone" class="form-label required">Telefon</label>
+    <input asp-for="Phone" class="form-control" placeholder="0 (5XX) XXX XX XX" />
+    <span asp-validation-for="Phone" class="text-danger"></span>
+    <small class="form-hint">Kargo şirketi sizi arayabilmek için telefon numaranız gereklidir</small>
+</div>
+
+<div class="form-group">
+    <label asp-for="Address" class="form-label required">Açık Adres</label>
+    <textarea asp-for="Address" class="form-control" rows="3"
+              placeholder="Mahalle, sokak, cadde, bina no, daire no gibi detaylı adres bilgisi"></textarea>
+    <span asp-validation-for="Address" class="text-danger"></span>
+</div>
+
+<div class="form-row">
+    <div class="form-group">
+        <label asp-for="City" class="form-label required">Şehir</label>
+        <input asp-for="City" class="form-control" placeholder="Şehir" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+
+    
+
+    <div class="form-group">
+        <label asp-for="PostalCode" class="form-label required">Posta Kodu</label>
+        <input asp-for="PostalCode" class="form-control" placeholder="34XXX" />
+        <span asp-validation-for="PostalCode" class="text-danger"></span>
+    </div>
+</div>
+

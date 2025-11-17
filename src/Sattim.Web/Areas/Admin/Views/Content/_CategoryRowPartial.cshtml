@@ -1,0 +1,50 @@
+﻿@model Sattim.Web.ViewModels.Category.CategoryViewModel
+@{
+    var currentLevel = (int)ViewData["Level"]!;
+    var indentation = (currentLevel * 20) + "px";
+}
+<tr data-category-id="@Model.Id" data-level="@currentLevel">
+    <td style="padding: 0.75rem 1rem;">
+        <span style="padding-left: @indentation; display: inline-flex; align-items: center; gap: 0.5rem;">
+            @if (Model.SubCategories != null && Model.SubCategories.Any())
+            {
+                <i class="fas fa-folder-open" style="color: #f59e0b; font-size: 0.9rem;"></i>
+            }
+            else
+            {
+                <i class="fas fa-folder" style="color: #9ca3af; font-size: 0.9rem;"></i>
+            }
+            <span style="color: #1a1a1a; font-weight: @(currentLevel == 0 ? "600" : "500"); font-size: 0.85rem;">
+                @Model.Name
+            </span>
+        </span>
+    </td>
+    <td style="padding: 0.75rem 1rem; color: #666; font-size: 0.8rem; font-family: 'Courier New', monospace;">
+        @Model.Slug
+    </td>
+    <td style="padding: 0.75rem 1rem; white-space: nowrap;">
+        <a asp-action="EditCategory" asp-route-id="@Model.Id"
+           class="action-btn btn-info"
+           title="Düzenle"
+           style="padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 500; border: 1px solid #0284c7; border-radius: 0; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; margin-right: 0.25rem; background-color: #0284c7; color: white; text-decoration: none;">
+            <i class="fas fa-edit"></i>
+        </a>
+        <form asp-action="DeleteCategory" asp-route-id="@Model.Id" method="post" style="display: inline;"
+              onsubmit="return confirm('@Model.Name kategorisini silmek istediğinizden emin misiniz?');">
+            @Html.AntiForgeryToken()
+            <button type="submit"
+                    class="action-btn btn-danger"
+                    title="Sil"
+                    style="padding: 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 500; border: 1px solid #dc2626; border-radius: 0; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap; background-color: #dc2626; color: white; cursor: pointer;">
+                <i class="fas fa-trash"></i>
+            </button>
+        </form>
+    </td>
+</tr>
+@if (Model.SubCategories != null && Model.SubCategories.Any())
+{
+    @foreach (var child in Model.SubCategories)
+    {
+        <partial name="_CategoryRowPartial" model="child" view-data='new ViewDataDictionary(ViewData) { ["Level"] = currentLevel + 1 }' />
+    }
+}

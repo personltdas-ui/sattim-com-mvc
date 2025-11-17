@@ -1,0 +1,490 @@
+﻿@model Sattim.Web.ViewModels.Management.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Gösterge Paneli";
+}
+
+<style>
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s;
+    }
+
+        .stat-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        letter-spacing: -0.5px;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f5f5f5;
+        font-size: 1.75rem;
+        color: #666;
+    }
+
+    /* Data Cards */
+    .data-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .data-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .data-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .data-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Table Styling */
+    .data-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .data-table thead th {
+            padding: 0.75rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 1px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .data-table a {
+            color: #1a1a1a;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+            .data-table a:hover {
+                color: #666;
+            }
+
+    /* Moderation Queue */
+    .moderation-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .moderation-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s;
+    }
+
+        .moderation-item:last-child {
+            border-bottom: none;
+        }
+
+        .moderation-item:hover {
+            background-color: #fafafa;
+        }
+
+        .moderation-item.urgent {
+            background-color: #fef2f2;
+            border-left: 3px solid #dc2626;
+        }
+
+        .moderation-item.warning {
+            background-color: #fefce8;
+            border-left: 3px solid #f59e0b;
+        }
+
+    .moderation-link {
+        color: #1a1a1a;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+        .moderation-link:hover {
+            color: #666;
+        }
+
+        .moderation-link i {
+            font-size: 0.9rem;
+            width: 20px;
+            text-align: center;
+        }
+
+    .moderation-badge {
+        background-color: #1a1a1a;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        min-width: 30px;
+        text-align: center;
+    }
+
+        .moderation-badge.urgent {
+            background-color: #dc2626;
+        }
+
+        .moderation-badge.warning {
+            background-color: #f59e0b;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+        font-size: 0.9rem;
+    }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.3;
+        }
+
+    /* Action Button */
+    .action-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .action-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    
+</style>
+
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a1a1a; margin: 0;">Hoş Geldiniz</h2>
+        <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">
+            Sistemin genel durumunu buradan takip edebilirsiniz.
+        </p>
+    </div>
+    <a href="#" class="action-btn d-none d-md-flex">
+        <i class="fas fa-download"></i>Rapor İndir
+    </a>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-content">
+            <div class="stat-label">Toplam Kullanıcı</div>
+            <div class="stat-value">@Model.TotalUsers.ToString("N0")</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-content">
+            <div class="stat-label">Toplam Satış Hacmi</div>
+            <div class="stat-value">@Model.TotalSalesVolume.ToString("C0")</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-content">
+            <div class="stat-label">Kazanılan Komisyon</div>
+            <div class="stat-value">@Model.TotalCommissionsEarned.ToString("C0")</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-wallet"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-content">
+            <div class="stat-label">Aktif Müzayedeler</div>
+            <div class="stat-value">@Model.TotalActiveAuctions.ToString("N0")</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-gavel"></i>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column -->
+    <div class="col-lg-7">
+        <!-- Recent Sales -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3 class="data-card-title">Son Satışlar</h3>
+                <a href="#" style="font-size: 0.85rem; color: #666; text-decoration: none;">Tümünü Gör <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+            <div class="data-card-body">
+                @if (Model.RecentSales != null && Model.RecentSales.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Ürün Adı</th>
+                                    <th>Tutar</th>
+                                    <th>Tarih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var sale in Model.RecentSales)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="Product" asp-action="Detail" asp-area="" asp-route-id="@sale.ProductId">
+                                                @sale.ProductName
+                                            </a>
+                                        </td>
+                                        <td>@sale.Amount.ToString("C2")</td>
+                                        <td>@sale.SaleDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-shopping-cart"></i>
+                        <div>Henüz hiç satış yapılmamış.</div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3 class="data-card-title">Son Kayıt Olan Kullanıcılar</h3>
+                <a href="#" style="font-size: 0.85rem; color: #666; text-decoration: none;">Tümünü Gör <i class="fas fa-arrow-right ms-1"></i></a>
+            </div>
+            <div class="data-card-body">
+                @if (Model.RecentUsers != null && Model.RecentUsers.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Adı Soyadı</th>
+                                    <th>E-posta</th>
+                                    <th>Kayıt Tarihi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var user in Model.RecentUsers)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-controller="UserManagement" asp-action="Detail" asp-area="Admin" asp-route-id="@user.UserId">
+                                                @user.FullName
+                                            </a>
+                                        </td>
+                                        <td style="color: #666; font-size: 0.8rem;">@user.FullName</td>
+                                        <td>@user.RegisteredDate.ToString("dd.MM.yyyy")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-user-plus"></i>
+                        <div>Henüz hiç kullanıcı kayıt olmamış.</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-5">
+        <!-- Moderation Queue -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3 class="data-card-title">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Moderasyon Kuyruğu
+                </h3>
+            </div>
+            <ul class="moderation-list">
+                <li class="moderation-item @(Model.PendingDisputes > 0 ? "urgent" : "")">
+                    <a asp-controller="Moderation" asp-action="Disputes" asp-area="Admin" class="moderation-link">
+                        <i class="fas fa-balance-scale-right"></i>
+                        <span>Bekleyen İhtilaflar</span>
+                    </a>
+                    <span class="moderation-badge @(Model.PendingDisputes > 0 ? "urgent" : "")">
+                        @Model.PendingDisputes
+                    </span>
+                </li>
+
+                <li class="moderation-item @(Model.PendingReports > 0 ? "warning" : "")">
+                    <a asp-controller="Moderation" asp-action="Reports" asp-area="Admin" class="moderation-link">
+                        <i class="fas fa-flag"></i>
+                        <span>Bekleyen Şikayetler</span>
+                    </a>
+                    <span class="moderation-badge @(Model.PendingReports > 0 ? "warning" : "")">
+                        @Model.PendingReports
+                    </span>
+                </li>
+
+                <li class="moderation-item">
+                    <a asp-controller="Moderation" asp-action="Products" asp-area="Admin" class="moderation-link">
+                        <i class="fas fa-box-open"></i>
+                        <span>Bekleyen Ürünler</span>
+                    </a>
+                    <span class="moderation-badge">@Model.PendingProducts</span>
+                </li>
+
+                <li class="moderation-item">
+                    <a asp-controller="Moderation" asp-action="Comments" asp-area="Admin" class="moderation-link">
+                        <i class="fas fa-comments"></i>
+                        <span>Bekleyen Yorumlar</span>
+                    </a>
+                    <span class="moderation-badge">@Model.PendingComments</span>
+                </li>
+
+                <li class="moderation-item">
+                    <a asp-controller="Payment" asp-action="Payouts" asp-area="Admin" class="moderation-link">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Bekleyen Ödeme Talepleri</span>
+                    </a>
+                    <span class="moderation-badge">@Model.PendingPayouts</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="data-card">
+            <div class="data-card-header">
+                <h3 class="data-card-title">Hızlı İşlemler</h3>
+            </div>
+            <div class="data-card-body">
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <a asp-controller="Content" asp-action="Categories" asp-area="Admin"
+                       style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid #e5e5e5; text-decoration: none; color: #1a1a1a; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='#1a1a1a'; this.style.backgroundColor='#fafafa'"
+                       onmouseout="this.style.borderColor='#e5e5e5'; this.style.backgroundColor='transparent'">
+                        <i class="fas fa-sitemap" style="width: 20px; text-align: center; color: #666;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; font-size: 0.9rem;">Kategori Yönetimi</div>
+                            <div style="font-size: 0.75rem; color: #999;">Kategorileri düzenle</div>
+                        </div>
+                        <i class="fas fa-arrow-right" style="color: #ccc; font-size: 0.75rem;"></i>
+                    </a>
+
+                    <a asp-controller="Content" asp-action="Banners" asp-area="Admin"
+                       style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid #e5e5e5; text-decoration: none; color: #1a1a1a; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='#1a1a1a'; this.style.backgroundColor='#fafafa'"
+                       onmouseout="this.style.borderColor='#e5e5e5'; this.style.backgroundColor='transparent'">
+                        <i class="fas fa-images" style="width: 20px; text-align: center; color: #666;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; font-size: 0.9rem;">Banner Yönetimi</div>
+                            <div style="font-size: 0.75rem; color: #999;">Ana sayfa bannerlarını düzenle</div>
+                        </div>
+                        <i class="fas fa-arrow-right" style="color: #ccc; font-size: 0.75rem;"></i>
+                    </a>
+
+                    <a asp-controller="Content" asp-action="SiteSettings" asp-area="Admin"
+                       style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border: 1px solid #e5e5e5; text-decoration: none; color: #1a1a1a; transition: all 0.2s;"
+                       onmouseover="this.style.borderColor='#1a1a1a'; this.style.backgroundColor='#fafafa'"
+                       onmouseout="this.style.borderColor='#e5e5e5'; this.style.backgroundColor='transparent'">
+                        <i class="fas fa-cogs" style="width: 20px; text-align: center; color: #666;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500; font-size: 0.9rem;">Site Ayarları</div>
+                            <div style="font-size: 0.75rem; color: #999;">Genel ayarları düzenle</div>
+                        </div>
+                        <i class="fas fa-arrow-right" style="color: #ccc; font-size: 0.75rem;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

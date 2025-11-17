@@ -1,0 +1,368 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Blog.BlogSummaryViewModel>
+@using Sattim.Web.ViewModels.Blog
+
+@{
+    ViewData["Title"] = "Blog";
+    int currentPage = (int)ViewBag.CurrentPage;
+    int totalPages = (int)ViewBag.TotalPages;
+    string? currentTag = ViewBag.CurrentTag as string;
+}
+
+
+
+@section Styles {
+    <style>
+        
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 2.5rem; 
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section-title-subtitle {
+            font-weight: 400;
+            color: #666;
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+       
+        .blog-post-card {
+            display: flex;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: all 0.2s;
+        }
+
+            .blog-post-card:hover {
+                border-color: var(--primary-color);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            }
+
+        .blog-post-image {
+            width: 300px; 
+            flex-shrink: 0;
+            position: relative;
+        }
+
+            .blog-post-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .blog-post-image a {
+                display: block;
+                height: 100%;
+            }
+
+        .blog-post-content {
+            flex: 1;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-post-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+            .blog-post-title a {
+                color: var(--primary-color);
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .blog-post-title a:hover {
+                    color: var(--hover-color);
+                }
+
+        .blog-post-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+            .blog-post-meta span {
+                margin-right: 0.5rem;
+            }
+
+        .blog-post-excerpt {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            flex-grow: 1;
+        }
+
+        .read-more-link {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .read-more-link:hover {
+                color: var(--hover-color);
+                text-decoration: underline;
+            }
+
+       
+        .pagination-modern {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            gap: 0.5rem;
+        }
+
+            .pagination-modern .page-item {
+            }
+
+            .pagination-modern .page-link {
+                display: block;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: #666;
+                background-color: #fff;
+                border: 1px solid var(--border-color);
+                text-decoration: none;
+                transition: all 0.2s;
+                border-radius: 0; 
+            }
+
+                .pagination-modern .page-link:hover {
+                    background-color: var(--bg-light);
+                    border-color: var(--primary-color);
+                    color: var(--primary-color);
+                }
+
+            .pagination-modern .page-item.active .page-link {
+                background-color: var(--primary-color);
+                border-color: var(--primary-color);
+                color: #fff;
+                cursor: default;
+            }
+
+            .pagination-modern .page-item.disabled .page-link {
+                background-color: var(--bg-light);
+                color: #ccc;
+                border-color: var(--border-color);
+                cursor: not-allowed;
+            }
+
+        
+        .sidebar-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+
+        
+        .alert-info-custom {
+            background-color: #f3f4f6;
+            border-left: 3px solid #6b7280;
+            color: #374151;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-radius: 0;
+        }
+
+        
+        @@media (max-width: 767px) {
+            .blog-post-card {
+                flex-direction: column;
+            }
+
+            .blog-post-image {
+                width: 100%;
+                height: 200px; 
+            }
+
+            .blog-post-content {
+                padding: 1.5rem;
+            }
+
+            .section-title {
+                margin-bottom: 1.5rem;
+                font-size: 1.25rem;
+            }
+
+            .section-title-subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+}
+
+<!-- 1. Breadcrumb -->
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Blog</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- 2. Ana İçerik Alanı -->
+    <div class="col-lg-8">
+
+        <h1 class="section-title">
+            <i class="fa-solid fa-newspaper"></i>
+            @if (!string.IsNullOrEmpty(currentTag))
+            {
+                <span class="section-title-subtitle">Etiket:</span>
+                <span>@currentTag</span>
+            }
+            else
+            {
+                @ViewData["Title"]
+            }
+        </h1>
+
+        @if (!Model.Any())
+        {
+            <div class="alert-info-custom">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Bu kritere uygun yazı bulunamadı.</span>
+            </div>
+        }
+
+        @foreach (var post in Model)
+        {
+            <!-- 3. Blog Yazı Kartı -->
+            <article class="blog-post-card">
+                <div class="blog-post-image">
+                    <a asp-action="Details" asp-route-slug="@post.Slug">
+                        <img src="@(post.FeaturedImage ?? "/images/placeholder-blog.png")"
+                             alt="@post.Title">
+                    </a>
+                </div>
+                <div class="blog-post-content">
+                    <h3 class="blog-post-title">
+                        <a asp-action="Details" asp-route-slug="@post.Slug">
+                            @post.Title
+                        </a>
+                    </h3>
+                    <div class="blog-post-meta">
+                        <span><i class="fa-solid fa-user fa-fw me-1"></i>@post.AuthorName</span>
+                        <span><i class="fa-solid fa-calendar-alt fa-fw me-1"></i>@post.PublishedDate.ToString("dd MMMM yyyy")</span>
+                    </div>
+                    <p class="blog-post-excerpt">@post.Excerpt</p>
+                    <a asp-action="Details" asp-route-slug="@post.Slug" class="read-more-link">
+                        Devamını Oku &rarr;
+                    </a>
+                </div>
+            </article>
+        }
+
+        <!-- 4. Modern Sayfalama -->
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination-modern">
+                    
+                    @if (currentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(currentPage - 1)"
+                               asp-route-tag="@currentTag">&laquo;</a>
+                        </li>
+                    }
+
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        <li class="page-item @(i == currentPage ? "active" : "")">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@i"
+                               asp-route-tag="@currentTag">@i</a>
+                        </li>
+                    }
+
+                    
+                    @if (currentPage < totalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link"
+                               asp-action="Index"
+                               asp-route-page="@(currentPage + 1)"
+                               asp-route-tag="@currentTag">&raquo;</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+
+    </div>
+
+    <!-- 5. Kenar Çubuğu (Sidebar) -->
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 2rem;">
+            <!-- Modern Sidebar Kartı -->
+            <div class="sidebar-card">
+                @await Html.PartialAsync("_TagCloudPartial", (List<BlogTagCloudViewModel>)ViewBag.TagCloudData)
+            </div>
+        </div>
+    </div>
+
+</div>

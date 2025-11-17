@@ -1,0 +1,400 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Content.BlogPostSummaryViewModel>
+@using Sattim.Web.Models.Blog
+@{
+    ViewData["Title"] = "Blog Yazıları Yönetimi";
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Blog Card */
+    .blog-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .blog-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .blog-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .posts-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+        margin-right: 0.25rem;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background-color: #1a1a1a;
+        border-color: #1a1a1a;
+        color: white;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-info {
+        background-color: #0284c7;
+        border-color: #0284c7;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+    .btn-danger {
+        background-color: #dc2626;
+        border-color: #dc2626;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Blog Table */
+    .blog-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .blog-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .blog-table tbody td {
+            padding: 1rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .blog-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    /* Blog Title Link */
+    .blog-title-link {
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+        display: block;
+        max-width: 400px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+        .blog-title-link:hover {
+            color: #666;
+        }
+
+    /* Author Name */
+    .author-name {
+        color: #666;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .author-name i {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-published {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-draft {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-archived {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    /* Date Display */
+    .date-display {
+        color: #666;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .date-empty {
+        color: #999;
+        font-style: italic;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem 1.5rem;
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+        font-size: 0.8rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+    }
+
+        .stat-item i {
+            font-size: 0.85rem;
+        }
+
+        .stat-item strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Blog yazılarınızı yönetin. Yeni yazı ekleyin, mevcut yazıları düzenleyin ve yayın durumlarını kontrol edin.
+</p>
+
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a1a1a; margin: 0;">Blog Yazıları</h2>
+        <p style="color: #666; font-size: 0.85rem; margin: 0.25rem 0 0 0;">
+            Toplam @Model.Count() blog yazısı bulunmaktadır.
+        </p>
+    </div>
+    <a asp-action="CreateBlogPost" class="btn-primary">
+        <i class="fas fa-plus"></i>Yeni Yazı Ekle
+    </a>
+</div>
+
+<!-- Blog Table -->
+<div class="blog-card">
+    <div class="blog-card-header">
+        <h3 class="blog-card-title">Tüm Yazılar</h3>
+        <span class="posts-count">@Model.Count() yazı</span>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+                <span>Yayında: <strong>@Model.Count(p => p.Status == BlogPostStatus.Published)</strong></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-edit" style="color: #f59e0b;"></i>
+                <span>Taslak: <strong>@Model.Count(p => p.Status == BlogPostStatus.Draft)</strong></span>
+            </div>
+            @if (Model.Any(p => p.Status == BlogPostStatus.Archived))
+            {
+                <div class="stat-item">
+                    <i class="fas fa-archive" style="color: #6b7280;"></i>
+                    <span>Arşiv: <strong>@Model.Count(p => p.Status == BlogPostStatus.Archived)</strong></span>
+                </div>
+            }
+        </div>
+    }
+
+    <div style="overflow-x: auto;">
+        @if (Model != null && Model.Any())
+        {
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th>Başlık</th>
+                        <th>Yazar</th>
+                        <th>Durum</th>
+                        <th>Yayın Tarihi</th>
+                        <th>Oluşturulma</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var post in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="EditBlogPost"
+                                   asp-route-id="@post.Id"
+                                   class="blog-title-link"
+                                   title="@post.Title">
+                                    @post.Title
+                                </a>
+                            </td>
+                            <td>
+                                <div class="author-name">
+                                    <i class="fas fa-user-circle"></i>
+                                    <span>@post.AuthorName</span>
+                                </div>
+                            </td>
+                            <td>
+                                @{
+                                    var statusClass = "status-archived";
+                                    if (post.Status == BlogPostStatus.Published)
+                                    {
+                                        statusClass = "status-published";
+                                    }
+                                    else if (post.Status == BlogPostStatus.Draft)
+                                    {
+                                        statusClass = "status-draft";
+                                    }
+                                }
+                            <span class="status-badge @statusClass">
+                                @(post.Status == BlogPostStatus.Published ? "Yayında" :
+                                                            post.Status == BlogPostStatus.Draft ? "Taslak" :
+                                                            "Arşivlendi")
+                        </span>
+                    </td>
+                    <td>
+                        @if (post.PublishedDate.HasValue)
+                                {
+                                    <div class="date-display">
+                                        <i class="fas fa-calendar-alt" style="font-size: 0.7rem; margin-right: 0.25rem;"></i>
+                                        @post.PublishedDate.Value.ToString("dd.MM.yyyy")
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="date-empty">—</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="date-display">
+                                    @post.CreatedDate.ToString("dd.MM.yyyy")
+                                </div>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <a asp-action="EditBlogPost"
+                                   asp-route-id="@post.Id"
+                                   class="action-btn btn-info"
+                                   title="Düzenle">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form asp-action="DeleteBlogPost"
+                                      asp-route-id="@post.Id"
+                                      method="post"
+                                      style="display: inline;"
+                                      onsubmit="return confirm('@post.Title yazısını silmek istediğinizden emin misiniz?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit"
+                                            class="action-btn btn-danger"
+                                            title="Sil">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-blog"></i>
+                <div class="empty-state-title">Blog Yazısı Bulunamadı</div>
+                <div>Henüz hiç blog yazısı eklenmemiş. Yeni yazı eklemek için yukarıdaki butonu kullanın.</div>
+            </div>
+        }
+    </div>
+</div>

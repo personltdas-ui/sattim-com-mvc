@@ -1,0 +1,450 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Moderation.DisputeViewModel>
+@{
+    ViewData["Title"] = "Bekleyen İhtilaflar";
+}
+
+<style>
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Alert Banner */
+    .alert-banner {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: white;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        border-left: 4px solid #7f1d1d;
+    }
+
+    .alert-banner-icon {
+        font-size: 2rem;
+        animation: pulse 2s infinite;
+    }
+
+   
+
+    .alert-banner-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 0.35rem 0;
+    }
+
+    .alert-banner-content p {
+        margin: 0;
+        font-size: 0.85rem;
+        opacity: 0.9;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1;
+    }
+
+        .stat-value.critical {
+            color: #dc2626;
+        }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    /* Disputes Table */
+    .disputes-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .disputes-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fef2f2;
+    }
+
+    .disputes-table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #991b1b;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .disputes-count {
+        font-size: 0.85rem;
+        color: white;
+        background-color: #dc2626;
+        padding: 0.35rem 0.75rem;
+        font-weight: 600;
+    }
+
+    .disputes-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .disputes-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .disputes-table tbody td {
+            padding: 1rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .disputes-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+            .disputes-table tbody tr:hover {
+                background-color: #fef2f2;
+            }
+
+            .disputes-table tbody tr.urgent {
+                background-color: #fee2e2;
+                border-left: 3px solid #dc2626;
+            }
+
+    .product-title {
+        font-weight: 500;
+        color: #1a1a1a;
+        max-width: 250px;
+    }
+
+    .user-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .amount-value {
+        font-weight: 600;
+        color: #dc2626;
+        font-size: 0.95rem;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-review {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-resolved {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    /* Action Button */
+    .btn-review {
+        background-color: #f59e0b;
+        border: 1px solid #f59e0b;
+        color: white;
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+        .btn-review:hover {
+            background-color: #d97706;
+            border-color: #d97706;
+            color: white;
+        }
+
+    /* Priority Indicator */
+    .priority-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 0.5rem;
+        animation: blink 2s infinite;
+    }
+
+    .priority-high {
+        background-color: #dc2626;
+    }
+
+    .priority-medium {
+        background-color: #f59e0b;
+    }
+
+    
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    
+</style>
+
+<!-- Alert Banner -->
+@if (Model != null && Model.Any())
+{
+    <div class="alert-banner">
+        <div class="alert-banner-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-banner-content">
+            <h3>Acil Müdahale Gerekiyor!</h3>
+            <p>Alıcı ve satıcılar arasında çözülemeyen anlaşmazlıklar admin kararı bekliyor. Lütfen en kısa sürede inceleyin.</p>
+        </div>
+    </div>
+}
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Alıcı ve satıcılar arasında çözülemeyen sipariş anlaşmazlıklarını inceleyin. Her ihtilaf için tarafların argümanlarını değerlendirin ve adil bir karar verin.
+</p>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-item">
+        <div class="stat-value critical">@Model.Count()</div>
+        <div class="stat-label">Bekleyen İhtilaf</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(d => d.CreatedDate >= DateTime.Now.AddDays(-7)).Count()</div>
+        <div class="stat-label">Son 7 Gün</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(d => d.CreatedDate >= DateTime.Now.AddDays(-3)).Count()</div>
+        <div class="stat-label">Son 3 Gün (Acil)</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Sum(d => d.Amount).ToString("C0")</div>
+        <div class="stat-label">Toplam Tutar</div>
+    </div>
+</div>
+
+<!-- Disputes Table -->
+<div class="disputes-table-card">
+    <div class="disputes-table-header">
+        <h3 class="disputes-table-title">
+            <i class="fas fa-balance-scale-right"></i>
+            İhtilaf Kuyruğu
+        </h3>
+        <span class="disputes-count">@Model.Count() ihtilaf</span>
+    </div>
+
+    <div class="disputes-table-wrapper">
+        @if (Model != null && Model.Any())
+        {
+            <table class="disputes-table" id="disputesTable">
+                <thead>
+                    <tr>
+                        <th>Öncelik</th>
+                        <th>ID</th>
+                        <th>Ürün Adı</th>
+                        <th>Alıcı</th>
+                        <th>Satıcı</th>
+                        <th>Tutar</th>
+                        <th>Tarih</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var dispute in Model)
+                    {
+                        var isUrgent = (DateTime.Now - dispute.CreatedDate).Days >= 3;
+                        var isCritical = (DateTime.Now - dispute.CreatedDate).Days >= 7;
+
+                        <tr class="@(isCritical ? "urgent" : "")">
+                            <td style="text-align: center;">
+                                @if (isCritical)
+                                {
+                                    <span class="priority-indicator priority-high" title="Kritik - 7+ gün"></span>
+                                }
+                                else if (isUrgent)
+                                {
+                                    <span class="priority-indicator priority-medium" title="Acil - 3+ gün"></span>
+                                }
+                                else
+                                {
+                                    <span style="color: #ccc;">-</span>
+                                }
+                            </td>
+                            <td style="font-weight: 600; color: #666;">#@dispute.DisputeId</td>
+                            <td>
+                                <div class="product-title">@dispute.ProductTitle</div>
+                            </td>
+                            <td>
+                                <div class="user-name">
+                                    <div class="user-avatar">
+                                        @dispute.BuyerFullName.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <span>@dispute.BuyerFullName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="user-name">
+                                    <div class="user-avatar">
+                                        @dispute.SellerFullName.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <span>@dispute.SellerFullName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="amount-value">@dispute.Amount.ToString("C2")</div>
+                            </td>
+                            <td style="color: #666; font-size: 0.8rem;">
+                                @dispute.CreatedDate.ToString("dd.MM.yyyy")
+                                <div style="font-size: 0.75rem; color: #999;">
+                                    @dispute.CreatedDate.ToString("HH:mm")
+                                </div>
+                                @if ((DateTime.Now - dispute.CreatedDate).Days > 0)
+                                {
+                                    <div style="font-size: 0.7rem; color: #dc2626; margin-top: 0.15rem;">
+                                        @((DateTime.Now - dispute.CreatedDate).Days) gün önce
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                @switch (dispute.Status)
+                                {
+                                    case Sattim.Web.Models.Dispute.DisputeStatus.Open:
+                                        <span class="status-badge status-pending">Beklemede</span>
+                                        break;
+                                    case Sattim.Web.Models.Dispute.DisputeStatus.UnderReview:
+                                        <span class="status-badge status-review">İnceleniyor</span>
+                                        break;
+                                    case Sattim.Web.Models.Dispute.DisputeStatus.Resolved:
+                                        <span class="status-badge status-resolved">Çözüldü</span>
+                                        break;
+                                    default:
+                                        <span class="status-badge status-pending">@dispute.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <a asp-action="DisputeDetail" asp-route-id="@dispute.DisputeId" class="btn-review">
+                                    <i class="fas fa-balance-scale-right"></i>
+                                    İncele ve Karar Ver
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <div class="empty-state-title">Bekleyen İhtilaf Yok</div>
+                <div>Tüm anlaşmazlıklar çözülmüş durumda.</div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-hide success/error messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Highlight urgent disputes
+        document.addEventListener('DOMContentLoaded', function() {
+            const urgentRows = document.querySelectorAll('tr.urgent');
+            if (urgentRows.length > 0) {
+                console.log(`⚠️ ${urgentRows.length} kritik ihtilaf mevcut!`);
+            }
+        });
+    </script>
+}

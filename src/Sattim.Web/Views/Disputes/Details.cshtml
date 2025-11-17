@@ -1,0 +1,408 @@
+﻿@model Sattim.Web.ViewModels.Dispute.DisputeDetailViewModel
+@using Sattim.Web.Models.Dispute
+@using Sattim.Web.Models.User
+@using Sattim.Web.ViewModels.Dispute
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "İhtilaf Detayı";
+    var messageForm = (AddDisputeMessageViewModel)ViewBag.MessageForm;
+    var currentUserId = UserManager.GetUserId(User);
+
+    
+    string statusClass = Model.Status switch
+    {
+        DisputeStatus.Open => "badge-status-pending",
+        DisputeStatus.UnderReview => "badge-status-approved",
+        DisputeStatus.Resolved => "badge-status-completed",
+        DisputeStatus.Closed => "badge-status-secondary",
+        _ => "badge-status-secondary"
+    };
+}
+
+
+
+@section Styles {
+    <style>
+        
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        
+        .profile-content-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+       
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+            .profile-header .section-title {
+                flex-grow: 1;
+            }
+
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        
+        .btn-outline-modern {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: #666;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 0;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-top: 0.25rem;
+        }
+
+            .btn-outline-modern:hover {
+                background: var(--bg-light);
+                border-color: var(--primary-color);
+                color: var(--primary-color);
+            }
+
+        
+        .dispute-summary-card {
+            background-color: var(--bg-light);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .dispute-summary-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .dispute-summary-details {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+            .dispute-summary-details strong {
+                color: var(--primary-color);
+            }
+
+        
+        .badge-status {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            display: inline-flex;
+            gap: 0.4rem;
+            border-radius: 4px;
+        }
+
+        .badge-status-pending {
+            background-color: #f59e0b;
+        }
+
+        .badge-status-approved {
+            background-color: #3b82f6;
+        }
+
+        .badge-status-completed {
+            background-color: #22c55e;
+        }
+
+        .badge-status-secondary {
+            background-color: #666;
+        }
+
+        
+        .chat-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .chat-body {
+            padding: 1.5rem;
+            max-height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        
+        .chat-message-row {
+            display: flex;
+            gap: 0.75rem;
+            max-width: 80%;
+        }
+
+            .chat-message-row.my-message {
+                margin-left: auto;
+                flex-direction: row-reverse;
+            }
+
+            .chat-message-row.other-message {
+                margin-right: auto;
+            }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-top: auto; 
+        }
+
+        .chat-bubble {
+            padding: 0.75rem 1rem;
+            border-radius: 8px; 
+            line-height: 1.6;
+        }
+
+            .chat-bubble strong {
+                display: block;
+                font-size: 0.85rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .chat-bubble p {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .chat-bubble small {
+                font-size: 0.75rem;
+                opacity: 0.8;
+            }
+
+        
+        .chat-bubble-other {
+            background: var(--bg-light);
+            border: 1px solid var(--border-color);
+            color: var(--primary-color);
+        }
+
+        .chat-bubble-mine {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .chat-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-light);
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-input { 
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 0.75rem 1rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            flex-grow: 1;
+            resize: vertical;
+        }
+
+            .form-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: none;
+                outline: none;
+            }
+
+        .form-btn { 
+            background-color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 0;
+            transition: all 0.2s;
+            cursor: pointer;
+            flex-shrink: 0;
+            height: auto;
+        }
+
+            .form-btn:hover {
+                background-color: var(--hover-color);
+                border-color: var(--hover-color);
+            }
+
+       
+        .alert-info-custom {
+            background-color: var(--bg-light);
+            color: #374151;
+            padding: 1rem;
+            font-size: 0.9rem;
+            border-radius: 0;
+            text-align: center;
+        }
+
+    </style>
+}
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="UserProfile" asp-action="Index">Profilim</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Disputes" asp-action="Index">İhtilaflarım</a></li>
+        <li class="breadcrumb-item active" aria-current="page">İhtilaf Detayı</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-3">
+        @await Html.PartialAsync("_ProfileNav")
+    </div>
+
+    <div class="col-md-9">
+        <div class="profile-content-card">
+
+            <div class="profile-header">
+                <h1 class="section-title">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    @ViewData["Title"]
+                </h1>
+                <a asp-action="Index" class="btn-outline-modern">&larr; Tüm İhtilaflara Dön</a>
+            </div>
+
+            <div class="dispute-summary-card">
+                <h5 class="dispute-summary-title">@Model.ProductTitle</h5>
+                <div class="dispute-summary-details">
+                    <div>
+                        <strong>Durum:</strong> <span class="badge-status @statusClass">@Model.Status.ToString()</span>
+                    </div>
+                    <div class="mt-2">
+                        <strong>Sebep:</strong> @Model.Reason.ToString()
+                    </div>
+                    <div class="mt-2">
+                        <small>Açılma Tarihi: @Model.CreatedDate.ToString("dd MMMM yyyy")</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-card">
+                <div class="chat-header">Mesaj Geçmişi</div>
+
+                <div class="chat-body">
+                    @foreach (var msg in Model.Messages.OrderBy(m => m.SentDate))
+                    {
+                        bool isMyMessage = msg.SenderId == currentUserId;
+                        string rowClass = isMyMessage ? "my-message" : "other-message";
+                        string bubbleClass = isMyMessage ? "chat-bubble-mine" : "chat-bubble-other";
+
+                        <div class="chat-message-row @rowClass">
+                            <img src="@(msg.SenderProfileImageUrl ?? "/images/default-avatar.png")"
+                                 class="chat-avatar"
+                                 alt="@msg.SenderFullName">
+
+                            <div class="chat-bubble @bubbleClass">
+                                <strong>@(isMyMessage ? "Siz" : msg.SenderFullName)</strong>
+                                <p>@Html.Raw(msg.Message.Replace("\n", "<br />"))</p>
+                                <small>@msg.SentDate.ToString("dd MMM, HH:mm")</small>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.Status == DisputeStatus.Open || Model.Status == DisputeStatus.UnderReview)
+                {
+                    <div class="chat-footer">
+                        <form asp-action="AddMessage" method="post" class="chat-form">
+                            @Html.AntiForgeryToken()
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" style="border-radius: 0; width: 100%;"></div>
+
+                            <input type="hidden" name="DisputeId" value="@messageForm.DisputeId" />
+
+                            <textarea name="Message" class="form-input" rows="3"
+                                  placeholder="Mesajınızı buraya yazın..." required></textarea>
+                            <button typeG="submit" class="form-btn">Gönder</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="chat-footer">
+                        <div class="alert-info-custom mb-0">
+                            Bu ihtilaf (@Model.Status.ToString()) kapandığı için daha fazla mesaj gönderilemez.
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

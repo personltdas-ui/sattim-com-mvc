@@ -1,0 +1,328 @@
+﻿@model Sattim.Web.ViewModels.Content.FaqFormViewModel
+@using Sattim.Web.Models.UI
+@{
+    ViewData["Title"] = "Yeni SSS Ekle";
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .form-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 2rem 1.5rem;
+    }
+
+    /* Form Groups */
+    .form-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+        align-items: start;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        padding-top: 0.6rem;
+    }
+
+    .form-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Form Controls */
+    .form-control,
+    .form-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+    textarea.form-control {
+        min-height: 200px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    input[type="number"].form-control {
+        max-width: 200px;
+    }
+
+    /* Checkbox */
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e5e5e5;
+        border-radius: 0;
+        cursor: pointer;
+        margin: 0;
+    }
+
+        .form-check-input:checked {
+            background-color: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+
+        .form-check-input:focus {
+            box-shadow: none;
+            border-color: #1a1a1a;
+        }
+
+    .form-check-label {
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        font-weight: 500;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    /* Validation */
+    .text-danger {
+        font-size: 0.8rem;
+        color: #dc2626;
+        font-weight: 500;
+    }
+
+    .validation-summary {
+        background-color: #fef2f2;
+        border-left: 3px solid #dc2626;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .validation-summary li {
+            color: #991b1b;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e5e5;
+        margin-top: 2rem;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-secondary {
+        background-color: white;
+        border: 1px solid #e5e5e5;
+        color: #666;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #fafafa;
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+    /* Helper Text */
+    .form-help {
+        font-size: 0.8rem;
+        color: #999;
+        line-height: 1.5;
+    }
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Sıkça Sorulan Sorular (SSS) bölümüne yeni bir soru-cevap çifti ekleyin. Her soru bir kategoriye atanmalı ve uygun sıralamaya sahip olmalıdır.
+</p>
+
+<!-- Form Card -->
+<div class="form-card">
+    <div class="form-card-header">
+        <h3 class="form-card-title">SSS Bilgileri</h3>
+    </div>
+    <div class="form-card-body">
+        <form asp-action="CreateFAQ" method="post">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="validation-summary">
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
+
+            <!-- Kategori -->
+            <div class="form-row">
+                <label asp-for="Category" class="form-label">Kategori *</label>
+                <div class="form-input-wrapper">
+                    <select asp-for="Category"
+                            asp-items="@Html.GetEnumSelectList<FAQCategory>()"
+                            class="form-select">
+                        <option value="">-- Kategori Seçin --</option>
+                    </select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                    <span class="form-help">SSS'nin hangi kategoriye ait olduğunu seçin</span>
+                </div>
+            </div>
+
+            <!-- Soru -->
+            <div class="form-row">
+                <label asp-for="Question" class="form-label">Soru *</label>
+                <div class="form-input-wrapper">
+                    <input asp-for="Question"
+                           class="form-control"
+                           placeholder="Örn: Ürün iadesi nasıl yapılır?" />
+                    <span asp-validation-for="Question" class="text-danger"></span>
+                    <span class="form-help">Kullanıcıların sıkça sorduğu soruyu net bir şekilde yazın</span>
+                </div>
+            </div>
+
+            <!-- Cevap -->
+            <div class="form-row">
+                <label asp-for="Answer" class="form-label">Cevap *</label>
+                <div class="form-input-wrapper">
+                    <textarea asp-for="Answer"
+                              class="form-control"
+                              placeholder="Sorunun detaylı cevabını buraya yazın..."></textarea>
+                    <span asp-validation-for="Answer" class="text-danger"></span>
+                    <span class="form-help">Cevabı açık ve anlaşılır bir dilde yazın. Gerekirse adımlar halinde açıklayın</span>
+                </div>
+            </div>
+
+            <!-- Sıralama -->
+            <div class="form-row">
+                <label asp-for="DisplayOrder" class="form-label">Görüntüleme Sırası</label>
+                <div class="form-input-wrapper">
+                    <input asp-for="DisplayOrder"
+                           type="number"
+                           class="form-control"
+                           placeholder="0"
+                           min="0" />
+                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                    <span class="form-help">Düşük sayılar önce görüntülenir (varsayılan: 0)</span>
+                </div>
+            </div>
+
+            <!-- Durum -->
+            <div class="form-row">
+                <label class="form-label">Durum</label>
+                <div class="form-input-wrapper">
+                    <div class="checkbox-wrapper">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               asp-for="IsActive"
+                               id="IsActive">
+                        <label class="form-check-label" for="IsActive">
+                            SSS'yi hemen yayınla (aktif)
+                        </label>
+                    </div>
+                    <span class="form-help">İşaretlenirse SSS kullanıcılara görünür olur</span>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-check"></i>
+                    SSS'yi Kaydet
+                </button>
+                <a asp-action="FAQs" class="btn-secondary">
+                    <i class="fas fa-times"></i>
+                    İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

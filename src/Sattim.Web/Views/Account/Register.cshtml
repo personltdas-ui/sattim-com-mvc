@@ -1,0 +1,281 @@
+﻿@model Sattim.Web.ViewModels.Account.RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<style>
+    .register-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+    }
+
+    .register-card {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        padding: 3rem 2.5rem;
+        max-width: 450px;
+        margin: 0 auto;
+    }
+
+    .register-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .register-subtitle {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-control {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .form-label {
+        color: #666;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-register {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+        .btn-register:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .register-link {
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+        .register-link:hover {
+            color: #666;
+        }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 2rem 0;
+        color: #999;
+        font-size: 0.85rem;
+    }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+    .info-section {
+        background-color: #fafafa;
+        border-left: 1px solid #e5e5e5;
+        padding: 3rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .info-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+
+    .info-text {
+        color: #666;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: start;
+        margin-bottom: 1.25rem;
+        gap: 0.75rem;
+    }
+
+    .benefit-icon {
+        width: 24px;
+        height: 24px;
+        background-color: #1a1a1a;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .benefit-text {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .password-hint {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.25rem;
+    }
+
+    
+</style>
+
+<div class="register-container">
+    <div class="container">
+        <div class="row g-0">
+            <!-- Register Form -->
+            <div class="col-md-6">
+                <div class="register-card">
+                    <h1 class="register-title">Hesap Oluşturun</h1>
+                    <p class="register-subtitle">Hemen üye olun ve fırsatları kaçırmayın</p>
+
+                    <form asp-controller="Account" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-3" role="alert"></div>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label">Ad Soyad</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Adınız Soyadınız" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">E-posta Adresi</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="ornek@mail.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Şifre</label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                            <div class="password-hint">En az 6 karakter, bir büyük harf ve bir rakam içermeli</div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ConfirmPassword" class="form-label">Şifre (Tekrar)</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="••••••••" autocomplete="new-password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <button class="btn-register" type="submit">Kayıt Ol</button>
+
+                        <div class="divider">
+                            <span>veya</span>
+                        </div>
+
+                        <p class="text-center" style="color: #666; font-size: 0.9rem;">
+                            Zaten bir hesabınız var mı?
+                            <a asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" class="register-link">Giriş Yapın</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="col-md-6">
+                <div class="info-section">
+                    <div class="info-title">Üyelik Avantajları</div>
+                    <p class="info-text">
+                        Sattim.com'a üye olarak açık artırmalara katılın ve benzersiz ürünleri avantajlı fiyatlarla kazanın.
+                    </p>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Kolay ve Hızlı Teklif</strong><br>
+                            Anlık bildirimler ile açık artırmaları takip edin
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Kişisel Panel</strong><br>
+                            Tüm tekliflerinizi ve siparişlerinizi tek yerden yönetin
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Favoriler Listesi</strong><br>
+                            İlgilendiğiniz ürünleri takip edin ve kaçırmayın
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Özel Kampanyalar</strong><br>
+                            Üyelere özel indirim ve fırsatlardan yararlanın
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-text">
+                            <strong>Güvenli İşlemler</strong><br>
+                            SSL sertifikalı altyapı ile güvenli alışveriş
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

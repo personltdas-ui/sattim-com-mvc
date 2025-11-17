@@ -1,0 +1,337 @@
+﻿@* Gerekli servisleri (kullanıcı yönetimi) enjekte et *@
+@using Microsoft.AspNetCore.Identity
+@using Sattim.Web.Models.User
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sattim.com</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @* Font Awesome (ikonlar) için CDN bağlantısı *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --hover-color: #4a4a4a;
+            --border-color: #e5e5e5;
+            --bg-light: #fafafa;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #1a1a1a;
+            background-color: #fff;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color) !important;
+            letter-spacing: -0.5px;
+        }
+
+            .navbar-brand:hover {
+                color: var(--hover-color) !important;
+            }
+
+        .nav-link {
+            color: #666 !important;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s;
+        }
+
+            .nav-link:hover {
+                color: var(--primary-color) !important;
+            }
+
+        /* Dropdown menünün daha modern görünmesi için */
+        .dropdown-menu {
+            border-radius: 0;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            font-size: 0.95rem;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+        }
+
+            .dropdown-item:active {
+                background-color: var(--primary-color);
+            }
+
+        /* Search */
+        .search-form {
+            max-width: 500px;
+        }
+
+        .search-input {
+            border: 1px solid var(--border-color);
+            border-radius: 0;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+
+            .search-input:focus {
+                border-color: var(--primary-color);
+                box-shadow: none;
+                outline: none;
+            }
+
+        .search-btn {
+            border: 1px solid var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 0;
+            padding: 0.6rem 1.5rem;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+            .search-btn:hover {
+                background-color: var(--hover-color);
+                border-color: var(--hover-color);
+            }
+
+        /* Alerts */
+        .alert {
+            border-radius: 0;
+            border: none;
+            border-left: 3px solid;
+            font-size: 0.9rem;
+        }
+
+        .alert-success {
+            background-color: #f0fdf4;
+            border-left-color: #22c55e;
+            color: #166534;
+        }
+
+        .alert-danger {
+            background-color: #fef2f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 0;
+            margin-top: 4rem;
+            font-size: 0.9rem;
+        }
+
+            .footer h5 {
+                font-weight: 600;
+                margin-bottom: 1rem;
+                color: var(--primary-color);
+            }
+
+            .footer a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .footer a:hover {
+                    color: var(--primary-color);
+                    text-decoration: underline;
+                }
+
+            .footer .footer-bottom {
+                border-top: 1px solid var(--border-color);
+                padding-top: 1.5rem;
+                margin-top: 2rem;
+            }
+
+        /* Container */
+        main {
+            min-height: 60vh;
+        }
+    </style>
+    @* Sayfaya özel CSS stillerinin yükleneceği alan *@
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <i class="fa-solid fa-gavel me-2"></i>Sattim.com
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMain">
+
+                    @* 1. GENEL NAVİGASYON (Solda) *@
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Products" asp-action="Index">Tüm İlanlar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Blog" asp-action="Index">Blog</a>
+                        </li>
+                    </ul>
+
+                    @* 2. ARAMA FORMU (Ortada) *@
+                    <form class="d-flex search-form mx-auto" asp-controller="Products" asp-action="Search" method="get">
+                        <input class="form-control search-input me-2" type="search" name="query"
+                               placeholder="Açık artırmalarda arayın..." aria-label="Search">
+                        <button class="btn search-btn" type="submit">
+                            <i class="fa-solid fa-search"></i>
+                        </button>
+                    </form>
+
+                    @* 3. KULLANICI MENÜSÜ (Sağda) *@
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            @* --- GİRİŞ YAPMIŞ KULLANICI --- *@
+                            <li class="nav-item me-2">
+                                <a class="btn btn-primary btn-sm" asp-controller="MyProducts" asp-action="Create">
+                                    <i class="fa-solid fa-plus me-1"></i> İlan Ver
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Notifications" asp-action="Index" title="Bildirimler">
+                                    <i class="fa-solid fa-bell fs-5"></i>
+                                    @* <span class="badge rounded-pill bg-danger">3</span> *@
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownUser" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user-circle fs-5 me-1"></i>
+                                    @UserManager.GetUserName(User)
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownUser">
+                                    <li><a class="dropdown-item" asp-controller="UserProfile" asp-action="Index"><i class="fa-solid fa-user-edit fa-fw me-2"></i>Profilim</a></li>
+                                    <li><a class="dropdown-item" asp-controller="MyProducts" asp-action="Index"><i class="fa-solid fa-box-open fa-fw me-2"></i>Ürünlerim</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="MyOrders"><i class="fa-solid fa-shopping-basket fa-fw me-2"></i>Siparişlerim</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Orders" asp-action="MySales"><i class="fa-solid fa-tag fa-fw me-2"></i>Satışlarım</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Bids" asp-action="MyBids"><i class="fa-solid fa-gavel fa-fw me-2"></i>Tekliflerim</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Wallet" asp-action="Index"><i class="fa-solid fa-wallet fa-fw me-2"></i>Cüzdanım</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Disputes" asp-action="Index"><i class="fa-solid fa-shield-halved fa-fw me-2"></i>İhtilaflarım</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        @* DÜZELTME: Çıkış formu Identity sayfası yerine AccountController'a yönlendirildi *@
+                                        <form class="mb-0" asp-controller="Account" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+                                            <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-sign-out-alt fa-fw me-2"></i>Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            @* --- ZİYARETÇİ KULLANICI (DÜZELTİLDİ) --- *@
+                            <li class="nav-item">
+                                @* DÜZELTME: Giriş linki AccountController'a yönlendirildi *@
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+                            </li>
+                            <li class="nav-item">
+                                @* DÜZELTME: Kayıt linki AccountController'a yönlendirildi *@
+                                <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Register">Kayıt Ol</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @* TempData (Başarı/Hata) mesajlarını göstermek için alan *@
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @* Ana sayfa içeriği (Index.cshtml, Details.cshtml vb.) buraya gelir *@
+            @RenderBody()
+        </main>
+    </div>
+
+    @* DÜZELTME: Zenginleştirilmiş, çok sütunlu Footer *@
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-3 mb-lg-0">
+                    <h5><i class="fa-solid fa-gavel me-2"></i>Sattim.com</h5>
+                    <p class="text-muted">
+                        Güvenli açık artırma platformu. Aradığınız ürünlere teklif verin,
+                        kullanmadığınız ürünleri satışa çıkarın.
+                    </p>
+                </div>
+                <div class="col-lg-2 col-6">
+                    <h5>Hızlı Erişim</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+                        <li class="mb-2"><a asp-controller="Products" asp-action="Index">Tüm İlanlar</a></li>
+                        <li class="mb-2"><a asp-controller="Blog" asp-action="Index">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <h5>Destek</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Contact">İletişim</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Faq">Sıkça Sorulan Sorular</a></li>
+                        <li class="mb-2"><a asp-controller="Home" asp-action="Privacy">Kullanım Koşulları</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h5>Bizi Takip Edin</h5>
+                    <p>
+                        <a href="#" class="text-muted fs-4 me-3"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-muted fs-4 me-3"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-muted fs-4 me-3"><i class="fab fa-instagram"></i></a>
+                    </p>
+                </div>
+            </div>
+            <div class="row footer-bottom">
+                <div class="col text-center">
+                    <p class="text-muted mb-0">&copy; @DateTime.Now.Year - Sattim.com - Tüm Hakları Saklıdır. | <a asp-area="" asp-controller="Home" asp-action="Privacy">Gizlilik Politikası</a></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @* Sayfaya özel JavaScript dosyalarının yükleneceği alan *@
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

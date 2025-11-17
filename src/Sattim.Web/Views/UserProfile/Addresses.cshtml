@@ -1,0 +1,425 @@
+﻿@model IEnumerable<Sattim.Web.Models.User.UserAddress>
+@{
+    ViewData["Title"] = "Adres Defterim";
+}
+
+<style>
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Add Address Button */
+    .btn-add-address {
+        background-color: #22c55e;
+        border: 1px solid #22c55e;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-add-address:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    /* Address Cards Grid */
+    .address-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+    }
+
+    /* Address Card */
+    .address-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .address-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .address-card.default {
+            border-color: #0284c7;
+            border-width: 2px;
+        }
+
+    .address-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .address-card.default .address-card-header {
+        background-color: #eff6ff;
+    }
+
+    .address-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .address-card-body {
+        padding: 1.5rem;
+        flex: 1;
+    }
+
+    .address-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .address-info-item {
+        font-size: 0.85rem;
+        color: #666;
+        line-height: 1.5;
+    }
+
+        .address-info-item strong {
+            color: #1a1a1a;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+    .address-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* Badge */
+    .badge-default {
+        background-color: #0284c7;
+        color: white;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    /* Action Buttons */
+    .btn-action {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        text-decoration: none;
+        background: white;
+        cursor: pointer;
+    }
+
+    .btn-edit {
+        border-color: #666;
+        color: #666;
+    }
+
+        .btn-edit:hover {
+            border-color: #1a1a1a;
+            background-color: #fafafa;
+            color: #1a1a1a;
+        }
+
+    .btn-delete {
+        border-color: #dc2626;
+        color: #dc2626;
+    }
+
+        .btn-delete:hover {
+            background-color: #dc2626;
+            border-color: #dc2626;
+            color: white;
+        }
+
+        .btn-delete:disabled {
+            border-color: #e5e5e5;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+    .btn-set-default {
+        border-color: #0284c7;
+        color: #0284c7;
+    }
+
+        .btn-set-default:hover {
+            background-color: #0284c7;
+            border-color: #0284c7;
+            color: white;
+        }
+
+    .action-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #e5e5e5;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+        font-size: 0.9rem;
+        color: #999;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0;
+        border: none;
+        border-left: 3px solid;
+        font-size: 0.9rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        border-left-color: #22c55e;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        border-left-color: #ef4444;
+        color: #991b1b;
+    }
+
+    .alert-info {
+        background-color: #eff6ff;
+        border-left-color: #0284c7;
+        color: #075985;
+    }
+
+    .alert i {
+        font-size: 1.1rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .page-header
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .address-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .address-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .action-group {
+        width: 100%;
+    }
+
+    .btn-action {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-set-default {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            @await Html.PartialAsync("_ProfileNav")
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a1a1a; margin: 0;">@ViewData["Title"]</h2>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0.25rem 0 0 0;">
+                        Teslimat adreslerinizi yönetin
+                    </p>
+                </div>
+                <a asp-action="AddAddress" class="btn-add-address">
+                    <i class="fas fa-plus"></i>Yeni Adres Ekle
+                </a>
+            </div>
+
+            <!-- Success/Error Messages -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>@TempData["SuccessMessage"]</span>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>@TempData["ErrorMessage"]</span>
+                </div>
+            }
+
+            <!-- Empty State -->
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="empty-state-title">Kayıtlı Adres Bulunamadı</div>
+                    <div class="empty-state-text">Henüz hiç adres eklememişsiniz. Hemen ilk adresinizi ekleyin.</div>
+                    <a asp-action="AddAddress" class="btn-add-address">
+                        <i class="fas fa-plus"></i>İlk Adresi Ekle
+                    </a>
+                </div>
+            }
+
+            <!-- Address Cards Grid -->
+            @if (Model.Any())
+            {
+                <div class="address-grid">
+                    @foreach (var address in Model)
+                    {
+                        <div class="address-card @(address.IsDefault ? "default" : "")">
+                            <!-- Card Header -->
+                            <div class="address-card-header">
+                                <h5 class="address-card-title">
+                                    <i class="fas fa-map-marker-alt" style="color: #666; font-size: 0.9rem; margin-right: 0.5rem;"></i>
+                                    @address.Title
+                                </h5>
+                                @if (address.IsDefault)
+                                {
+                                    <span class="badge-default">Varsayılan</span>
+                                }
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="address-card-body">
+                                <div class="address-info">
+                                    <div class="address-info-item">
+                                        <strong>@address.FullName</strong>
+                                    </div>
+                                    <div class="address-info-item">
+                                        @address.Address
+                                    </div>
+                                    <div class="address-info-item">
+                                        @address.City / @address.PostalCode
+                                    </div>
+                                    <div class="address-info-item">
+                                        <i class="fas fa-phone" style="color: #999; font-size: 0.75rem; margin-right: 0.35rem;"></i>
+                                        @address.Phone
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card Footer -->
+                            <div class="address-card-footer">
+                                <div class="action-group">
+                                    <a asp-action="EditAddress" asp-route-id="@address.Id" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i>Düzenle
+                                    </a>
+
+                                    <form asp-action="DeleteAddress" method="post" class="d-inline"
+                                          onsubmit="return confirm('Bu adresi silmek istediğinize emin misiniz?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="addressId" value="@address.Id" />
+                                        <button type="submit"
+                                                class="btn-action btn-delete"
+                                                @(address.IsDefault ? "disabled" : "")
+                                                title="@(address.IsDefault ? "Varsayılan adres silinemez" : "Adresi Sil")">
+                                            <i class="fas fa-trash"></i>Sil
+                                        </button>
+                                    </form>
+                                </div>
+
+                                @if (!address.IsDefault)
+                                {
+                                    <form asp-action="SetDefaultAddress" method="post" style="margin: 0;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="addressId" value="@address.Id" />
+                                        <button type="submit" class="btn-action btn-set-default">
+                                            <i class="fas fa-star"></i>Varsayılan Yap
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

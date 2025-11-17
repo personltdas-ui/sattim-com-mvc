@@ -1,0 +1,395 @@
+﻿@model Sattim.Web.ViewModels.Home.HomeViewModel
+@{
+    ViewData["Title"] = "Anasayfa - Güvenli Açık Artırma";
+}
+
+<style>
+    /* Hero Section */
+    .hero-section {
+        background-color: white;
+        border: 1px solid #e5e5e5;
+        padding: 4rem 3rem;
+        margin-bottom: 3rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        letter-spacing: -1px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        max-width: 700px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    /* Hero Buttons */
+    .btn-hero-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 1rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+        .btn-hero-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-hero-secondary {
+        background-color: white;
+        border: 2px solid #22c55e;
+        color: #22c55e;
+        padding: 1rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+        .btn-hero-secondary:hover {
+            background-color: #22c55e;
+            border-color: #22c55e;
+            color: white;
+        }
+
+    /* Section Header */
+    .section-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+        .section-title i {
+            font-size: 1.25rem;
+        }
+
+        .section-title .icon-ending {
+            color: #dc2626;
+        }
+
+        .section-title .icon-new {
+            color: #0284c7;
+        }
+
+        .section-title .icon-blog {
+            color: #8b5cf6;
+        }
+
+    /* Products Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Blog Section */
+    .blog-section {
+        background-color: #fafafa;
+        padding: 4rem 0;
+        margin-top: 3rem;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .blog-section-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+    }
+
+    /* Blog Card */
+    .blog-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        transition: all 0.2s;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .blog-card:hover {
+            border-color: #1a1a1a;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+    .blog-card-image {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .blog-card-body {
+        padding: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .blog-card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.75rem;
+        line-height: 1.4;
+    }
+
+        .blog-card-title a {
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .blog-card-title a:hover {
+                color: #666;
+            }
+
+    .blog-card-excerpt {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        flex: 1;
+    }
+
+    .blog-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #f0f0f0;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .blog-card-date {
+        font-size: 0.8rem;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .blog-card-date i {
+            font-size: 0.75rem;
+        }
+
+    .blog-card-link {
+        font-size: 0.8rem;
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        transition: color 0.2s;
+    }
+
+        .blog-card-link:hover {
+            color: #1a1a1a;
+        }
+
+    /* Container Spacing */
+    .content-section {
+        margin-bottom: 4rem;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .hero-section
+
+    {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .hero-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+    }
+
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .blog-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+    }
+
+    }
+
+    @@media (min-width: 1400px) {
+        .products-grid
+
+    {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    }
+</style>
+
+<!-- Hero Section -->
+<div class="container">
+    <div class="hero-section">
+        <h1 class="hero-title">Hoş Geldiniz!</h1>
+        <p class="hero-subtitle">
+            Aradığınız ikinci el ürünleri güvenli açık artırma sistemiyle keşfedin.
+            İster satın alın, ister satın. Her işlemde güvenle alışverişinizi gerçekleştirin.
+        </p>
+        <div class="hero-actions">
+            <a asp-controller="Products" asp-action="Index" class="btn-hero-primary">
+                <i class="fas fa-search"></i>
+                Hemen Keşfet
+            </a>
+            <a asp-controller="MyProducts" asp-action="Create" class="btn-hero-secondary">
+                <i class="fas fa-plus-circle"></i>
+                Ücretsiz İlan Ver
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Ending Soon Products -->
+@if (Model.EndingSoonProducts.Any())
+{
+    <div class="container content-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-hourglass-end icon-ending"></i>
+                Süresi Dolmak Üzere Olanlar
+            </h2>
+        </div>
+        <div class="products-grid">
+            @foreach (var product in Model.EndingSoonProducts)
+            {
+                @await Html.PartialAsync("_ProductCard", product)
+            }
+        </div>
+    </div>
+}
+
+<!-- Newest Products -->
+@if (Model.NewestProducts.Any())
+{
+    <div class="container content-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-certificate icon-new"></i>
+                En Yeni Ürünler
+            </h2>
+        </div>
+        <div class="products-grid">
+            @foreach (var product in Model.NewestProducts)
+            {
+                @await Html.PartialAsync("_ProductCard", product)
+            }
+        </div>
+    </div>
+}
+
+<!-- Blog Section -->
+@if (Model.RecentBlogPosts.Any())
+{
+    <div class="blog-section">
+        <div class="container">
+            <h2 class="blog-section-title">
+                <i class="fas fa-blog icon-blog"></i>
+                Blog'dan Son Gelişmeler
+            </h2>
+            <div class="blog-grid">
+                @foreach (var post in Model.RecentBlogPosts)
+                {
+                    <div class="blog-card">
+                        <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug">
+                            <img src="@(post.FeaturedImage ?? "/images/placeholder-blog.png")"
+                                 class="blog-card-image"
+                                 alt="@post.Title">
+                        </a>
+                        <div class="blog-card-body">
+                            <h5 class="blog-card-title">
+                                <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug">
+                                    @post.Title
+                                </a>
+                            </h5>
+                            <p class="blog-card-excerpt">@post.Excerpt</p>
+                        </div>
+                        <div class="blog-card-footer">
+                            <span class="blog-card-date">
+                                <i class="far fa-calendar"></i>
+                                @post.PublishedDate.ToString("dd MMMM yyyy")
+                            </span>
+                            <a asp-controller="Blog" asp-action="Details" asp-route-slug="@post.Slug" class="blog-card-link">
+                                Devamını Oku
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}

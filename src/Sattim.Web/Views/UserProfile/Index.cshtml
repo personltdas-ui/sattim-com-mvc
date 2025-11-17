@@ -1,0 +1,483 @@
+﻿@model Sattim.Web.ViewModels.Profile.ProfileDetailsViewModel
+
+@{
+    ViewData["Title"] = "Profil Bilgileri";
+    var profileImageUrl = ViewBag.ProfileImageUrl ?? "/images/default-avatar.png";
+    var isVerified = (bool)ViewBag.IsVerified;
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Profile Cards */
+    .profile-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .profile-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .profile-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .profile-card-body {
+        padding: 1.5rem;
+    }
+
+    /* Profile Image Section */
+    .profile-image-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .profile-image-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e5e5e5;
+    }
+
+    .profile-upload-form {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    /* Form Styling */
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        background-color: white;
+        transition: border-color 0.2s;
+    }
+
+        .form-control:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-hint {
+        font-size: 0.8rem;
+        color: #999;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    /* Input Group */
+    .input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+        .input-group .form-control {
+            flex: 1;
+        }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-secondary {
+        background-color: #0284c7;
+        border: 1px solid #0284c7;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-secondary:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+    .btn-outline {
+        background-color: white;
+        border: 1px solid #e5e5e5;
+        color: #1a1a1a;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+    }
+
+        .btn-outline:hover {
+            border-color: #1a1a1a;
+            background-color: #fafafa;
+        }
+
+    /* Section Title */
+    .section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 2rem 0 0.75rem 0;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e5e5;
+    }
+
+    .section-hint {
+        font-size: 0.8rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    /* Verification Badge */
+    .verification-status {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        border: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+        .verification-status.verified {
+            background-color: #f0fdf4;
+            border-color: #22c55e;
+        }
+
+        .verification-status.unverified {
+            background-color: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+    .verification-icon {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+    }
+
+        .verification-icon.verified {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .verification-icon.unverified {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+    .verification-content {
+        flex: 1;
+    }
+
+    .verification-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .verification-text {
+        font-size: 0.85rem;
+        color: #666;
+        margin: 0;
+    }
+
+    /* Alerts */
+    .alert {
+        border-radius: 0;
+        border: none;
+        border-left: 3px solid;
+        font-size: 0.9rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        border-left-color: #22c55e;
+        color: #166534;
+    }
+
+    .alert-danger {
+        background-color: #fef2f2;
+        border-left-color: #ef4444;
+        color: #991b1b;
+    }
+
+    .alert i {
+        font-size: 1.1rem;
+    }
+
+    /* Validation */
+    .text-danger {
+        font-size: 0.8rem;
+        color: #dc2626;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* Responsive Grid */
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    /* Mobile Responsive */
+    @@media (max-width: 768px) {
+        .profile-image-wrapper
+
+    {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-upload-form {
+        width: 100%;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            @await Html.PartialAsync("_ProfileNav")
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Intro -->
+            <p class="page-intro">
+                Profil bilgilerinizi güncelleyin ve hesabınızı doğrulayarak güvenilir satıcı rozeti kazanın.
+            </p>
+
+            <!-- Success/Error Messages -->
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>@TempData["SuccessMessage"]</span>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>@TempData["ErrorMessage"]</span>
+                </div>
+            }
+
+            <!-- Profile Image Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h3 class="profile-card-title">Profil Resmi</h3>
+                </div>
+                <div class="profile-card-body">
+                    <div class="profile-image-wrapper">
+                        <img src="@profileImageUrl" alt="Profil Resmi" class="profile-image-preview" />
+
+                        <div class="profile-upload-form">
+                            <form asp-action="UpdateProfileImage" method="post" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <label for="profileImage" class="form-label">Yeni Resim Yükle</label>
+                                <div class="input-group">
+                                    <input type="file" name="profileImage" id="profileImage" class="form-control" required accept="image/*" />
+                                    <button type="submit" class="btn-secondary">
+                                        <i class="fas fa-upload"></i>Yükle
+                                    </button>
+                                </div>
+                                <small class="form-hint">JPG, PNG veya GIF formatında, maksimum 5MB</small>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h3 class="profile-card-title">Kişisel Bilgiler</h3>
+                </div>
+                <div class="profile-card-body">
+                    <form asp-action="Index" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group">
+                            <label asp-for="FullName" class="form-label">Ad Soyad *</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Adınız ve soyadınız" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Bio" class="form-label">Hakkımda (Bio)</label>
+                            <textarea asp-for="Bio" class="form-control" rows="4" placeholder="Kendinizden kısaca bahsedin..."></textarea>
+                            <small class="form-hint">Bu bilgi profil sayfanızda görünecektir</small>
+                        </div>
+
+                        <!-- Address Section -->
+                        <h5 class="section-title">Varsayılan Adres Bilgileri</h5>
+                        <p class="section-hint">
+                            Bu adres profilinizde görünür. Kargo işlemleri için <strong>"Adres Defterim"</strong> bölümünü kullanın.
+                        </p>
+
+                        <div class="form-group">
+                            <label asp-for="Address" class="form-label">Adres</label>
+                            <input asp-for="Address" class="form-control" placeholder="Mahalle, sokak, bina no" />
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label asp-for="City" class="form-label">Şehir</label>
+                                <input asp-for="City" class="form-control" placeholder="Şehir" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Country" class="form-label">Ülke</label>
+                                <input asp-for="Country" class="form-control" placeholder="Ülke" />
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="PostalCode" class="form-label">Posta Kodu</label>
+                                <input asp-for="PostalCode" class="form-control" placeholder="Posta kodu" />
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i>Bilgileri Güncelle
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Verification Card -->
+            <div class="profile-card">
+                <div class="profile-card-header">
+                    <h3 class="profile-card-title">Hesap Doğrulama</h3>
+                </div>
+                <div class="profile-card-body">
+                    @if (isVerified)
+                    {
+                        <div class="verification-status verified">
+                            <div class="verification-icon verified">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="verification-content">
+                                <h6 class="verification-title">Hesabınız Doğrulanmış</h6>
+                                <p class="verification-text">Güvenilir satıcı rozetine sahipsiniz.</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="verification-status unverified">
+                            <div class="verification-icon unverified">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="verification-content">
+                                <h6 class="verification-title">Hesap Doğrulaması Bekleniyor</h6>
+                                <p class="verification-text">Güvenilir satıcı rozeti almak için kimlik doğrulaması yapın.</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; padding: 1.25rem; background-color: #fafafa; border: 1px solid #e5e5e5;">
+                            <p style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
+                                <strong>Kimlik Belgesi Yükleme:</strong><br>
+                                Lütfen kimlik belgenizin (ön yüz) net bir fotoğrafını yükleyin. Doğrulama işlemi 24-48 saat içinde tamamlanacaktır.
+                            </p>
+                            <form asp-action="SubmitIdCard" method="post" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <div class="input-group">
+                                    <input type="file" name="idCardImage" class="form-control" required accept="image/*" />
+                                    <button type="submit" class="btn-secondary">
+                                        <i class="fas fa-paper-plane"></i>Onaya Gönder
+                                    </button>
+                                </div>
+                                <small class="form-hint">Kimlik kartı veya ehliyet ön yüzü (JPG, PNG - maks. 5MB)</small>
+                            </form>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

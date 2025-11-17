@@ -1,0 +1,180 @@
+﻿@* GÜNCELLEME: Model, sağladığınız yeni ve daha basit 
+    DisputeDetailViewModel'e göre değiştirildi. 
+    (Namespace'in bu olduğunu varsayıyoruz)
+*@
+@model Sattim.Web.ViewModels.Dispute.DisputeDetailViewModel
+@{
+    ViewData["Title"] = $"İhtilaf Detayı: {Model.ProductTitle}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 text-gray-800">@ViewData["Title"] (ID: @Model.DisputeId)</h1>
+    <a asp-action="Disputes" class="btn btn-sm btn-secondary">
+        <i class="fas fa-arrow-left fa-sm"></i> İhtilaf Listesine Geri Dön
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="row">
+
+    <div class="col-lg-8">
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">İhtilaf Mesajları</h6>
+            </div>
+            @* DÜZELTİLMİŞ MESAJLAŞMA BLOKU *@
+            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                @foreach (var message in Model.Messages)
+                {
+                    // --- DÜZELTME BAŞLANGICI ---
+                    // 'SenderType' yerine 'SenderId' kullanarak kimlik tespiti yapıyoruz.
+
+                    bool isByBuyer = message.SenderId == Model.BuyerId;
+
+                    // Ana modelde SellerId olup olmadığını kontrol ediyoruz.
+                    // (Eğer 'SellerId' ana modelde yoksa, bu satırı silip 'isBySeller = false;' yapın)
+                    bool isBySeller = message.SenderId == Model.SellerId;
+
+                    // Eğer gönderen Alıcı veya Satıcı değilse, ADMIN'dir.
+                    bool isByAdmin = !isByBuyer && !isBySeller;
+                    // --- DÜZELTME SONU ---
+
+                    <div class="mb-2 p-3 @(isByAdmin ? "bg-warning text-dark" : (isByBuyer ? "bg-light" : "bg-info text-white"))"
+                         style="border-radius: 10px; @(isByAdmin || !isBySeller ? "margin-left: 50px;" : "margin-right: 50px;")">
+
+                        <strong>
+                            @if (isByAdmin)
+                            {
+                                <i class="fas fa-shield-alt"></i>
+                            }
+
+                            @message.SenderFullName
+
+                            (@(isByAdmin ? "Admin" : (isByBuyer ? "Alıcı" : "Satıcı")))
+                        </strong>
+
+                        <p class="mb-0">@message.Message</p>
+                        <small class="text-muted">@message.SentDate.ToString("g")</small>
+                    </div>
+                }
+            </div>
+
+            <div class="card-footer">
+                <form asp-action="AddDisputeMessage" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="disputeId" value="@Model.DisputeId" />
+
+                    <div class="form-group">
+                        <label>Admin olarak müdahale et / mesaj gönder:</label>
+                        <textarea name="message" class="form-control" rows="3" required placeholder="Alıcı ve satıcıya ara mesaj gönder..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Mesaj Gönder</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-danger">🚨 Karar Ver</h6>
+            </div>
+            <div class="card-body">
+                @* GÜNCELLEME: Model.Amount kaldırıldı *@
+                <p>Verdiğiniz karar nihaidir ve para transferini tetikler. Geri alınamaz.</p>
+                <hr />
+
+                <button type="button" class="btn btn-lg btn-success btn-block" data-toggle="modal" data-target="#resolveForBuyerModal">
+                    Alıcı Lehine Çöz (İade Et)
+                </button>
+
+                <hr />
+
+                <button type="button" class="btn btn-lg btn-info btn-block" data-toggle="modal" data-target="#resolveForSellerModal">
+                    Satıcı Lehine Çöz (Parayı Aktar)
+                </button>
+            </div>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-secondary">Taraf Bilgileri</h6>
+            </div>
+            <div class="card-body">
+                @* GÜNCELLEME: FullName ve IP adresleri kaldırıldı, ID'ler gösteriliyor *@
+                <strong>Alıcı ID:</strong> @Model.BuyerId <br />
+                <hr />
+                <strong>Satıcı ID:</strong> @Model.SellerId <br />
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="resolveForBuyerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success">Alıcı Lehine Çözmeyi Onayla</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form asp-action="ResolveDisputeForBuyer" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="disputeId" value="@Model.DisputeId" />
+                <div class="modal-body">
+                    @* GÜNCELLEME: Model.Amount kaldırıldı *@
+                    <p>Emin misiniz? Blokedeki bakiye ALICI'ya iade edilecektir.</p>
+                    <div class="form-group">
+                        <label>Karar Gerekçesi (Admin Notu):</label>
+                        <textarea name="resolutionNote" class="form-control" rows="3" required placeholder="Örn: Ürün bozuk geldi, satıcı kanıt sunamadı."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">İptal</button>
+                    <button class="btn btn-success" type="submit">Evet, ALICI'ya İade Et</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="resolveForSellerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-info">Satıcı Lehine Çözmeyi Onayla</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <form asp-action="ResolveDisputeForSeller" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="disputeId" value="@Model.DisputeId" />
+                <div class="modal-body">
+                    @* GÜNCELLEME: Model.Amount kaldırıldı *@
+                    <p>Emin misiniz? Blokedeki bakiye SATICI'ya aktarılacaktır.</p>
+                    <div class="form-group">
+                        <label>Karar Gerekçesi (Admin Notu):</label>
+                        <textarea name="resolutionNote" class="form-control" rows="3" required placeholder="Örn: Alıcı haksız, ürün açıklandığı gibi."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" type="button" data-dismiss="modal">İptal</button>
+                    <button class="btn btn-info" type="submit">Evet, SATICI'ya Aktar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

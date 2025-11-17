@@ -1,0 +1,410 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Management.UserListViewModel>
+@{
+    ViewData["Title"] = "Kullanıcı Yönetimi";
+}
+
+<style>
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Search and Filter Bar */
+    .filter-bar {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-search {
+        flex: 1;
+        min-width: 250px;
+    }
+
+        .filter-search input {
+            border: 1px solid #e5e5e5;
+            border-radius: 0;
+            padding: 0.6rem 1rem;
+            font-size: 0.85rem;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+            .filter-search input:focus {
+                border-color: #1a1a1a;
+                box-shadow: none;
+                outline: none;
+            }
+
+    .filter-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        min-width: 150px;
+        background-color: white;
+    }
+
+        .filter-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    /* Users Table */
+    .users-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .users-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .users-table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .users-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .users-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .users-table thead th {
+            padding: 1rem 1.25rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .users-table tbody td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .users-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    .user-link {
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.2s;
+    }
+
+        .user-link:hover {
+            color: #666;
+        }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-active {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-banned {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .status-verified {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-unverified {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .role-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    /* Action Button */
+    .action-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+        .action-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+        .action-btn i {
+            font-size: 0.75rem;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-text {
+        font-size: 0.9rem;
+    }
+
+    
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Sistemdeki tüm kayıtlı kullanıcıları listeleyin ve yönetin. Kullanıcı durumlarını, rollerini ve hesap bilgilerini buradan kontrol edebilirsiniz.
+</p>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div class="filter-search">
+        <input type="text" id="searchInput" placeholder="Ad, soyad veya email ile ara..."
+               onkeyup="filterTable()">
+    </div>
+    <select class="filter-select" id="statusFilter" onchange="filterTable()">
+        <option value="">Tüm Durumlar</option>
+        <option value="aktif">Aktif</option>
+        <option value="banlı">Banlı</option>
+    </select>
+    <select class="filter-select" id="emailFilter" onchange="filterTable()">
+        <option value="">Email Durumu</option>
+        <option value="onaylı">Onaylı</option>
+        <option value="onaysız">Onaysız</option>
+    </select>
+    <select class="filter-select" id="roleFilter" onchange="filterTable()">
+        <option value="">Tüm Roller</option>
+        <option value="admin">Admin</option>
+        <option value="moderator">Moderator</option>
+        <option value="user">User</option>
+    </select>
+</div>
+
+<!-- Users Table -->
+<div class="users-table-card">
+    <div class="users-table-header">
+        <h3 class="users-table-title">Kullanıcı Listesi</h3>
+        <span class="users-count" id="userCount">@Model.Count() kullanıcı</span>
+    </div>
+
+    <div class="users-table-wrapper">
+        @if (Model != null && Model.Any())
+        {
+            <table class="users-table" id="userTable">
+                <thead>
+                    <tr>
+                        <th>Kullanıcı</th>
+                        <th>Email</th>
+                        <th>Durum</th>
+                        <th>Email Onayı</th>
+                        <th>Roller</th>
+                        <th style="text-align: center;">İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-action="Detail" asp-route-id="@user.UserId" class="user-link">
+                                    <div class="user-avatar">
+                                        @user.Email.Substring(0, 1).ToUpper()
+                                    </div>
+                                    
+                                </a>
+                            </td>
+                            <td style="color: #666;">@user.Email</td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="status-badge status-active">Aktif</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-banned">Banlı</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.EmailConfirmed)
+                                {
+                                    <span class="status-badge status-verified">Onaylı</span>
+                                }
+                                else
+                                {
+                                    <span class="status-badge status-unverified">Onaysız</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.Roles != null && user.Roles.Any())
+                                {
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <span class="role-badge">@role</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="color: #999; font-size: 0.8rem;">Rol yok</span>
+                                }
+                            </td>
+                            <td style="text-align: center;">
+                                <a asp-action="Detail" asp-route-id="@user.UserId" class="action-btn">
+                                    <i class="fas fa-user-edit"></i>
+                                    Yönet
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-users"></i>
+                <div class="empty-state-title">Kullanıcı Bulunamadı</div>
+                <div class="empty-state-text">Sistemde henüz kayıtlı kullanıcı bulunmamaktadır.</div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filterTable() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const emailFilter = document.getElementById('emailFilter').value.toLowerCase();
+            const roleFilter = document.getElementById('roleFilter').value.toLowerCase();
+
+            const table = document.getElementById('userTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            let visibleCount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+
+                // Get cell values
+                const name = cells[0].textContent.toLowerCase();
+                const email = cells[1].textContent.toLowerCase();
+                const status = cells[2].textContent.toLowerCase();
+                const emailStatus = cells[3].textContent.toLowerCase();
+                const roles = cells[4].textContent.toLowerCase();
+
+                // Apply filters
+                const matchesSearch = name.includes(searchInput) || email.includes(searchInput);
+                const matchesStatus = !statusFilter || status.includes(statusFilter);
+                const matchesEmail = !emailFilter || emailStatus.includes(emailFilter);
+                const matchesRole = !roleFilter || roles.includes(roleFilter);
+
+                // Show or hide row
+                if (matchesSearch && matchesStatus && matchesEmail && matchesRole) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+
+            // Update count
+            document.getElementById('userCount').textContent = visibleCount + ' kullanıcı';
+        }
+
+        // Add search on enter key
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                filterTable();
+            }
+        });
+    </script>
+}

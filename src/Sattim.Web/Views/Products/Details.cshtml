@@ -1,0 +1,901 @@
+﻿@model Sattim.Web.ViewModels.Product.ProductDetailViewModel
+@using Sattim.Web.Models.Product
+@{
+    ViewData["Title"] = Model.Title;
+    var timeRemaining = Model.EndDate - DateTime.Now;
+    var isActive = Model.Status == ProductStatus.Active && timeRemaining.TotalSeconds > 0;
+    var isEnded = Model.Status == ProductStatus.Closed || timeRemaining.TotalSeconds <= 0;
+}
+
+<style>
+    /* Breadcrumb */
+    .breadcrumb-wrapper {
+        margin-bottom: 2rem;
+        margin-top: 2rem;
+    }
+
+    .breadcrumb-custom {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        font-size: 0.85rem;
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        gap: 0.5rem;
+    }
+
+    .breadcrumb-item {
+        display: flex;
+        align-items: center;
+    }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: '/';
+            color: #ccc;
+            padding-right: 0.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb-item a:hover {
+                color: #1a1a1a;
+            }
+
+        .breadcrumb-item.active {
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+    /* Main Grid */
+    .product-grid {
+        display: grid;
+        grid-template-columns: 550px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    /* Image Gallery */
+    .image-gallery {
+        position: sticky;
+        top: 2rem;
+    }
+
+    .main-image-container {
+        position: relative;
+        width: 100%;
+        height: 550px;
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-image {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        transition: transform 0.3s ease;
+    }
+
+    .main-image-container:hover .main-image {
+        transform: scale(1.03);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: white;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        z-index: 10;
+    }
+
+        .status-badge.active {
+            background-color: #22c55e;
+        }
+
+        .status-badge.ended {
+            background-color: #dc2626;
+        }
+
+        .status-badge.pending {
+            background-color: #f59e0b;
+        }
+
+    /* Thumbnails */
+    .thumbnail-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .thumbnail {
+        width: 100%;
+        height: 100px;
+        border: 2px solid #e5e5e5;
+        cursor: pointer;
+        overflow: hidden;
+        transition: all 0.2s;
+        background: white;
+    }
+
+        .thumbnail:hover {
+            border-color: #666;
+        }
+
+        .thumbnail.active {
+            border-color: #1a1a1a;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+    /* Zoom Icon */
+    .zoom-icon {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s;
+        font-size: 0.85rem;
+    }
+
+        .zoom-icon:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+    /* Product Info Sidebar */
+    .product-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Info Card */
+    .info-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.5rem;
+    }
+
+    /* Title */
+    .product-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        letter-spacing: -0.5px;
+        line-height: 1.4;
+    }
+
+    /* Seller Card */
+    .seller-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        transition: all 0.2s;
+        text-decoration: none;
+        color: inherit;
+    }
+
+        .seller-card:hover {
+            background: #f5f5f5;
+            border-color: #1a1a1a;
+        }
+
+    .seller-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #1a1a1a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        color: white;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .seller-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .seller-name {
+        font-weight: 600;
+        color: #1a1a1a;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .seller-rating {
+        font-size: 0.75rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+        .seller-rating i {
+            color: #f59e0b;
+            font-size: 0.7rem;
+        }
+
+    /* Price Card */
+    .price-card {
+        background: #1a1a1a;
+        color: white;
+        text-align: center;
+    }
+
+    .price-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.7;
+        margin-bottom: 0.5rem;
+    }
+
+    .current-price {
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        margin-bottom: 1rem;
+    }
+
+    .price-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .price-detail {
+        text-align: center;
+    }
+
+    .price-detail-label {
+        font-size: 0.65rem;
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+
+    .price-detail-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    /* Countdown Card */
+    .countdown-card {
+        text-align: center;
+    }
+
+    .countdown-label {
+        font-size: 0.7rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 1rem;
+    }
+
+    .countdown-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+    }
+
+    .countdown-box {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        padding: 0.875rem 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .countdown-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+    }
+
+    .countdown-unit {
+        font-size: 0.65rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .countdown-ended {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #dc2626;
+        padding: 1.25rem;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    /* Bid Form */
+    .bid-form-card {
+        background: #fafafa;
+        border: 2px solid #1a1a1a;
+    }
+
+    .bid-form-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bid-input-wrapper {
+        position: relative;
+        margin-bottom: 0.75rem;
+    }
+
+    .bid-currency {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .bid-input {
+        width: 100%;
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+        .bid-input:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .bid-hint {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .bid-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.875rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .bid-btn:hover:not(:disabled) {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+        .bid-btn:disabled {
+            background-color: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
+        }
+
+    /* Alert */
+    .alert-custom {
+        background-color: #fef2f2;
+        border-left: 3px solid #dc2626;
+        color: #991b1b;
+        padding: 1rem;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .action-btn {
+        flex: 1;
+        background: white;
+        border: 1px solid #e5e5e5;
+        color: #666;
+        padding: 0.75rem 0.5rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .action-btn:hover {
+            background: #fafafa;
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+   
+    .description-section {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 2rem;
+        margin-top: 2rem;
+        
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .description-content {
+        color: #666;
+        line-height: 1.8;
+        font-size: 0.9rem;
+    }
+
+        .description-content p {
+            margin-bottom: 1rem;
+        }
+
+  
+    @@media (max-width: 991px) {
+        .product-grid {
+            
+            grid-template-columns: 1fr;
+        }
+
+        .image-gallery {
+            position: static;
+        }
+
+        .main-image-container {
+            height: 450px;
+        }
+
+        .current-price {
+            font-size: 1.75rem;
+        }
+
+        .countdown-value {
+            font-size: 1.25rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .main-image-container {
+            height: 350px;
+        }
+
+        .thumbnail-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .thumbnail {
+            height: 80px;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+        }
+
+        .current-price {
+            font-size: 1.5rem;
+        }
+
+        .countdown-value {
+            font-size: 1.125rem;
+        }
+
+        .countdown-box {
+            padding: 0.75rem 0.25rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .main-image-container {
+            height: 300px;
+        }
+
+        .thumbnail-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .thumbnail {
+            height: 70px;
+        }
+
+        .product-title {
+            font-size: 1.125rem;
+        }
+
+        .current-price {
+            font-size: 1.375rem;
+        }
+
+        .countdown-value {
+            font-size: 1rem;
+        }
+
+        .countdown-unit {
+            font-size: 0.6rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index">Ürünler</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+    </ol>
+</nav>
+
+<div class="product-grid">
+    <div class="image-gallery">
+        <div class="main-image-container">
+            @if (Model.Images != null && Model.Images.Any())
+            {
+                <img src="@Model.Images.First().ImageUrl" alt="@Model.Title" class="main-image" id="mainImage">
+            }
+            else
+            {
+                <img src="/images/placeholder.png" alt="Resim yok" class="main-image" id="mainImage">
+            }
+
+            @if (isEnded)
+            {
+                <div class="status-badge ended">
+                    <i class="fas fa-times-circle"></i>
+                    Sona Erdi
+                </div>
+            }
+            else if (isActive)
+            {
+                <div class="status-badge active">
+                    <i class="fas fa-check-circle"></i>
+                    Aktif
+                </div>
+            }
+            else
+            {
+                <div class="status-badge pending">
+                    <i class="fas fa-clock"></i>
+                    Beklemede
+                </div>
+            }
+
+            <div class="zoom-icon" title="Yakınlaştır">
+                <i class="fas fa-search-plus"></i>
+            </div>
+        </div>
+
+        @if (Model.Images != null && Model.Images.Count > 1)
+        {
+            <div class="thumbnail-grid">
+                @foreach (var image in Model.Images)
+                {
+                    <div class="thumbnail @(image == Model.Images.First() ? "active" : "")"
+                         onclick="changeImage('@image.ImageUrl', this)">
+                        <img src="@image.ImageUrl" alt="@Model.Title">
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="product-sidebar">
+        <div class="info-card">
+            <h1 class="product-title">@Model.Title</h1>
+
+            <a href="#" class="seller-card">
+                <div class="seller-avatar">
+                    @(Model.Seller?.FullName?.Substring(0, 1).ToUpper() ?? "S")
+                </div>
+                <div class="seller-info">
+                    <div class="seller-name">@(Model.Seller?.FullName ?? "Satıcı")</div>
+                    <div class="seller-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="far fa-star"></i>
+                        <span>4.0</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right" style="color: #ccc;"></i>
+            </a>
+        </div>
+
+        <div class="info-card price-card">
+            <div class="price-label">Mevcut Fiyat</div>
+            <div class="current-price">@Model.CurrentPrice.ToString("C")</div>
+            <div class="price-details-grid">
+                <div class="price-detail">
+                    <div class="price-detail-label">Başlangıç</div>
+                    <div class="price-detail-value">@Model.StartingPrice.ToString("C")</div>
+                </div>
+                <div class="price-detail">
+                    <div class="price-detail-label">Artış</div>
+                    <div class="price-detail-value">@Model.BidIncrement.ToString("C")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card countdown-card">
+            <div class="countdown-label">
+                @(isEnded ? "AÇIK ARTIRMA SONA ERDİ" : "KALAN SÜRE")
+            </div>
+
+            @if (isEnded)
+            {
+                <div class="countdown-ended">
+                    <i class="fas fa-clock"></i>
+                    Süre Doldu
+                </div>
+            }
+            else
+            {
+                <div class="countdown-grid" data-end-date="@Model.EndDate.ToString("o")">
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="days">00</div>
+                        <div class="countdown-unit">Gün</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="hours">00</div>
+                        <div class="countdown-unit">Saat</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="minutes">00</div>
+                        <div class="countdown-unit">Dakika</div>
+                    </div>
+                    <div class="countdown-box">
+                        <div class="countdown-value" id="seconds">00</div>
+                        <div class="countdown-unit">Saniye</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (isActive && User.Identity.IsAuthenticated)
+        {
+            <div class="info-card bid-form-card">
+                <h3 class="bid-form-title">
+                    <i class="fas fa-gavel"></i>
+                    Teklif Ver
+                </h3>
+                <form asp-controller="Bids" asp-action="PlaceBid" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+                    <div class="bid-input-wrapper">
+                        <span class="bid-currency">₺</span>
+                        <input type="number"
+                               name="Amount"
+                               class="bid-input"
+                               placeholder="Teklif tutarı"
+                               min="@(Model.CurrentPrice + Model.BidIncrement)"
+                               step="@Model.BidIncrement"
+                               value="@(Model.CurrentPrice + Model.BidIncrement)"
+                               required />
+                    </div>
+                    <div class="bid-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Minimum teklif: @((Model.CurrentPrice + Model.BidIncrement).ToString("C"))
+                    </div>
+                    <button type="submit" class="bid-btn">
+                        <i class="fas fa-gavel"></i>
+                        Teklif Ver
+                    </button>
+                </form>
+            </div>
+        }
+        else if (isActive && !User.Identity.IsAuthenticated)
+        {
+            <div class="info-card bid-form-card">
+                <h3 class="bid-form-title">
+                    <i class="fas fa-gavel"></i>
+                    Teklif Vermek İçin
+                </h3>
+                <a asp-area="Identity"
+                   asp-page="/Account/Login"
+                   asp-route-returnUrl="@Context.Request.Path"
+                   class="bid-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Giriş Yapın
+                </a>
+            </div>
+        }
+        else if (isEnded)
+        {
+            <div class="alert-custom">
+                <i class="fas fa-info-circle"></i>
+                <span>Bu açık artırma sona ermiştir.</span>
+            </div>
+        }
+
+        <div class="action-buttons">
+            <button class="action-btn" title="Favorilere Ekle">
+                <i class="far fa-heart"></i>
+                Favorile
+            </button>
+            <button class="action-btn" title="Paylaş">
+                <i class="fas fa-share-alt"></i>
+                Paylaş
+            </button>
+            <button class="action-btn" title="Şikayet Et">
+                <i class="fas fa-flag"></i>
+                Şikayet
+            </button>
+        </div>
+    </div>
+
+   
+</div>
+
+<div class="description-section">
+    <h2 class="section-title">
+        <i class="fas fa-align-left"></i>
+        Ürün Açıklaması
+    </h2>
+    <div class="description-content">
+        @Html.Raw(Model.Description.Replace("\n", "<br>"))
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        // Image gallery
+        function changeImage(imageUrl, thumbnail) {
+            document.getElementById('mainImage').src = imageUrl;
+            // Aktif sınıfını yönet
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
+
+        // Countdown timer
+        const countdownElement = document.querySelector('[data-end-date]');
+        if (countdownElement) {
+            const endDate = new Date(countdownElement.getAttribute('data-end-date'));
+
+            const intervalId = setInterval(updateCountdown, 1000);
+
+            function updateCountdown() {
+                const now = new Date();
+                const difference = endDate - now;
+
+                if (difference <= 0) {
+                    clearInterval(intervalId); // Geri sayımı durdur
+
+                    // DOM'u manuel olarak 'Sona Erdi' durumuna getir
+                    document.querySelector('.countdown-card').innerHTML = `
+                        <div class="countdown-label">AÇIK ARTIRMA SONA ERDİ</div>
+                        <div class="countdown-ended">
+                            <i class="fas fa-clock"></i> Süre Doldu
+                        </div>
+                    `;
+                    // Teklif formunu kaldır
+                    document.querySelector('.bid-form-card')?.remove();
+
+                    // Durum etiketini güncelle
+                    var activeBadge = document.querySelector('.status-badge.active');
+                    if(activeBadge) {
+                        activeBadge.classList.remove('active');
+                        activeBadge.classList.add('ended');
+                        activeBadge.innerHTML = '<i class="fas fa-times-circle"></i> Sona Erdi';
+                    }
+                    return;
+                }
+
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                // ID'lerin null olmadığını kontrol et (sağlamlık için)
+                const daysEl = document.getElementById('days');
+                const hoursEl = document.getElementById('hours');
+                const minutesEl = document.getElementById('minutes');
+                const secondsEl = document.getElementById('seconds');
+
+                if (daysEl) daysEl.textContent = days.toString().padStart(2, '0');
+                if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+                if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+                if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+            }
+
+            updateCountdown(); // İlk çalıştırma
+        }
+
+        // Zoom functionality (placeholder)
+        document.querySelector('.zoom-icon')?.addEventListener('click', function() {
+            const mainImageUrl = document.getElementById('mainImage').src;
+            window.open(mainImageUrl, '_blank');
+        });
+    </script>
+}

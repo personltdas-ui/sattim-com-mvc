@@ -1,0 +1,411 @@
+﻿@model Sattim.Web.ViewModels.Content.BlogPostFormViewModel
+@using Sattim.Web.Models.Blog
+@{
+    ViewData["Title"] = "Yeni Blog Yazısı Ekle";
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .form-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 1.5rem;
+    }
+
+    .form-card-footer {
+        padding: 1rem 1.5rem;
+        border-top: 1px solid #e5e5e5;
+        background-color: #fafafa;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .form-label-required::after {
+        content: "*";
+        color: #dc2626;
+        margin-left: 0.25rem;
+    }
+
+    /* Form Controls */
+    .form-input,
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        background-color: white;
+        transition: border-color 0.2s;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .form-input-lg {
+        padding: 0.85rem 1.25rem;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .form-textarea {
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .form-textarea-editor {
+        min-height: 400px;
+        font-family: 'Courier New', monospace;
+        line-height: 1.8;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: #1a1a1a;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: #999;
+        font-size: 0.8rem;
+    }
+
+    /* Validation */
+    .text-danger {
+        color: #dc2626;
+        font-size: 0.75rem;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    .validation-summary {
+        background-color: #fef2f2;
+        border-left: 3px solid #dc2626;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        color: #991b1b;
+        font-size: 0.85rem;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .validation-summary li {
+            margin-bottom: 0.25rem;
+        }
+
+    /* Form Help Text */
+    .form-help {
+        font-size: 0.75rem;
+        color: #999;
+        margin-top: 0.35rem;
+        display: block;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-secondary {
+        background-color: #6b7280;
+        border: 1px solid #6b7280;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-secondary:hover {
+            background-color: #9ca3af;
+            border-color: #9ca3af;
+            color: white;
+        }
+
+    /* Info Box */
+    .info-box {
+        background-color: #dbeafe;
+        border-left: 3px solid #3b82f6;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        font-size: 0.8rem;
+        color: #1e40af;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+        .info-box i {
+            font-size: 1rem;
+            margin-top: 0.1rem;
+        }
+
+    /* Grid Layout */
+    .editor-layout {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Yeni bir blog yazısı oluşturun. Yazınızı taslak olarak kaydedebilir veya hemen yayınlayabilirsiniz.
+</p>
+
+<form asp-action="CreateBlogPost" method="post">
+    @Html.AntiForgeryToken()
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+    }
+
+    <!-- Info Box -->
+    <div class="info-box">
+        <i class="fas fa-lightbulb"></i>
+        <div>
+            <strong>İpucu:</strong> Yazınızı kaydettikten sonra önizleyebilir ve düzenleyebilirsiniz.
+            SEO için slug otomatik oluşturulacaktır.
+        </div>
+    </div>
+
+    <div class="editor-layout">
+        <!-- Main Content Column -->
+        <div>
+            <!-- Title & Content Card -->
+            <div class="form-card">
+                <div class="form-card-body">
+                    <!-- Title -->
+                    <div class="form-group">
+                        <label class="form-label form-label-required">Başlık</label>
+                        <input asp-for="Title"
+                               class="form-input form-input-lg"
+                               placeholder="Yazı başlığını buraya girin..." />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                        <small class="form-help">Dikkat çekici ve açıklayıcı bir başlık seçin</small>
+                    </div>
+
+                    <!-- Slug -->
+                    <div class="form-group">
+                        <label class="form-label">SEO Link (Slug)</label>
+                        <input asp-for="Slug"
+                               class="form-input"
+                               placeholder="ornek-yazi-basligi" />
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <small class="form-help">URL'de görünecek kısa link. Boş bırakılırsa otomatik oluşturulur.</small>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="form-group">
+                        <label class="form-label form-label-required">İçerik</label>
+                        <textarea asp-for="Content"
+                                  class="form-textarea form-textarea-editor"
+                                  id="richTextEditor"
+                                  placeholder="Blog yazınızın içeriğini buraya yazın..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                        <small class="form-help">HTML etiketleri kullanabilirsiniz</small>
+                    </div>
+
+                    <!-- Excerpt -->
+                    <div class="form-group">
+                        <label class="form-label">Özet (Excerpt)</label>
+                        <textarea asp-for="Excerpt"
+                                  class="form-textarea"
+                                  rows="3"
+                                  placeholder="Yazının kısa özetini girin (liste görünümlerinde kullanılır)"></textarea>
+                        <span asp-validation-for="Excerpt" class="text-danger"></span>
+                        <small class="form-help">Maksimum 200 karakter önerilir</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div>
+            <!-- Publish Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3 class="form-card-title">
+                        <i class="fas fa-paper-plane me-2"></i>Yayınla
+                    </h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="form-group">
+                        <label class="form-label form-label-required">Durum</label>
+                        <select asp-for="Status"
+                                asp-items="@Html.GetEnumSelectList<BlogPostStatus>()"
+                                class="form-select">
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                        <small class="form-help">Taslak olarak kaydedin veya hemen yayınlayın</small>
+                    </div>
+                </div>
+                <div class="form-card-footer">
+                    <a asp-action="BlogPosts" class="btn-secondary">
+                        <i class="fas fa-times"></i>İptal
+                    </a>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i>Kaydet
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <h3 class="form-card-title">
+                        <i class="fas fa-cog me-2"></i>Ayarlar
+                    </h3>
+                </div>
+                <div class="form-card-body">
+                    <!-- Featured Image -->
+                    <div class="form-group">
+                        <label class="form-label">Öne Çıkan Görsel</label>
+                        <input asp-for="FeaturedImage"
+                               class="form-input"
+                               placeholder="https://example.com/image.jpg" />
+                        <span asp-validation-for="FeaturedImage" class="text-danger"></span>
+                        <small class="form-help">Yazı listesinde gösterilecek görsel URL'si</small>
+                    </div>
+
+                    <!-- Featured Image Preview -->
+                    @if (!string.IsNullOrEmpty(Model?.FeaturedImage))
+                    {
+                        <div style="margin-bottom: 1.5rem;">
+                            <img src="@Model.FeaturedImage"
+                                 alt="Preview"
+                                 style="max-width: 100%; height: auto; border: 1px solid #e5e5e5;" />
+                        </div>
+                    }
+
+                    <!-- Tags -->
+                    <div class="form-group">
+                        <label class="form-label">Etiketler</label>
+                        <input asp-for="CommaSeparatedTags"
+                               class="form-input"
+                               placeholder="teknoloji, yazılım, web" />
+                        <span asp-validation-for="CommaSeparatedTags" class="text-danger"></span>
+                        <small class="form-help">Virgülle ayırarak etiket ekleyin</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="form-card" style="background-color: #fafafa;">
+                <div class="form-card-body">
+                    <div style="font-size: 0.8rem; color: #666; line-height: 1.6;">
+                        <div style="font-weight: 600; margin-bottom: 0.75rem; color: #1a1a1a;">
+                            <i class="fas fa-info-circle" style="margin-right: 0.5rem;"></i>Yazım İpuçları
+                        </div>
+                        <ul style="margin: 0; padding-left: 1.5rem;">
+                            <li style="margin-bottom: 0.5rem;">Başlık net ve çekici olmalı</li>
+                            <li style="margin-bottom: 0.5rem;">İçerikte alt başlıklar kullanın</li>
+                            <li style="margin-bottom: 0.5rem;">Görsellerle destekleyin</li>
+                            <li style="margin-bottom: 0.5rem;">SEO için anahtar kelimeler ekleyin</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Slug otomatik oluşturma (opsiyonel)
+        document.querySelector('input[name="Title"]')?.addEventListener('blur', function() {
+            const slugInput = document.querySelector('input[name="Slug"]');
+            if (!slugInput.value) {
+                const slug = this.value
+                    .toLowerCase()
+                    .replace(/ğ/g, 'g')
+                    .replace(/ü/g, 'u')
+                    .replace(/ş/g, 's')
+                    .replace(/ı/g, 'i')
+                    .replace(/ö/g, 'o')
+                    .replace(/ç/g, 'c')
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+                slugInput.value = slug;
+            }
+        });
+    </script>
+}

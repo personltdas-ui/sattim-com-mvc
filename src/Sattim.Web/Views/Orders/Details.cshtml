@@ -1,0 +1,165 @@
+﻿@model Sattim.Web.ViewModels.Order.OrderDetailViewModel
+@using Sattim.Web.Models.Escrow // EscrowStatus enum'ı için
+@using Sattim.Web.Models.User
+@using Sattim.Web.ViewModels.Shipping // MarkAsShippedViewModel için (DİKKAT: Yeni)
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Sipariş Detayı";
+    var userRole = (string)ViewBag.UserRoleInOrder; // "Buyer" veya "Seller"
+
+    // Controller'dan gelen kargo formunu MarkAsShippedViewModel'e cast et
+    var shippingForm = ViewBag.ShippingForm as MarkAsShippedViewModel;
+}
+
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <p class="text-muted">Sipariş No: #@Model.ProductId | Tarih: @Model.OrderDate.ToString("dd MMMM yyyy")</p>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">Sipariş Durumu</div>
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@Model.Status.ToString()</h5>
+                    <p class="card-text">
+                        @if (Model.Status == EscrowStatus.Pending)
+                        {
+                            <span>Alıcının ödeme yapması bekleniyor.</span>
+                        }
+                        else if (Model.Status == EscrowStatus.Funded)
+                        {
+                            <span>Ödeme alındı, satıcının kargolaması bekleniyor.</span>
+                        }
+                        else if (Model.Status == EscrowStatus.Shipped)
+                        {
+                            <span>Ürün kargolandı, alıcının onayı bekleniyor.</span>
+                        }
+                        else if (Model.Status == EscrowStatus.Released)
+                        {
+                            <span>Sipariş başarıyla tamamlandı.</span>
+                        }
+                        else if (Model.Status == EscrowStatus.Disputed)
+                        {
+                            <span>Sipariş için ihtilaf süreci başlatıldı.</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Eylemler</div>
+                <div class="card-body">
+
+                    @if (userRole == "Buyer")
+                    {
+                        if (Model.Status == EscrowStatus.Pending)
+                        {
+                            <a asp-controller="Orders" asp-action="Pay" asp-route-id="@Model.ProductId" class="btn btn-success w-100 mb-2">Ödeme Yap</a>
+                        }
+                        else if (Model.Status == EscrowStatus.Shipped)
+                        {
+                            <form asp-controller="Shipping" asp-action="MarkAsDelivered" method="post" onsubmit="return confirm('Ürünü teslim aldığınızı onaylıyor musunuz? Bu işlem geri alınamaz.');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="productId" value="@Model.ProductId" />
+                                <button type="submit" class="btn btn-success w-100 mb-2">Teslim Aldım, Onayla</button>
+                            </form>
+                        }
+
+                        @if (Model.Status == EscrowStatus.Funded || Model.Status == EscrowStatus.Shipped)
+                        {
+                            <a asp-controller="Disputes" asp-action="OpenDispute" asp-route-productId="@Model.ProductId"
+                               class="btn btn-danger w-100">İhtilaf Başlat (Sorun Bildir)</a>
+                        }
+                    }
+
+                    @if (userRole == "Seller")
+                    {
+                        if (Model.Status == EscrowStatus.Funded && shippingForm != null)
+                        {
+                            <h5>Kargo Bilgilerini Gir</h5>
+                            <form asp-controller="Shipping" asp-action="MarkAsShipped" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" asp-for="@shippingForm.ProductId" />
+                                <div class="mb-2">
+                                    <label asp-for="@shippingForm.Carrier" class="form-label"></label>
+                                    <input asp-for="@shippingForm.Carrier" class="form-control" />
+                                    <span asp-validation-for="@shippingForm.Carrier" class="text-danger"></span>
+                                </div>
+                                <div class="mb-2">
+                                    <label asp-for="@shippingForm.TrackingNumber" class="form-label"></label>
+                                    <input asp-for="@shippingForm.TrackingNumber" class="form-control" />
+                                    <span asp-validation-for="@shippingForm.TrackingNumber" class="text-danger"></span>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Kargoladım</button>
+                            </form>
+                        }
+                        else if (Model.Status == EscrowStatus.Shipped)
+                        {
+                            <div class="alert alert-info">Ürün kargolandı. Alıcının onayı bekleniyor.</div>
+                        }
+                        else
+                        {
+                            <p>Alıcının ödemeyi yapması bekleniyor.</p>
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Ürün Bilgileri</h5>
+                    <div class="d-flex mb-2">
+                        <img src="@(Model.ProductImageUrl ?? "/images/placeholder.png")" alt="@Model.ProductTitle" class="rounded" style="width: 80px; height: 80px; object-fit: cover;" />
+                        <div class="ms-3">
+                            <h5>@Model.ProductTitle</h5>
+                            <p class="mb-1"><strong>Satıcı:</strong> @Model.SellerFullName</p>
+                            <p class="mb-0"><strong>Alıcı:</strong> @Model.BuyerFullName</p>
+                        </div>
+                        <h4 classs="ms-auto">@Model.FinalPrice.ToString("C")</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Kargo Detayları</div>
+                <div class="card-body">
+                    @if (Model.ShippingDetails != null)
+                    {
+                        var shipping = Model.ShippingDetails;
+                        <h5>Teslimat Adresi</h5>
+                        <p class="mb-1"><strong>@shipping.FullName</strong></p>
+                        <p class="mb-1">@shipping.Phone</p>
+                        <p class="mb-1">@shipping.Address</p>
+                        <p>@shipping.PostalCode @shipping.City</p>
+
+                        @if (!string.IsNullOrEmpty(shipping.Carrier))
+                        {
+                            <hr />
+                            <h5>Kargo Takip</h5>
+                            <p class="mb-1"><strong>Kargo Firması:</strong> @shipping.Carrier</p>
+                            <p class="mb-1"><strong>Takip No:</strong> @shipping.TrackingNumber</p>
+                            <p class="mb-1"><strong>Kargolanma Tarihi:</strong> @shipping.ShippedDate?.ToString("dd MMMM yyyy")</p>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,566 @@
+﻿@model Sattim.Web.ViewModels.Content.EmailTemplateFormViewModel
+@using Sattim.Web.Models.UI
+@{
+    ViewData["Title"] = "E-posta Şablonu Düzenle";
+}
+
+<style>
+    /* Page Header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .page-header-info h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.25rem 0;
+    }
+
+    .page-header-info p {
+        color: #666;
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+    .page-header-badges {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+    }
+
+    .template-id-badge {
+        background-color: #f5f5f5;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600;
+    }
+
+    .template-type-badge {
+        background-color: #dbeafe;
+        color: #1e40af;
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .form-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        background-color: #fafafa;
+    }
+
+    .form-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .form-card-body {
+        padding: 2rem 1.5rem;
+    }
+
+    /* Section Divider */
+    .section-divider {
+        border: 0;
+        border-top: 2px solid #e5e5e5;
+        margin: 2rem 0;
+        position: relative;
+    }
+
+        .section-divider::after {
+            content: 'Düzenlenebilir İçerik';
+            position: absolute;
+            top: -0.6rem;
+            left: 0;
+            background: white;
+            padding-right: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+    /* Form Groups */
+    .form-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 1.5rem;
+        margin-bottom: 1.75rem;
+        align-items: start;
+    }
+
+    .form-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        padding-top: 0.6rem;
+    }
+
+    .form-label-required::after {
+        content: ' *';
+        color: #dc2626;
+    }
+
+    .form-input-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Form Controls */
+    .form-control,
+    .form-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        background-color: white;
+        transition: all 0.2s;
+    }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+        /* Readonly Fields */
+        .form-control[readonly] {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #e5e5e5;
+        }
+
+    .readonly-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background-color: #f5f5f5;
+        color: #666;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* Code Editor Style */
+    textarea.form-control {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.85rem;
+        min-height: 400px;
+        resize: vertical;
+        line-height: 1.6;
+        background-color: #fafafa;
+        border: 2px solid #e5e5e5;
+    }
+
+        textarea.form-control:focus {
+            background-color: white;
+            border-color: #1a1a1a;
+        }
+
+    /* Checkbox */
+    .checkbox-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+    }
+
+    .form-check-input {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #e5e5e5;
+        border-radius: 0;
+        cursor: pointer;
+        margin: 0;
+    }
+
+        .form-check-input:checked {
+            background-color: #1a1a1a;
+            border-color: #1a1a1a;
+        }
+
+        .form-check-input:focus {
+            box-shadow: none;
+            border-color: #1a1a1a;
+        }
+
+    .form-check-label {
+        font-size: 0.9rem;
+        color: #1a1a1a;
+        font-weight: 500;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    /* Validation */
+    .text-danger {
+        font-size: 0.8rem;
+        color: #dc2626;
+        font-weight: 500;
+    }
+
+    .validation-summary {
+        background-color: #fef2f2;
+        border-left: 3px solid #dc2626;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+        .validation-summary ul {
+            margin: 0;
+            padding-left: 1.25rem;
+        }
+
+        .validation-summary li {
+            color: #991b1b;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+    /* Helper Text */
+    .form-help {
+        font-size: 0.8rem;
+        color: #999;
+        line-height: 1.5;
+    }
+
+    /* Variables Help */
+    .variables-help {
+        background-color: #f0fdf4;
+        border: 1px solid #dcfce7;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .variables-help-title {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #166534;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .variables-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .variable-tag {
+        background-color: #dcfce7;
+        color: #166534;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: 600;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e5e5;
+        margin-top: 2rem;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    .btn-secondary {
+        background-color: white;
+        border: 1px solid #e5e5e5;
+        color: #666;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-secondary:hover {
+            background-color: #fafafa;
+            border-color: #1a1a1a;
+            color: #1a1a1a;
+        }
+
+    .btn-danger {
+        background-color: #dc2626;
+        border: 1px solid #dc2626;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Danger Zone */
+    .danger-zone {
+        background: white;
+        border: 1px solid #fee2e2;
+        margin-bottom: 2rem;
+    }
+
+    .danger-zone-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #fee2e2;
+        background-color: #fef2f2;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .danger-zone-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #991b1b;
+        margin: 0;
+    }
+
+    .danger-zone-body {
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .danger-zone-text {
+        flex: 1;
+    }
+
+        .danger-zone-text p {
+            margin: 0 0 0.25rem 0;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .danger-zone-text small {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+   
+</style>
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-info">
+        <h2>@Model.Name - Düzenle</h2>
+        <p>E-posta şablonu içeriğini güncelleyin</p>
+    </div>
+    <div class="page-header-badges">
+        <div class="template-id-badge">ID: #@ViewBag.TemplateId</div>
+        <div class="template-type-badge">@Model.Type.ToString()</div>
+    </div>
+</div>
+
+<!-- Form Card -->
+<div class="form-card">
+    <div class="form-card-header">
+        <h3 class="form-card-title">Şablon Bilgileri</h3>
+    </div>
+    <div class="form-card-body">
+        <form asp-action="EditEmailTemplate" asp-route-id="@ViewBag.TemplateId" method="post">
+            @Html.AntiForgeryToken()
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+            {
+                <div class="validation-summary">
+                    <div asp-validation-summary="ModelOnly"></div>
+                </div>
+            }
+
+            <!-- Hidden Fields -->
+            <input type="hidden" asp-for="Name" />
+            <input type="hidden" asp-for="Type" />
+
+            <!-- İsim (Readonly) -->
+            <div class="form-row">
+                <label asp-for="Name" class="form-label">İsim (Yönetim)</label>
+                <div class="form-input-wrapper">
+                    <input asp-for="Name" class="form-control" readonly />
+                    <div class="readonly-badge">
+                        <i class="fas fa-lock"></i>
+                        Bu alan değiştirilemez
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tip (Readonly) -->
+            <div class="form-row">
+                <label asp-for="Type" class="form-label">Tipi (Sistem)</label>
+                <div class="form-input-wrapper">
+                    <input value="@Model.Type.ToString()" class="form-control" readonly />
+                    <div class="readonly-badge">
+                        <i class="fas fa-lock"></i>
+                        Bu alan değiştirilemez
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section Divider -->
+            <hr class="section-divider" />
+
+            <!-- Konu -->
+            <div class="form-row">
+                <label asp-for="Subject" class="form-label form-label-required">E-posta Konusu</label>
+                <div class="form-input-wrapper">
+                    <input asp-for="Subject"
+                           class="form-control"
+                           placeholder="Örn: Aramıza Hoş Geldin, {{KullaniciAdi}}!" />
+                    <span asp-validation-for="Subject" class="text-danger"></span>
+                    <span class="form-help">E-postanın konu satırı. Değişken kullanabilirsiniz.</span>
+                </div>
+            </div>
+
+            <!-- Gövde -->
+            <div class="form-row">
+                <label asp-for="Body" class="form-label form-label-required">E-posta Gövdesi</label>
+                <div class="form-input-wrapper">
+                    <textarea asp-for="Body"
+                              class="form-control"
+                              id="emailBodyEditor"
+                              placeholder="E-posta içeriğini HTML formatında yazın..."></textarea>
+                    <span asp-validation-for="Body" class="text-danger"></span>
+                    <span class="form-help">E-postanın ana içeriği. HTML ve değişken kullanabilirsiniz.</span>
+
+                    <div class="variables-help">
+                        <div class="variables-help-title">
+                            <i class="fas fa-code"></i>
+                            Kullanılabilir Değişkenler
+                        </div>
+                        <div class="variables-list">
+                            <span class="variable-tag">{{KullaniciAdi}}</span>
+                            <span class="variable-tag">{{Email}}</span>
+                            <span class="variable-tag">{{Link}}</span>
+                            <span class="variable-tag">{{UrunAdi}}</span>
+                            <span class="variable-tag">{{Tutar}}</span>
+                            <span class="variable-tag">{{Tarih}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Durum -->
+            <div class="form-row">
+                <label class="form-label">Durum</label>
+                <div class="form-input-wrapper">
+                    <div class="checkbox-wrapper">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               asp-for="IsActive"
+                               id="IsActive">
+                        <label class="form-check-label" for="IsActive">
+                            Şablon aktif olsun ve e-posta gönderiminde kullanılsın
+                        </label>
+                    </div>
+                    <span class="form-help">İşaretlenirse şablon e-posta gönderimlerinde kullanılır.</span>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i>
+                    Değişiklikleri Kaydet
+                </button>
+                <a asp-action="EmailTemplates" class="btn-secondary">
+                    <i class="fas fa-times"></i>
+                    İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Danger Zone -->
+<div class="danger-zone">
+    <div class="danger-zone-header">
+        <i class="fas fa-exclamation-triangle"></i>
+        <h3 class="danger-zone-title">Tehlikeli Bölge</h3>
+    </div>
+    <div class="danger-zone-body">
+        <div class="danger-zone-text">
+            <p><strong>Bu Şablonu Sil</strong></p>
+            <small>Bu işlem geri alınamaz ve sistemsel hatalara yol açabilir.</small>
+        </div>
+        <form asp-action="DeleteEmailTemplate" asp-route-id="@ViewBag.TemplateId" method="post"
+              onsubmit="return confirm('Bu şablonu silmek istediğinizden emin misiniz?\n\nUYARI: Bu işlem geri alınamaz ve sistemsel hatalara yol açabilir!');">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn-danger">
+                <i class="fas fa-trash"></i>
+                Şablonu Sil
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

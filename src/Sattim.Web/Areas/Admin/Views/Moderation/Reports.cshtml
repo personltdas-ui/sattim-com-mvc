@@ -1,0 +1,529 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Moderation.ReportViewModel>
+@{
+    ViewData["Title"] = "Bekleyen Şikayetler";
+}
+
+<style>
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        min-width: 150px;
+        background-color: white;
+    }
+
+        .filter-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    /* Reports Table */
+    .reports-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .reports-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .reports-table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .reports-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .reports-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .reports-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .reports-table tbody td {
+            padding: 1rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .reports-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+        .reports-table tbody tr.under-review {
+            background-color: #fef3c7;
+        }
+
+    /* Status Badges */
+    .status-badge {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        display: inline-block;
+    }
+
+    .status-pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-review {
+        background-color: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-resolved {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-rejected {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Entity Type Badge */
+    .entity-badge {
+        background-color: #f3f4f6;
+        color: #374151;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .btn-info {
+        background-color: #0284c7;
+        border-color: #0284c7;
+        color: white;
+    }
+
+        .btn-info:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+    .btn-success {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    .btn-danger {
+        background-color: #dc2626;
+        border-color: #dc2626;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 0;
+        border: 1px solid #e5e5e5;
+    }
+
+    .modal-header {
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .modal-footer {
+        background-color: #fafafa;
+        border-top: 1px solid #e5e5e5;
+        padding: 1rem 1.5rem;
+    }
+
+    .modal-body p {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal textarea {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+        .modal textarea:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+        .modal-close:hover {
+            color: #1a1a1a;
+        }
+
+    /* Description Cell */
+    .description-cell {
+        max-width: 250px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 0.8rem;
+        color: #666;
+        line-height: 1.5;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Kullanıcılar tarafından gönderilen şikayetleri inceleyin ve gerekli aksiyonları alın. Her şikayet detaylı olarak değerlendirilmeli ve hızlı bir şekilde çözülmelidir.
+</p>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <select class="filter-select" id="statusFilter" onchange="filterReports()">
+        <option value="">Tüm Durumlar</option>
+        <option value="pending">Beklemede</option>
+        <option value="underreview">İnceleniyor</option>
+        <option value="resolved">Çözüldü</option>
+        <option value="rejected">Reddedildi</option>
+    </select>
+    <select class="filter-select" id="entityFilter" onchange="filterReports()">
+        <option value="">Tüm Tipler</option>
+        <option value="product">Ürün</option>
+        <option value="user">Kullanıcı</option>
+        <option value="comment">Yorum</option>
+    </select>
+</div>
+
+<!-- Reports Table -->
+<div class="reports-table-card">
+    <div class="reports-table-header">
+        <h3 class="reports-table-title">Şikayet Kuyruğu</h3>
+        <span class="reports-count">@Model.Count() şikayet</span>
+    </div>
+
+    <div class="reports-table-wrapper">
+        @if (Model != null && Model.Any())
+        {
+            <table class="reports-table" id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Raporlayan</th>
+                        <th>Öğe Tipi</th>
+                        <th>Öğe ID</th>
+                        <th>Sebep</th>
+                        <th>Açıklama</th>
+                        <th>Tarih</th>
+                        <th>Durum</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var report in Model)
+                    {
+                        <tr class="@(report.Status == Sattim.Web.Models.Analytical.ReportStatus.UnderReview ? "under-review" : "")"
+                            data-status="@report.Status.ToString().ToLower()"
+                            data-entity="@report.EntityType.ToString().ToLower()">
+                            <td style="font-weight: 600; color: #666;">#@report.ReportId</td>
+                            <td>@report.ReporterFullName</td>
+                            <td>
+                                <span class="entity-badge">@report.EntityType.ToString()</span>
+                            </td>
+                            <td style="color: #666;">#@report.EntityId</td>
+                            <td style="font-size: 0.8rem; color: #666;">@report.Reason.ToString()</td>
+                            <td>
+                                <div class="description-cell">@report.Description</div>
+                            </td>
+                            <td style="color: #666; font-size: 0.8rem;">@report.CreatedDate.ToString("dd.MM.yyyy")</td>
+                            <td>
+                                @switch (report.Status)
+                                {
+                                    case Sattim.Web.Models.Analytical.ReportStatus.Pending:
+                                        <span class="status-badge status-pending">Beklemede</span>
+                                        break;
+                                    case Sattim.Web.Models.Analytical.ReportStatus.UnderReview:
+                                        <span class="status-badge status-review">İnceleniyor</span>
+                                        break;
+                                    case Sattim.Web.Models.Analytical.ReportStatus.Resolved:
+                                        <span class="status-badge status-resolved">Çözüldü</span>
+                                        break;
+                                    case Sattim.Web.Models.Analytical.ReportStatus.Rejected:
+                                        <span class="status-badge status-rejected">Reddedildi</span>
+                                        break;
+                                }
+                            </td>
+                            <td style="white-space: nowrap;">
+                                @if (report.Status == Sattim.Web.Models.Analytical.ReportStatus.Pending)
+                                {
+                                    <form asp-action="ReviewReport" method="post" style="display: inline;"
+                                          asp-route-reportId="@report.ReportId">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="action-btn btn-info" title="İncelemeye Al">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </form>
+                                }
+
+                                <button type="button" class="action-btn btn-success" data-bs-toggle="modal"
+                                        data-bs-target="#resolveModal-@report.ReportId" title="Çözüldü İşaretle">
+                                    <i class="fas fa-check"></i>Çöz
+                                </button>
+
+                                <button type="button" class="action-btn btn-danger" data-bs-toggle="modal"
+                                        data-bs-target="#rejectModal-@report.ReportId" title="Reddet">
+                                    <i class="fas fa-times"></i>Reddet
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-flag"></i>
+                <div class="empty-state-title">Şikayet Bulunamadı</div>
+                <div>Sistemde bekleyen şikayet bulunmamaktadır.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Resolve Modals -->
+@foreach (var report in Model)
+{
+    <div class="modal fade" id="resolveModal-@report.ReportId" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Şikayeti Çöz (#@report.ReportId)</h5>
+                    <button type="button" class="modal-close" data-bs-dismiss="modal">
+                        <span>×</span>
+                    </button>
+                </div>
+                <form asp-action="ResolveReport" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="reportId" value="@report.ReportId" />
+                    <div class="modal-body">
+                        <p>
+                            <strong>Raporlanan:</strong> @report.EntityType (#@report.EntityId)<br>
+                            <strong>Sebep:</strong> @report.Reason<br>
+                            <strong>Raporlayan:</strong> @report.ReporterFullName
+                        </p>
+                        <p>
+                            Şikayeti 'Çözüldü' olarak işaretliyorsunuz. Bu, gerekli aksiyonun alındığı anlamına gelir.
+                        </p>
+                        <div class="form-group">
+                            <label>Admin Notu (Yapılan İşlem):</label>
+                            <textarea name="resolutionNote" class="form-control" rows="4" required
+                                  placeholder="Örn: Kullanıcı banlandı, ürün yayından kaldırıldı..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-danger" type="button" data-bs-dismiss="modal"
+                                style="background-color: #6b7280; border-color: #6b7280;">
+                            İptal
+                        </button>
+                        <button class="btn-success" type="submit">
+                            <i class="fas fa-check me-2"></i>Çözüldü Olarak İşaretle
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="rejectModal-@report.ReportId" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Şikayeti Reddet (#@report.ReportId)</h5>
+                    <button type="button" class="modal-close" data-bs-dismiss="modal">
+                        <span>×</span>
+                    </button>
+                </div>
+                <form asp-action="RejectReport" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="reportId" value="@report.ReportId" />
+                    <div class="modal-body">
+                        <p>
+                            <strong>Raporlanan:</strong> @report.EntityType (#@report.EntityId)<br>
+                            <strong>Sebep:</strong> @report.Reason<br>
+                            <strong>Raporlayan:</strong> @report.ReporterFullName
+                        </p>
+                        <p>
+                            Şikayeti 'Reddedildi' (asılsız) olarak işaretliyorsunuz.
+                        </p>
+                        <div class="form-group">
+                            <label>Admin Notu (Red Sebebi):</label>
+                            <textarea name="rejectionNote" class="form-control" rows="4" required
+                                  placeholder="Örn: Şikayet asılsız, kural ihlali bulunamadı..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn-danger" type="button" data-bs-dismiss="modal"
+                                style="background-color: #6b7280; border-color: #6b7280;">
+                            İptal
+                        </button>
+                        <button class="btn-danger" type="submit">
+                            <i class="fas fa-times me-2"></i>Reddetmeyi Onayla
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function filterReports() {
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const entityFilter = document.getElementById('entityFilter').value.toLowerCase();
+
+            const table = document.getElementById('reportsTable');
+            const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const status = row.getAttribute('data-status');
+                const entity = row.getAttribute('data-entity');
+
+                const matchesStatus = !statusFilter || status === statusFilter;
+                const matchesEntity = !entityFilter || entity === entityFilter;
+
+                if (matchesStatus && matchesEntity) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+    </script>
+}

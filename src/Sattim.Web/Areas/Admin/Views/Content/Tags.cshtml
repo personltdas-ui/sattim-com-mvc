@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Content.TagViewModel>
+@{
+    ViewData["Title"] = "Etiket Yönetimi";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+<h1 class="h3 mb-4 text-gray-800">@ViewData["Title"]</h1>
+
+<div class="row">
+
+    <div class="col-lg-7">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Mevcut Etiketler</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="tagsTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Adı</th>
+                                <th>Slug</th>
+                                <th>Yazı Sayısı</th>
+                                <th style="width: 100px;">İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var tag in Model)
+                            {
+                                <tr>
+                                    <td>@tag.Name</td>
+                                    <td>@tag.Slug</td>
+                                    <td>@tag.PostCount</td>
+                                    <td>
+                                        <form asp-action="DeleteTag" asp-route-id="@tag.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('@tag.Name etiketini silmek istediğinizden emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Yeni Etiket Ekle</h6>
+            </div>
+            <div class="card-body">
+                <form asp-action="CreateTag" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div classa="form-group">
+                        <label for="Name">Adı</label>
+                        <input name="Name" class="form-control" required />
+                        <small class="form-text text-muted">Etiketin görünecek adı.</small>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="Slug">Slug (Link)</label>
+                        <input name="Slug" class="form-control" required />
+                        <small class="form-text text-muted">Linkte görünecek versiyonu (örn: "yeni-baslayanlar").</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-4">Etiketi Kaydet</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

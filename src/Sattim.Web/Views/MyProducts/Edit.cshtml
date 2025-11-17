@@ -1,0 +1,553 @@
+﻿@model Sattim.Web.ViewModels.Product.ProductFormViewModel
+@{
+    ViewData["Title"] = "Ürünü Düzenle";
+}
+
+<style>
+    .edit-container {
+        padding: 2rem 0;
+    }
+
+    .page-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.5rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .page-subtitle {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0;
+    }
+
+    .breadcrumb-custom {
+        background: transparent;
+        padding: 0 0 1rem 0;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+        .breadcrumb-custom .breadcrumb-item a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb-custom .breadcrumb-item a:hover {
+                color: #1a1a1a;
+            }
+
+    /* Image Management Card */
+    .image-management-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        position: sticky;
+        top: 100px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    /* Upload Section */
+    .upload-section {
+        background-color: #fafafa;
+        border: 2px dashed #e5e5e5;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+        .upload-section:hover {
+            border-color: #1a1a1a;
+            background-color: #f5f5f5;
+        }
+
+    .upload-icon {
+        font-size: 2rem;
+        color: #ccc;
+        margin-bottom: 0.75rem;
+    }
+
+    .upload-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+    .file-input-label {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.65rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 0;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+        .file-input-label:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+        }
+
+    .selected-files {
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .upload-btn {
+        background-color: #0284c7;
+        border: 1px solid #0284c7;
+        color: white;
+        padding: 0.65rem 1.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+        .upload-btn:hover {
+            background-color: #0369a1;
+            border-color: #0369a1;
+            color: white;
+        }
+
+        .upload-btn:disabled {
+            background-color: #ccc;
+            border-color: #ccc;
+            cursor: not-allowed;
+        }
+
+    /* Images List */
+    .images-list-header {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .images-help-text {
+        font-size: 0.8rem;
+        color: #999;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .sortable-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sortable-item {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: move;
+        transition: all 0.2s;
+    }
+
+        .sortable-item:hover {
+            border-color: #1a1a1a;
+            background-color: #fafafa;
+        }
+
+        .sortable-item.dragging {
+            opacity: 0.5;
+        }
+
+    .drag-handle {
+        color: #ccc;
+        font-size: 1rem;
+        cursor: grab;
+    }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+    .image-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border: 1px solid #e5e5e5;
+    }
+
+    .primary-badge {
+        background-color: #22c55e;
+        color: white;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .delete-btn {
+        background-color: #dc2626;
+        border: 1px solid #dc2626;
+        color: white;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
+        border-radius: 0;
+        transition: all 0.2s;
+        cursor: pointer;
+        margin-left: auto;
+    }
+
+        .delete-btn:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e5e5e5;
+        margin-top: 2rem;
+    }
+
+    .btn-cancel {
+        background-color: transparent;
+        border: 1px solid #e5e5e5;
+        color: #666;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+    }
+
+        .btn-cancel:hover {
+            background-color: #f5f5f5;
+            border-color: #d5d5d5;
+            color: #1a1a1a;
+        }
+
+    .btn-save {
+        background-color: #22c55e;
+        border: 1px solid #22c55e;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+    }
+
+        .btn-save:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.3;
+        }
+
+    /* Responsive */
+    @@media (max-width: 991px) {
+        .image-management-card
+
+    {
+        position: static;
+        margin-top: 2rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        width: 100%;
+    }
+
+    }
+</style>
+
+<div class="edit-container">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-custom">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+                <li class="breadcrumb-item"><a asp-controller="MyProducts" asp-action="Index">Ürünlerim</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Düzenle</li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Ürünü Düzenle</h1>
+            <p class="page-subtitle">@Model.Title</p>
+        </div>
+
+        <div class="row">
+            <!-- Left Column - Form -->
+            <div class="col-lg-8">
+                <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    @await Html.PartialAsync("_ProductFormFields", Model)
+
+                    <div class="form-actions">
+                        <a asp-action="Index" class="btn-cancel">
+                            <i class="fas fa-times me-2"></i>Vazgeç
+                        </a>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-save me-2"></i>Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Right Column - Image Management -->
+            <div class="col-lg-4">
+                <div class="image-management-card">
+                    <h4 class="card-title">Resim Yönetimi</h4>
+
+                    <!-- Upload Section -->
+                    <div class="upload-section">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="upload-text">
+                            Ürününüz için resim yükleyin<br>
+                            <small>(JPEG, PNG, maks. 5MB)</small>
+                        </div>
+
+                        <form asp-action="AddImages" method="post" enctype="multipart/form-data" id="uploadForm">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="productId" value="@Model.Id" />
+
+                            <div class="file-input-wrapper">
+                                <input type="file" name="images" id="images" accept="image/*" multiple required onchange="updateFileList(this)" />
+                                <label for="images" class="file-input-label">
+                                    <i class="fas fa-folder-open me-2"></i>Dosya Seç
+                                </label>
+                            </div>
+
+                            <div class="selected-files" id="selectedFiles"></div>
+
+                            <button type="submit" class="upload-btn" id="uploadBtn" disabled>
+                                <i class="fas fa-upload me-2"></i>Yükle
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Current Images -->
+                    <div>
+                        <div class="images-list-header">Mevcut Resimler</div>
+                        <div class="images-help-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Resimleri sürükleyerek sıralayabilirsiniz. İlk resim kapak resmi olur.
+                        </div>
+
+                        @if (!Model.Images.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-images"></i>
+                                <div>Henüz resim eklenmemiş</div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="sortable-list" id="imageSortableList">
+                                @foreach (var image in Model.Images.OrderBy(i => i.DisplayOrder))
+                                {
+                                    <div class="sortable-item" data-image-id="@image.Id" draggable="true">
+                                        <div class="drag-handle">
+                                            <i class="fas fa-grip-vertical"></i>
+                                        </div>
+
+                                        <img src="@image.ImageUrl" alt="Resim" class="image-thumbnail">
+
+                                        @if (image.IsPrimary)
+                                        {
+                                            <span class="primary-badge">Kapak</span>
+                                        }
+
+                                        <form asp-action="DeleteImage" method="post" style="margin-left: auto;"
+                                              onsubmit="return confirm('Bu resmi silmek istediğinize emin misiniz?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="imageId" value="@image.Id" />
+                                            <input type="hidden" name="productId" value="@Model.Id" />
+                                            <button type="submit" class="delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // File upload handling
+        function updateFileList(input) {
+            const filesDiv = document.getElementById('selectedFiles');
+            const uploadBtn = document.getElementById('uploadBtn');
+
+            if (input.files.length > 0) {
+                const fileNames = Array.from(input.files).map(f => f.name).join(', ');
+                filesDiv.innerHTML = `<i class="fas fa-check-circle me-1" style="color: #22c55e;"></i>${input.files.length} dosya seçildi`;
+                uploadBtn.disabled = false;
+            } else {
+                filesDiv.innerHTML = '';
+                uploadBtn.disabled = true;
+            }
+        }
+
+        // Drag and drop for image sorting
+        let draggedElement = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortableList = document.getElementById('imageSortableList');
+            if (!sortableList) return;
+
+            const items = sortableList.querySelectorAll('.sortable-item');
+
+            items.forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    draggedElement = this;
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                item.addEventListener('dragend', function() {
+                    this.classList.remove('dragging');
+                    updateImageOrder();
+                });
+
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(sortableList, e.clientY);
+                    if (afterElement == null) {
+                        sortableList.appendChild(draggedElement);
+                    } else {
+                        sortableList.insertBefore(draggedElement, afterElement);
+                    }
+                });
+            });
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.sortable-item:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function updateImageOrder() {
+            const sortableList = document.getElementById('imageSortableList');
+            const items = sortableList.querySelectorAll('.sortable-item');
+            const imageOrders = [];
+
+            items.forEach((item, index) => {
+                imageOrders.push({
+                    ImageId: parseInt(item.getAttribute('data-image-id')),
+                    DisplayOrder: index,
+                    IsPrimary: index === 0
+                });
+            });
+
+            // Send to server
+            fetch('@Url.Action("UpdateImageOrder", "MyProducts")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: @Model.Id,
+                    imageOrders: imageOrders
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Sıralama güncellendi');
+                    // Update primary badge
+                    document.querySelectorAll('.primary-badge').forEach(b => b.remove());
+                    const firstItem = items[0];
+                    const badge = document.createElement('span');
+                    badge.className = 'primary-badge';
+                    badge.textContent = 'Kapak';
+                    firstItem.insertBefore(badge, firstItem.querySelector('form'));
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+}

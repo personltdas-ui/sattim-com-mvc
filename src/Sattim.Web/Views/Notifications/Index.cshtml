@@ -1,0 +1,357 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Notification.NotificationViewModel>
+@using Sattim.Web.Models.UI
+
+@{
+    ViewData["Title"] = "Bildirimlerim";
+}
+
+
+
+@section Styles {
+    <style>
+        /* Breadcrumb (Önceki örneklerden) */
+        .breadcrumb-wrapper {
+            margin-bottom: 2rem;
+            margin-top: 2rem;
+        }
+
+        .breadcrumb-custom {
+            background: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 0.5rem;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+        }
+
+            .breadcrumb-item + .breadcrumb-item::before {
+                content: '/';
+                color: #ccc;
+                padding-right: 0.5rem;
+            }
+
+            .breadcrumb-item a {
+                color: #666;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb-item a:hover {
+                    color: var(--primary-color);
+                }
+
+            .breadcrumb-item.active {
+                color: var(--primary-color);
+                font-weight: 500;
+            }
+
+        /* Profil Sayfası Ana Kartı (Önceki örneklerden) */
+        .profile-content-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+        }
+
+        /* Başlık ve Eylem Butonu Hizalaması */
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Butonun başlık metniyle hizalanması için */
+            /* section-title'ın kendi alt kenarlığı ve marjı var */
+        }
+
+            .profile-header .section-title {
+                flex-grow: 1;
+            }
+
+            .profile-header form {
+                margin-top: 0.25rem; /* Görsel hizalama */
+                flex-shrink: 0;
+            }
+
+        /* Başlık (Önceki örneklerden) */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Modern Outline Düğme (ProductDetail'den 'action-btn' uyarlandı) */
+        .btn-outline-modern {
+            background: white;
+            border: 1px solid var(--border-color);
+            color: #666;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 0;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+            .btn-outline-modern:hover {
+                background: var(--bg-light);
+                border-color: var(--primary-color);
+                color: var(--primary-color);
+            }
+
+        /* Bildirim Listesi (Wallet'tan 'tx-list-wrapper' alındı) */
+        .notification-list-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.2s;
+        }
+
+            .notification-item:last-child {
+                border-bottom: none;
+            }
+
+            .notification-item:hover {
+                background-color: var(--bg-light);
+            }
+            /* Okunmamış bildirimler için özel stil */
+            .notification-item.unread {
+                background-color: var(--bg-light);
+                font-weight: 500;
+            }
+
+                .notification-item.unread:hover {
+                    background-color: #f0f0f0; /* bg-light'tan biraz daha koyu */
+                }
+
+        /* Bildirim İkonu (Wallet'tan 'tx-icon' uyarlandı) */
+        .notification-icon {
+            width: 36px;
+            height: 36px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        /* Pastel Renk Eşlemeleri */
+        .icon-bg-success {
+            background-color: #f0fdf4;
+            color: #166534;
+        }
+
+        .icon-bg-warning {
+            background-color: #fefce8;
+            color: #b45309;
+        }
+
+        .icon-bg-primary {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .icon-bg-info {
+            background-color: #ecfeff;
+            color: #0891b2;
+        }
+
+        .icon-bg-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .notification-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.95rem;
+        }
+
+        .notification-date {
+            font-size: 0.75rem;
+            color: #666;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .notification-message {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .notification-item.unread .notification-message {
+            color: #333;
+        }
+
+        /* Okunmadı Noktası (Orijinal badge yerine) */
+        .unread-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #2563eb; /* primary color */
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-left: 1rem;
+            margin-top: 0.6rem;
+        }
+
+        /* Boş Liste Uyarısı (MyBids'den) */
+        .alert-info-custom {
+            background-color: #f3f4f6;
+            border-left: 3px solid #6b7280;
+            color: #374151;
+            padding: 2rem;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            border-radius: 0;
+            text-align: center;
+        }
+
+            .alert-info-custom i {
+                font-size: 1.5rem;
+                color: #6b7280;
+            }
+    </style>
+}
+
+<nav class="breadcrumb-wrapper" aria-label="breadcrumb">
+    <ol class="breadcrumb-custom">
+        <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
+        <li class="breadcrumb-item"><a asp-controller="UserProfile" asp-action="Index">Profilim</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <div class="col-md-3">
+        @await Html.PartialAsync("_ProfileNav")
+    </div>
+
+    <div class="col-md-9">
+        <div class="profile-content-card">
+
+            <div class="profile-header">
+                <h1 class="section-title">
+                    <i class="fa-solid fa-bell"></i>
+                    @ViewData["Title"]
+                </h1>
+
+                @if (Model.Any(n => !n.IsRead))
+                {
+                    <form asp-action="MarkAllAsRead" method="post" class="mb-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-outline-modern">
+                            Tümünü Okundu İşaretle
+                        </button>
+                    </form>
+                }
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="alert-info-custom">
+                    <i class="fas fa-bell-slash"></i>
+                    <span>Gösterilecek bildiriminiz bulunmuyor.</span>
+                </div>
+            }
+            else
+            {
+                <div class="notification-list-wrapper">
+                    @foreach (var notification in Model)
+                    {
+                        string readClass = !notification.IsRead ? "unread" : "";
+                        var (icon, colorName) = GetNotificationIcon(notification.Type);
+
+                        string iconBgClass = colorName switch
+                        {
+                            "success" => "icon-bg-success",
+                            "warning" => "icon-bg-warning",
+                            "primary" => "icon-bg-primary",
+                            "info" => "icon-bg-info",
+                            _ => "icon-bg-secondary"
+                        };
+
+                        <a asp-action="RedirectTo" asp-controller="Notifications" asp-route-id="@notification.Id"
+                           class="notification-item @readClass">
+
+                            <div class="notification-icon @iconBgClass">
+                                <i class="fas @icon"></i>
+                            </div>
+
+                            <div class="notification-details">
+                                <div class="notification-header">
+                                    <div class="notification-title">@notification.Title</div>
+                                    <div class="notification-date">
+                                        @notification.CreatedDate.ToString("dd MMM, HH:mm")
+                                    </div>
+                                </div>
+                                <div class="notification-message">@notification.Message</div>
+                            </div>
+
+                            @if (!notification.IsRead)
+                            {
+                                <div class="unread-dot" title="Okunmadı"></div>
+                            }
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private (string Icon, string Color) GetNotificationIcon(NotificationType type)
+    {
+        return type switch
+        {
+            NotificationType.BidPlaced => ("fa-gavel", "primary"),
+            NotificationType.BidOutbid => ("fa-arrow-down", "warning"),
+            NotificationType.AuctionWon => ("fa-trophy", "success"),
+            NotificationType.AuctionLost => ("fa-times-circle", "secondary"),
+            NotificationType.AuctionEnding => ("fa-hourglass-half", "info"),
+            NotificationType.ProductSold => ("fa-dollar-sign", "success"),
+            NotificationType.ProductApproved => ("fa-check-circle", "success"),
+            NotificationType.MessageReceived => ("fa-envelope", "primary"),
+            NotificationType.PaymentReceived => ("fa-credit-card", "success"),
+            NotificationType.System => ("fa-info-circle", "info"),
+            _ => ("fa-bell", "secondary")
+        };
+    }
+}

@@ -1,0 +1,78 @@
+﻿@model Sattim.Web.ViewModels.Order.OrderDetailViewModel
+@using Sattim.Web.ViewModels.Order // OrderPaymentViewModel için
+
+@{
+    ViewData["Title"] = "Ödemeyi Tamamla";
+    // Controller'dan gelen boş ödeme formunu al
+    var paymentForm = (OrderPaymentViewModel)ViewBag.PaymentForm;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h2>@ViewData["Title"]</h2>
+            <hr />
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Sipariş Özeti</h5>
+                            <div class="d-flex mb-2">
+                                <img src="@(Model.ProductImageUrl ?? "/images/placeholder.png")" alt="@Model.ProductTitle" class="rounded" style="width: 60px; height: 60px; object-fit: cover;" />
+                                <div class="ms-3">
+                                    <strong>@Model.ProductTitle</strong><br />
+                                    <small class="text-muted">Satıcı: @Model.SellerFullName</small>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <span>Ara Toplam:</span>
+                                <span>@Model.FinalPrice.ToString("C")</span>
+                            </div>
+                            <div class="d-flex justify-content-between h4 mt-2">
+                                <span>TOPLAM:</span>
+                                <strong>@Model.FinalPrice.ToString("C")</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <h5>Ödeme Yöntemi</h5>
+                    <form asp-action="SubmitPayment" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="ProductId" value="@paymentForm.ProductId" />
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-check border p-3 rounded mb-2">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="payWallet" value="Wallet" checked>
+                            <label class="form-check-label" for="payWallet">
+                                <strong>Cüzdanım ile Öde</strong>
+                                <span class="d-block text-muted">Mevcut Bakiye: 0.00 TL</span>
+                            </label>
+                        </div>
+
+                        <div class="form-check border p-3 rounded mb-3">
+                            <input class="form-check-input" type="radio" name="PaymentMethod" id="payGateway" value="Gateway">
+                            <label class="form-check-label" for="payGateway">
+                                <strong>Kredi/Banka Kartı ile Öde</strong>
+                                <span class="d-block text-muted">Iyzico/Stripe ile güvenli ödeme.</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">
+                            Ödemeyi Tamamla (@Model.FinalPrice.ToString("C"))
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

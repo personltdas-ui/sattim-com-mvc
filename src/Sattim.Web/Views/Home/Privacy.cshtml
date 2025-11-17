@@ -1,0 +1,573 @@
+﻿@{
+    ViewData["Title"] = "Gizlilik Politikası";
+}
+
+<style>
+    /* Page Container */
+    .legal-page {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1.5rem;
+    }
+
+    /* Header Section */
+    .legal-header {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 2.5rem 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .legal-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 1rem 0;
+        letter-spacing: -0.5px;
+    }
+
+    .legal-subtitle {
+        font-size: 0.95rem;
+        color: #666;
+        margin: 0 0 1.5rem 0;
+        line-height: 1.6;
+    }
+
+    .legal-updated {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        color: #999;
+        padding: 0.5rem 1rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+    }
+
+        .legal-updated i {
+            color: #666;
+        }
+
+    /* Content Card */
+    .legal-content {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 2.5rem 2rem;
+    }
+
+    /* Section */
+    .legal-section {
+        margin-bottom: 3rem;
+    }
+
+        .legal-section:last-child {
+            margin-bottom: 0;
+        }
+
+    .legal-section-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background-color: #1a1a1a;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-right: 0.75rem;
+    }
+
+    .legal-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 1.25rem 0;
+        display: flex;
+        align-items: center;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .legal-section-content {
+        font-size: 0.95rem;
+        color: #666;
+        line-height: 1.8;
+    }
+
+        .legal-section-content p {
+            margin-bottom: 1rem;
+        }
+
+            .legal-section-content p:last-child {
+                margin-bottom: 0;
+            }
+
+    /* Lists */
+    .legal-list {
+        list-style: none;
+        padding: 0;
+        margin: 1.5rem 0;
+    }
+
+    .legal-list-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+        color: #666;
+        line-height: 1.7;
+    }
+
+        .legal-list-item::before {
+            content: "•";
+            position: absolute;
+            left: 0.75rem;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .legal-list-item strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+    /* Info Box */
+    .info-box {
+        background-color: #eff6ff;
+        border-left: 3px solid #0284c7;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #075985;
+        line-height: 1.7;
+    }
+
+    .info-box-title {
+        font-weight: 600;
+        color: #0284c7;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .info-box-title i {
+            font-size: 1rem;
+        }
+
+    /* Warning Box */
+    .warning-box {
+        background-color: #fef3c7;
+        border-left: 3px solid #f59e0b;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        font-size: 0.9rem;
+        color: #92400e;
+        line-height: 1.7;
+    }
+
+    .warning-box-title {
+        font-weight: 600;
+        color: #f59e0b;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .warning-box-title i {
+            font-size: 1rem;
+        }
+
+    /* Contact Box */
+    .contact-box {
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: center;
+    }
+
+    .contact-box-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+
+    .contact-box-text {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .contact-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .contact-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .legal-header, .legal-content
+
+    {
+        padding: 1.5rem 1rem;
+    }
+
+    .legal-title {
+        font-size: 1.5rem;
+    }
+
+    .legal-section-title {
+        font-size: 1.1rem;
+    }
+
+    .legal-section-number {
+        width: 28px;
+        height: 28px;
+        font-size: 0.85rem;
+    }
+
+    }
+</style>
+
+<div class="legal-page">
+    <!-- Header -->
+    <div class="legal-header">
+        <h1 class="legal-title">Gizlilik Politikası</h1>
+        <p class="legal-subtitle">
+            Sattim platformu olarak, kişisel verilerinizin güvenliğini ve gizliliğini en üst düzeyde önemsiyoruz.
+            Bu gizlilik politikası, topladığımız verileri, bu verileri nasıl kullandığımızı ve haklarınızı detaylı bir şekilde açıklamaktadır.
+        </p>
+        <div class="legal-updated">
+            <i class="far fa-calendar"></i>
+            <span>Son Güncelleme: 16 Kasım 2025</span>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="legal-content">
+
+        <!-- Section 1 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">1</span>
+                Toplanan Veriler
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Sattim platformunu kullanırken, size daha iyi hizmet sunabilmek ve platformun güvenliğini sağlayabilmek için
+                    çeşitli kişisel veriler toplamaktayız. Toplanan veriler şunları içermektedir:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Kimlik Bilgileri:</strong> Ad, soyad, doğum tarihi, TC kimlik numarası (hesap doğrulama için)
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İletişim Bilgileri:</strong> E-posta adresi, telefon numarası, posta adresi
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Hesap Bilgileri:</strong> Kullanıcı adı, şifre (şifrelenmiş), profil resmi, biyografi
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İşlem Bilgileri:</strong> Satın alma geçmişi, satış geçmişi, teklif verme aktiviteleri, ödeme bilgileri
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Teknik Veriler:</strong> IP adresi, tarayıcı türü, cihaz bilgileri, konum bilgisi, çerez verileri
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İçerik Verileri:</strong> Ürün ilanları, yorumlar, mesajlar, profil bilgileri
+                    </li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <i class="fas fa-shield-alt"></i>
+                        Güvenlik Önlemi
+                    </div>
+                    Tüm hassas verileriniz (şifreler, ödeme bilgileri) endüstri standardı şifreleme yöntemleriyle korunmaktadır.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">2</span>
+                Verilerin Kullanım Amaçları
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Topladığımız kişisel verilerinizi aşağıdaki amaçlarla kullanmaktayız:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Hesap Yönetimi:</strong> Kullanıcı hesabınızı oluşturmak, yönetmek ve kimlik doğrulama yapmak
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İşlem Gerçekleştirme:</strong> Alım-satım işlemlerini tamamlamak, ödeme işlemlerini yönetmek, kargo takibi yapmak
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Güvenlik ve Dolandırıcılık Önleme:</strong> Platform güvenliğini sağlamak, şüpheli aktiviteleri tespit etmek ve önlemek
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İletişim:</strong> Size bildirimler göndermek, müşteri destek hizmeti sunmak, önemli güncellemeler hakkında bilgilendirmek
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Hizmet İyileştirme:</strong> Platform performansını analiz etmek, kullanıcı deneyimini geliştirmek
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Yasal Yükümlülükler:</strong> Yasal gereklilikleri yerine getirmek, ihtilaf çözümleme süreçlerinde kullanmak
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Pazarlama (İzninizle):</strong> Kişiselleştirilmiş öneriler sunmak, kampanya ve duyurular göndermek
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">3</span>
+                Veri Paylaşımı ve Aktarımı
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Kişisel verilerinizi kesinlikle üçüncü şahıslarla satmıyoruz. Ancak, hizmetlerimizi sunabilmek için
+                    aşağıdaki durumlarla sınırlı olarak veri paylaşımı yapabiliriz:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Hizmet Sağlayıcılar:</strong> Ödeme işleme, kargo, bulut depolama gibi hizmetleri sunan güvenilir iş ortaklarımız
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Yasal Zorunluluklar:</strong> Mahkeme kararı, yasal süreç veya kamu otoritelerinin talebi durumunda
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İşlem Tarafları:</strong> Alım-satım işlemlerinde karşı tarafla (adres, telefon gibi) gerekli bilgiler
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Güvenlik Durumları:</strong> Platform güvenliğini korumak, dolandırıcılığı önlemek için yetkili mercilerle
+                    </li>
+                </ul>
+
+                <div class="warning-box">
+                    <div class="warning-box-title">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Önemli Uyarı
+                    </div>
+                    Tüm veri paylaşımları, açık rızanız veya yasal zorunluluk çerçevesinde gerçekleştirilir ve paylaşılan veriler yalnızca belirtilen amaçlarla kullanılır.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">4</span>
+                Veri Güvenliği
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Kişisel verilerinizin güvenliğini sağlamak için aşağıdaki teknik ve idari önlemleri almaktayız:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>SSL/TLS Şifreleme:</strong> Tüm veri iletimi 256-bit SSL şifreleme ile korunmaktadır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Güvenli Veri Depolama:</strong> Veriler güvenli sunucularda, şifrelenmiş veritabanlarında saklanır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Erişim Kontrolü:</strong> Verilere erişim, yalnızca yetkili personelle sınırlıdır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Düzenli Güvenlik Denetimleri:</strong> Sistem güvenliği düzenli olarak test edilir ve güncellenir
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İki Faktörlü Kimlik Doğrulama:</strong> Hesap güvenliği için ek koruma katmanı sunulur
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">5</span>
+                Çerezler (Cookies)
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Platformumuz, daha iyi bir kullanıcı deneyimi sunmak için çerezler kullanmaktadır. Çerezler aşağıdaki amaçlarla kullanılır:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Temel Çerezler:</strong> Platformun düzgün çalışması için gerekli olan zorunlu çerezler
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Oturum Çerezleri:</strong> Giriş yapma durumunuzu hatırlamak ve güvenliği sağlamak
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Analitik Çerezler:</strong> Platform kullanımını analiz etmek ve iyileştirmeler yapmak
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Tercih Çerezleri:</strong> Dil, para birimi gibi tercihlerinizi hatırlamak
+                    </li>
+                </ul>
+
+                <p>
+                    Tarayıcı ayarlarınızdan çerezleri yönetebilir veya devre dışı bırakabilirsiniz.
+                    Ancak, bazı çerezlerin devre dışı bırakılması platformun bazı özelliklerinin çalışmamasına neden olabilir.
+                </p>
+            </div>
+        </div>
+
+        <!-- Section 6 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">6</span>
+                Kullanıcı Hakları
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    KVKK (Kişisel Verilerin Korunması Kanunu) kapsamında aşağıdaki haklara sahipsiniz:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Bilgi Talep Etme:</strong> Hangi verilerinizin işlendiğini öğrenme hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Erişim Hakkı:</strong> Kişisel verilerinize erişim talep etme hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Düzeltme Hakkı:</strong> Hatalı veya eksik verilerin düzeltilmesini isteme hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Silme Hakkı:</strong> Belirli koşullarda verilerinizin silinmesini talep etme hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İtiraz Etme Hakkı:</strong> Veri işleme faaliyetlerine itiraz etme hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Veri Taşınabilirliği:</strong> Verilerinizi yapılandırılmış bir formatta alma hakkı
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Pazarlama Ret:</strong> Pazarlama iletişimlerinden çıkma hakkı
+                    </li>
+                </ul>
+
+                <div class="info-box">
+                    <div class="info-box-title">
+                        <i class="fas fa-user-check"></i>
+                        Haklarınızı Kullanın
+                    </div>
+                    Bu haklarınızı kullanmak için profil ayarlarınızdan talepte bulunabilir veya bizimle iletişime geçebilirsiniz.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">7</span>
+                Veri Saklama Süresi
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Kişisel verilerinizi yalnızca gerekli olduğu sürece saklıyoruz:
+                </p>
+
+                <ul class="legal-list">
+                    <li class="legal-list-item">
+                        <strong>Aktif Hesaplar:</strong> Hesabınız aktif olduğu sürece veriler saklanır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>İşlem Kayıtları:</strong> Yasal zorunluluklar gereği 10 yıl süreyle saklanır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Pazarlama Verileri:</strong> Rızanızı geri çekene kadar saklanır
+                    </li>
+                    <li class="legal-list-item">
+                        <strong>Hesap Silme:</strong> Hesap silme talebinden sonra 30 gün içinde veriler silinir (yasal yükümlülükler hariç)
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 8 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">8</span>
+                Çocukların Gizliliği
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Platformumuz 18 yaş altındaki kullanıcılara hizmet vermemektedir. 18 yaş altı bireylerin verilerini
+                    bilerek toplamıyoruz. Eğer 18 yaş altı bir kullanıcının verilerinin toplandığını tespit edersek,
+                    bu verileri derhal sileriz.
+                </p>
+            </div>
+        </div>
+
+        <!-- Section 9 -->
+        <div class="legal-section">
+            <h2 class="legal-section-title">
+                <span class="legal-section-number">9</span>
+                Politika Değişiklikleri
+            </h2>
+            <div class="legal-section-content">
+                <p>
+                    Bu gizlilik politikasını zaman zaman güncelleyebiliriz. Önemli değişiklikler yapıldığında
+                    sizi e-posta veya platform bildirimleri ile bilgilendireceğiz. Politikayı düzenli olarak
+                    gözden geçirmenizi öneririz.
+                </p>
+                <p>
+                    Değişiklikler, bu sayfada yayınlandığı tarihten itibaren geçerli olacaktır.
+                    Platformu kullanmaya devam ederek güncellenmiş politikayı kabul etmiş sayılırsınız.
+                </p>
+            </div>
+        </div>
+
+        <!-- Contact Box -->
+        <div class="contact-box">
+            <div class="contact-box-title">
+                <i class="fas fa-envelope"></i>
+                Sorularınız mı var?
+            </div>
+            <p class="contact-box-text">
+                Gizlilik politikamız hakkında herhangi bir sorunuz veya endişeniz varsa,
+                bizimle iletişime geçmekten çekinmeyin.
+            </p>
+            <a asp-controller="Home" asp-action="Contact" class="contact-btn">
+                <i class="fas fa-paper-plane"></i>
+                Bize Ulaşın
+            </a>
+        </div>
+
+    </div>
+</div>

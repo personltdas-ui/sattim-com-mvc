@@ -1,0 +1,494 @@
+﻿@model List<Sattim.Web.ViewModels.Product.ProductSummaryViewModel>
+@{
+    ViewData["Title"] = "Arama Sonuçları";
+    var query = ViewBag.Query as string ?? "";
+    var resultCount = (int)(ViewBag.ResultCount ?? 0);
+}
+
+<style>
+    .search-container {
+        padding: 2rem 0;
+    }
+
+    /* Search Header */
+    .search-header {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .search-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .search-query {
+        color: #1a1a1a;
+        background-color: #f5f5f5;
+        padding: 0.15rem 0.5rem;
+        font-weight: 600;
+    }
+
+    .search-result-count {
+        font-size: 0.95rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+        .search-result-count strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+    /* Search Form */
+    .search-form-wrapper {
+        max-width: 600px;
+    }
+
+    .search-input-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .search-input {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        flex: 1;
+        transition: border-color 0.2s;
+    }
+
+        .search-input:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .search-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+        .search-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Filters Bar */
+    .filters-bar {
+        background: #fafafa;
+        border: 1px solid #e5e5e5;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .filter-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-size: 0.85rem;
+        color: #666;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .filter-select {
+        border: 1px solid #e5e5e5;
+        border-radius: 0;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.85rem;
+        background-color: white;
+        min-width: 150px;
+    }
+
+        .filter-select:focus {
+            border-color: #1a1a1a;
+            box-shadow: none;
+            outline: none;
+        }
+
+    .results-info {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    /* Results Grid */
+    .results-grid {
+        margin-bottom: 2rem;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+    }
+
+    .empty-state-icon {
+        width: 100px;
+        height: 100px;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: #999;
+    }
+
+    .empty-state-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.75rem;
+    }
+
+    .empty-state-text {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .empty-state-suggestions {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        padding: 1.5rem;
+        text-align: left;
+        max-width: 600px;
+        margin: 0 auto 2rem;
+    }
+
+    .suggestions-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+
+    .suggestions-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .suggestions-list li {
+            padding: 0.5rem 0;
+            color: #666;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+        }
+
+            .suggestions-list li i {
+                color: #1a1a1a;
+                margin-top: 0.25rem;
+                font-size: 0.7rem;
+            }
+
+    .empty-state-btn {
+        background-color: #1a1a1a;
+        border: 1px solid #1a1a1a;
+        color: white;
+        padding: 0.75rem 2rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+        border-radius: 0;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+
+        .empty-state-btn:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Popular Searches */
+    .popular-searches {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+
+    .popular-searches-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .popular-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .popular-tag {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+        color: #666;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+
+        .popular-tag:hover {
+            background-color: #1a1a1a;
+            border-color: #1a1a1a;
+            color: white;
+        }
+
+   
+
+    
+</style>
+
+<div class="search-container">
+    <div class="container">
+        <!-- Search Header -->
+        <div class="search-header">
+            <h1 class="search-title">
+                @if (!string.IsNullOrEmpty(query))
+                {
+                    <text>Arama Sonuçları: <span class="search-query">"@query"</span></text>
+                }
+                else
+                {
+                    <text>Arama</text>
+                }
+            </h1>
+
+            @if (resultCount > 0)
+            {
+                <p class="search-result-count">
+                    <strong>@resultCount</strong> ürün bulundu
+                </p>
+            }
+
+            <!-- Search Form -->
+            <div class="search-form-wrapper">
+                <form asp-controller="Products" asp-action="Search" method="get">
+                    <div class="search-input-group">
+                        <input type="text" name="query" class="search-input"
+                               placeholder="Ürün, kategori veya marka ara..."
+                               value="@query" required>
+                        <button type="submit" class="search-btn">
+                            <i class="fas fa-search me-2"></i>Ara
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <!-- Filters Bar -->
+            <div class="filters-bar">
+                <div class="filter-left">
+                    <div class="filter-item">
+                        <label class="filter-label">Sıralama:</label>
+                        <select class="filter-select" onchange="applySorting(this.value)">
+                            <option value="relevance">İlgililik</option>
+                            <option value="newest">En Yeni</option>
+                            <option value="ending">Bitmek Üzere</option>
+                            <option value="price-asc">Fiyat (Düşük-Yüksek)</option>
+                            <option value="price-desc">Fiyat (Yüksek-Düşük)</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Kategori:</label>
+                        <select class="filter-select" onchange="applyCategory(this.value)">
+                            <option value="">Tüm Kategoriler</option>
+                            <option value="1">Elektronik</option>
+                            <option value="2">Moda</option>
+                            <option value="3">Ev & Yaşam</option>
+                            <option value="4">Spor</option>
+                            <option value="5">Kitap</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="results-info">
+                    @Model.Count ürün gösteriliyor
+                </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div class="results-grid">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+                    @foreach (var product in Model)
+                    {
+                        <div class="col">
+                            <partial name="_ProductCard" model="product" />
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Popular Searches -->
+            <div class="popular-searches">
+                <h3 class="popular-searches-title">Popüler Aramalar</h3>
+                <div class="popular-tags">
+                    <a href="?query=elektronik" class="popular-tag">Elektronik</a>
+                    <a href="?query=telefon" class="popular-tag">Telefon</a>
+                    <a href="?query=laptop" class="popular-tag">Laptop</a>
+                    <a href="?query=kamera" class="popular-tag">Kamera</a>
+                    <a href="?query=saat" class="popular-tag">Saat</a>
+                    <a href="?query=bisiklet" class="popular-tag">Bisiklet</a>
+                    <a href="?query=ayakkabı" class="popular-tag">Ayakkabı</a>
+                    <a href="?query=kitap" class="popular-tag">Kitap</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Empty State -->
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-search-minus"></i>
+                </div>
+                <h2 class="empty-state-title">
+                    @if (!string.IsNullOrEmpty(query))
+                    {
+                        <text>Sonuç Bulunamadı</text>
+                    }
+                    else
+                    {
+                        <text>Arama Yapın</text>
+                    }
+                </h2>
+                <p class="empty-state-text">
+                    @if (!string.IsNullOrEmpty(query))
+                    {
+                        <text>"@query" için herhangi bir ürün bulunamadı. Lütfen farklı anahtar kelimelerle tekrar deneyin.</text>
+                    }
+                    else
+                    {
+                        <text>Yukarıdaki arama kutusunu kullanarak ürün, kategori veya marka arayabilirsiniz.</text>
+                    }
+                </p>
+
+                @if (!string.IsNullOrEmpty(query))
+                {
+                    <div class="empty-state-suggestions">
+                        <h4 class="suggestions-title">Arama İpuçları</h4>
+                        <ul class="suggestions-list">
+                            <li>
+                                <i class="fas fa-circle"></i>
+                                <span>Yazım hatalarını kontrol edin</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-circle"></i>
+                                <span>Daha genel anahtar kelimeler kullanın</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-circle"></i>
+                                <span>Farklı eş anlamlı kelimeler deneyin</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-circle"></i>
+                                <span>Daha az filtre kullanarak arama yapın</span>
+                            </li>
+                        </ul>
+                    </div>
+                }
+
+                <a asp-controller="Products" asp-action="Index" class="empty-state-btn">
+                    <i class="fas fa-th me-2"></i>Tüm Ürünlere Göz Atın
+                </a>
+            </div>
+
+            <!-- Popular Searches -->
+            <div class="popular-searches">
+                <h3 class="popular-searches-title">Popüler Aramalar</h3>
+                <div class="popular-tags">
+                    <a href="?query=elektronik" class="popular-tag">Elektronik</a>
+                    <a href="?query=telefon" class="popular-tag">Telefon</a>
+                    <a href="?query=laptop" class="popular-tag">Laptop</a>
+                    <a href="?query=kamera" class="popular-tag">Kamera</a>
+                    <a href="?query=saat" class="popular-tag">Saat</a>
+                    <a href="?query=bisiklet" class="popular-tag">Bisiklet</a>
+                    <a href="?query=ayakkabı" class="popular-tag">Ayakkabı</a>
+                    <a href="?query=kitap" class="popular-tag">Kitap</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function applySorting(sortBy) {
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('sortBy', sortBy);
+            window.location.href = currentUrl.toString();
+        }
+
+        function applyCategory(categoryId) {
+            const currentUrl = new URL(window.location.href);
+            if (categoryId) {
+                currentUrl.searchParams.set('categoryId', categoryId);
+            } else {
+                currentUrl.searchParams.delete('categoryId');
+            }
+            window.location.href = currentUrl.toString();
+        }
+
+        // Preserve selected values
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sortBy = urlParams.get('sortBy');
+            const categoryId = urlParams.get('categoryId');
+
+            if (sortBy) {
+                const sortSelect = document.querySelector('.filter-select[onchange*="applySorting"]');
+                if (sortSelect) sortSelect.value = sortBy;
+            }
+
+            if (categoryId) {
+                const categorySelect = document.querySelector('.filter-select[onchange*="applyCategory"]');
+                if (categorySelect) categorySelect.value = categoryId;
+            }
+        });
+    </script>
+}

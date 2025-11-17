@@ -1,0 +1,276 @@
+﻿@model List<Sattim.Web.ViewModels.Category.CategoryViewModel>
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+}
+
+<style>
+    /* Page Intro */
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Category Card */
+    .category-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+        margin-bottom: 2rem;
+    }
+
+    .category-card-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .category-card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .categories-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Action Buttons */
+    .btn-primary {
+        background-color: #1a1a1a;
+        border-color: #1a1a1a;
+        color: white;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+        .btn-primary:hover {
+            background-color: #4a4a4a;
+            border-color: #4a4a4a;
+            color: white;
+        }
+
+    /* Category Table */
+    .category-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .category-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .category-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .category-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Info Box */
+    .info-box {
+        background-color: #dbeafe;
+        border-left: 3px solid #3b82f6;
+        padding: 1rem 1.25rem;
+        margin-bottom: 2rem;
+        font-size: 0.8rem;
+        color: #1e40af;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+        .info-box i {
+            font-size: 1rem;
+            margin-top: 0.1rem;
+        }
+
+    /* Stats Box */
+    .stats-box {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1rem 1.5rem;
+        background-color: #fafafa;
+        border-bottom: 1px solid #e5e5e5;
+        font-size: 0.8rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+    }
+
+        .stat-item i {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .stat-item strong {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Ürün kategorilerini yönetin. Alt kategoriler oluşturabilir ve hiyerarşik yapıyı düzenleyebilirsiniz.
+</p>
+
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a1a1a; margin: 0;">Kategoriler</h2>
+        <p style="color: #666; font-size: 0.85rem; margin: 0.25rem 0 0 0;">
+            Toplam @Model.Count kategori bulunmaktadır.
+        </p>
+    </div>
+    <a asp-action="CreateCategory" class="btn-primary">
+        <i class="fas fa-plus"></i>Yeni Kategori Ekle
+    </a>
+</div>
+
+<!-- Info Box -->
+<div class="info-box">
+    <i class="fas fa-info-circle"></i>
+    <div>
+        <strong>Kategori Hiyerarşisi:</strong> Ana kategoriler ve alt kategoriler girintili olarak gösterilir.
+        Alt kategori eklemek için önce ana kategoriyi oluşturun, sonra düzenleyin.
+    </div>
+</div>
+
+<!-- Category Table -->
+<div class="category-card">
+    <div class="category-card-header">
+        <h3 class="category-card-title">
+            <i class="fas fa-sitemap me-2"></i>Kategori Ağacı
+        </h3>
+        <span class="categories-count">@Model.Count kategori</span>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        int totalCategories = 0;
+        int mainCategories = Model.Count;
+
+        void CountCategories(List<Sattim.Web.ViewModels.Category.CategoryViewModel> categories)
+        {
+            foreach (var cat in categories)
+            {
+                totalCategories++;
+                if (cat.SubCategories != null && cat.SubCategories.Any())
+                {
+                    CountCategories(cat.SubCategories.ToList());
+                }
+            }
+        }
+
+        CountCategories(Model);
+        int subCategories = totalCategories - mainCategories;
+
+        <div class="stats-box">
+            <div class="stat-item">
+                <i class="fas fa-folder"></i>
+                <span>Ana Kategori: <strong>@mainCategories</strong></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-folder-open"></i>
+                <span>Alt Kategori: <strong>@subCategories</strong></span>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-th-list"></i>
+                <span>Toplam: <strong>@totalCategories</strong></span>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="category-table">
+                <thead>
+                    <tr>
+                        <th>Kategori Adı</th>
+                        <th>Slug</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var category in Model)
+                    {
+                        <partial name="_CategoryRowPartial" model="category" view-data='new ViewDataDictionary(ViewData) { ["Level"] = 0 }' />
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-sitemap"></i>
+            <div class="empty-state-title">Kategori Bulunamadı</div>
+            <div>Henüz hiç kategori eklenmemiş. Yeni kategori eklemek için yukarıdaki butonu kullanın.</div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Kategori satırları için hover efekti
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('.category-table tbody tr');
+
+            rows.forEach(row => {
+                const level = parseInt(row.getAttribute('data-level') || 0);
+
+                // Alt kategoriler için hafif arka plan rengi
+                if (level > 0) {
+                    row.style.backgroundColor = `rgba(250, 250, 250, ${level * 0.3})`;
+                }
+            });
+        });
+    </script>
+}

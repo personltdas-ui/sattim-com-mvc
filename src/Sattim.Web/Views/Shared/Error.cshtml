@@ -1,0 +1,32 @@
+﻿@model Sattim.Web.ViewModels.Home.ErrorViewModel
+
+
+@{
+    ViewData["Title"] = "Hata Oluştu";
+    Layout = "_MinimalLayout";
+}
+
+<div class="container text-center mt-5">
+    <h1 class="display-1 text-danger">Hata!</h1>
+    <h2 class="display-4">Beklenmedik bir sorun oluştu.</h2>
+    <p class="lead text-muted">
+        İşleminiz sırasında beklenmedik bir hatayla karşılaştık.
+        Ekibimiz bu sorundan haberdar edildi.
+    </p>
+    <p>
+        <a asp-action="Index" asp-controller="Home" class="btn btn-primary">Anasayfaya Dön</a>
+    </p>
+
+    @if (Model.ShowRequestId)
+    {
+        <div class="alert alert-danger mt-4">
+            <h5 class="alert-heading">Teknik Detaylar (Geliştirici)</h5>
+            <p>
+                <strong>Hata Takip Kodu (Request ID):</strong> <code>@Model.RequestId</code>
+            </p>
+            <p>
+                Bu kodu, sunucu loglarında hatayı bulmak için kullanabilirsiniz.
+            </p>
+        </div>
+    }
+</div>

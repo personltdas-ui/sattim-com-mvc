@@ -1,0 +1,372 @@
+﻿@model IEnumerable<Sattim.Web.ViewModels.Moderation.CommentModerationViewModel>
+@{
+    ViewData["Title"] = "Onay Bekleyen Yorumlar";
+}
+
+<style>
+    .page-intro {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+        background: white;
+        border: 1px solid #e5e5e5;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 0.25rem;
+    }
+
+    /* Comments Table */
+    .comments-table-card {
+        background: white;
+        border: 1px solid #e5e5e5;
+    }
+
+    .comments-table-header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .comments-table-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .comments-count {
+        font-size: 0.85rem;
+        color: #666;
+        background-color: #f5f5f5;
+        padding: 0.35rem 0.75rem;
+        font-weight: 500;
+    }
+
+    .comments-table {
+        width: 100%;
+        font-size: 0.85rem;
+    }
+
+        .comments-table thead th {
+            padding: 1rem 1rem;
+            background-color: #fafafa;
+            border-bottom: 2px solid #e5e5e5;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .comments-table tbody td {
+            padding: 1rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        .comments-table tbody tr:hover {
+            background-color: #fafafa;
+        }
+
+    .comment-author {
+        font-weight: 500;
+        color: #1a1a1a;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .author-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #666;
+    }
+
+    .comment-content {
+        max-width: 350px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.85rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .comment-content-full {
+        -webkit-line-clamp: unset;
+    }
+
+    .read-more-btn {
+        color: #0284c7;
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 0.25rem;
+    }
+
+        .read-more-btn:hover {
+            text-decoration: underline;
+        }
+
+    .post-link {
+        color: #1a1a1a;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+        .post-link:hover {
+            color: #0284c7;
+        }
+
+        .post-link i {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem 0.85rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid;
+        border-radius: 0;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        white-space: nowrap;
+        margin-right: 0.35rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .btn-approve {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: white;
+    }
+
+        .btn-approve:hover {
+            background-color: #16a34a;
+            border-color: #16a34a;
+            color: white;
+        }
+
+    .btn-reject {
+        background-color: #dc2626;
+        border-color: #dc2626;
+        color: white;
+    }
+
+        .btn-reject:hover {
+            background-color: #b91c1c;
+            border-color: #b91c1c;
+            color: white;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #999;
+    }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    .empty-state-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    
+</style>
+
+<!-- Page Intro -->
+<p class="page-intro">
+    Kullanıcıların blog yazılarına gönderdiği ve yayına alınmak için onay bekleyen yorumları inceleyin.
+    Uygun yorumları onaylayın, spam veya uygunsuz içerikleri reddedin.
+</p>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+    <div class="stat-item">
+        <div class="stat-value">@Model.Count()</div>
+        <div class="stat-label">Bekleyen Yorum</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(c => c.CreatedDate >= DateTime.Now.AddDays(-7)).Count()</div>
+        <div class="stat-label">Son 7 Gün</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">@Model.Where(c => c.CreatedDate >= DateTime.Now.AddDays(-1)).Count()</div>
+        <div class="stat-label">Bugün</div>
+    </div>
+</div>
+
+<!-- Comments Table -->
+<div class="comments-table-card">
+    <div class="comments-table-header">
+        <h3 class="comments-table-title">Yorum Kuyruğu</h3>
+        <span class="comments-count">@Model.Count() yorum bekliyor</span>
+    </div>
+
+    <div class="comments-table-wrapper">
+        @if (Model != null && Model.Any())
+        {
+            <table class="comments-table" id="commentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Yazan</th>
+                        <th>Yorum İçeriği</th>
+                        <th>İlgili Yazı</th>
+                        <th>Tarih</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var comment in Model)
+                    {
+                        <tr>
+                            <td style="font-weight: 600; color: #666;">#@comment.CommentId</td>
+                            <td>
+                                <div class="comment-author">
+                                    <div class="author-avatar">
+                                        @comment.AuthorFullName.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <span>@comment.AuthorFullName</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="comment-content" id="content-@comment.CommentId">
+                                    @comment.Content
+                                </div>
+                                @if (comment.Content.Length > 150)
+                                {
+                                    <a class="read-more-btn" onclick="toggleContent(@comment.CommentId)">
+                                        <span id="btn-@comment.CommentId">Devamını Oku</span>
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                <a href="~/@comment.BlogPostSlug" target="_blank" class="post-link">
+                                    @comment.BlogPostTitle
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </td>
+                            <td style="color: #666; font-size: 0.8rem;">
+                                @comment.CreatedDate.ToString("dd.MM.yyyy")
+                                <div style="font-size: 0.75rem; color: #999;">
+                                    @comment.CreatedDate.ToString("HH:mm")
+                                </div>
+                            </td>
+                            <td style="white-space: nowrap;">
+                                <form asp-action="ApproveComment" method="post" style="display: inline;"
+                                      asp-route-commentId="@comment.CommentId"
+                                      onsubmit="return confirm('Bu yorumu onaylamak istediğinize emin misiniz?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="action-btn btn-approve" title="Onayla">
+                                        <i class="fas fa-check"></i>Onayla
+                                    </button>
+                                </form>
+
+                                <form asp-action="RejectComment" method="post" style="display: inline;"
+                                      asp-route-commentId="@comment.CommentId"
+                                      onsubmit="return confirm('Bu yorumu reddetmek/silmek istediğinizden emin misiniz?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="action-btn btn-reject" title="Reddet/Sil">
+                                        <i class="fas fa-times"></i>Reddet
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="fas fa-comments"></i>
+                <div class="empty-state-title">Onay Bekleyen Yorum Yok</div>
+                <div>Tüm yorumlar işlenmiş durumda.</div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleContent(commentId) {
+            const content = document.getElementById('content-' + commentId);
+            const btn = document.getElementById('btn-' + commentId);
+
+            if (content.classList.contains('comment-content-full')) {
+                content.classList.remove('comment-content-full');
+                btn.textContent = 'Devamını Oku';
+            } else {
+                content.classList.add('comment-content-full');
+                btn.textContent = 'Daha Az Göster';
+            }
+        }
+
+        // Auto-hide success/error messages after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+}
