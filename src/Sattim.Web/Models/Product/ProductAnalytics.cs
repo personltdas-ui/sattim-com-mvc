@@ -1,24 +1,14 @@
 ﻿using Sattim.Web.Models.Product;
-using System; // ArgumentException vb. için eklendi
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [Key], [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Product
 {
-    /// <summary>
-    /// Bir ürüne (Product) ait analitik verileri (sayaçları) temsil eder.
-    /// Performans için ana 'Product' tablosundan ayrılmıştır.
-    /// Product ile Bire-Bir (1-to-1) ilişkiye sahiptir.
-    /// </summary>
     public class ProductAnalytics
     {
         #region Özellikler ve Bire-Bir İlişki
 
-        /// <summary>
-        /// Bu tablonun Birincil Anahtarı (PK).
-        /// Aynı zamanda Product tablosuna olan Yabancı Anahtardır (FK).
-        /// Bu, birebir ilişkiyi garanti eder.
-        /// </summary>
         [Key]
         [ForeignKey("Product")]
         public int ProductId { get; private set; }
@@ -42,29 +32,18 @@ namespace Sattim.Web.Models.Product
 
         #endregion
 
-        #region Navigasyon Özellikleri (Navigation Properties)
+        #region Navigasyon Özellikleri
 
-        /// <summary>
-        /// Navigasyon: Analitiğin ait olduğu ürün.
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         public virtual Product Product { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private ProductAnalytics() { }
 
-        /// <summary>
-        /// Yeni bir 'ProductAnalytics' nesnesi oluşturur ve tüm sayaçları sıfırlar.
-        /// </summary>
         public ProductAnalytics(int productId)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için ID doğrulaması eklendi.
             if (productId <= 0)
                 throw new ArgumentException("Geçersiz ürün kimliği.", nameof(productId));
 
@@ -76,8 +55,6 @@ namespace Sattim.Web.Models.Product
             ShareCount = 0;
             UpdateTimestamp();
         }
-
-        // --- Artırmalı Sayaçlar (Incremental Counters) ---
 
         public void IncrementView()
         {
@@ -96,9 +73,6 @@ namespace Sattim.Web.Models.Product
             ShareCount++;
             UpdateTimestamp();
         }
-
-        // --- Yeniden Hesaplanan Sayaçlar (Re-calculated Counters) ---
-        // (Bu metotlar genellikle bir 'Background Service' veya 'EventHandler' tarafından çağrılır)
 
         public void UpdateFavoriteCount(int newCount)
         {

@@ -1,11 +1,11 @@
-﻿namespace Sattim.Web.ViewModels.DashBoard
+﻿using System.Collections.Generic;
+
+namespace Sattim.Web.ViewModels.DashBoard
 {
     public class SalesViewModel
     {
-        // Ana veri
         public List<Models.Product.Product> SoldProducts { get; set; }
 
-        // ViewBag verileri
         public decimal TotalRevenue { get; set; }
         public List<string> ChartLabels { get; set; }
         public List<decimal> ChartData { get; set; }

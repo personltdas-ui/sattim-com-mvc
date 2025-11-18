@@ -5,10 +5,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sattim.Web.ViewModels.Home
 {
-    /// <summary>
-    /// Ana sayfanın (Index) ihtiyaç duyduğu tüm dinamik verileri
-    /// tek bir modelde toplar.
-    /// </summary>
     public class HomeViewModel
     {
         public List<ProductSummaryViewModel> NewestProducts { get; set; }
@@ -16,9 +12,6 @@ namespace Sattim.Web.ViewModels.Home
         public List<BlogSummaryViewModel> RecentBlogPosts { get; set; }
     }
 
-    /// <summary>
-    /// /Home/Contact sayfasındaki iletişim formu için.
-    /// </summary>
     public class ContactViewModel
     {
         [Required(ErrorMessage = "Adınız zorunludur.")]

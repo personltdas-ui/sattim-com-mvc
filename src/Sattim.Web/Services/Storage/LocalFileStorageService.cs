@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting; // IWebHostEnvironment
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.IO;
@@ -33,7 +33,6 @@ namespace Sattim.Web.Services.Storage
                 await file.CopyToAsync(fileStream);
             }
 
-            // Dosyanın tam URL'ini döndür (örn: https://localhost:5001/product-images/...)
             var request = _httpContextAccessor.HttpContext.Request;
             var baseUrl = $"{request.Scheme}://{request.Host}";
             return $"{baseUrl}/{containerName}/{uniqueFileName}";
@@ -53,8 +52,6 @@ namespace Sattim.Web.Services.Storage
             }
             catch (Exception)
             {
-                // Hata oluşsa bile (dosya bulunamadı vb.), logla ve devam et.
-                // Ana işlemi durdurma.
             }
             return Task.CompletedTask;
         }

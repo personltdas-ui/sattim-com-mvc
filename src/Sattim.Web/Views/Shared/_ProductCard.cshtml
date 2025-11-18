@@ -202,7 +202,7 @@
         
         var imageUrl = !string.IsNullOrEmpty(Model.PrimaryImageUrl)
         ? Model.PrimaryImageUrl
-        : "/images/placeholder.png"; // <-- Varsayılan resim yolu
+        : "/images/placeholder.png";
     }
 
     <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.Id" class="auction-card-img-wrapper d-block">

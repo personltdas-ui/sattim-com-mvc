@@ -1,10 +1,8 @@
 ﻿using Sattim.Web.Models.Wallet;
+using System;
 
 namespace Sattim.Web.ViewModels.Wallet
 {
-    /// <summary>
-    /// WalletDashboardViewModel içinde kullanılan tek bir para çekme talebi geçmişini temsil eder.
-    /// </summary>
     public class PayoutHistoryViewModel
     {
         public int Id { get; set; }
@@ -12,6 +10,6 @@ namespace Sattim.Web.ViewModels.Wallet
         public PayoutStatus Status { get; set; }
         public DateTime RequestedDate { get; set; }
         public DateTime? CompletedDate { get; set; }
-        public string IBAN { get; set; } // (Maskelenmiş olmalı)
+        public string IBAN { get; set; }
     }
 }

@@ -6,12 +6,11 @@ namespace Sattim.Web.ViewModels.Profile
     {
         [Required]
         [StringLength(100)]
-        public string FullName { get; set; } // ApplicationUser'dan
+        public string FullName { get; set; }
 
         [StringLength(2000)]
-        public string? Bio { get; set; } // UserProfile'dan
+        public string? Bio { get; set; }
 
-        // Adres bilgileri (UserProfile'dan)
         [StringLength(500)]
         public string? Address { get; set; }
         [StringLength(100)]

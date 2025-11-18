@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Sattim.Web.Controllers; // BaseController için
+using Sattim.Web.Controllers;
 using Sattim.Web.Models.User;
-using Sattim.Web.Models.Bid; // BidFilterType enum'ı için (VARSAYIM)
-using Sattim.Web.Services.Bid;  // IBidService
+using Sattim.Web.Models.Bid;
+using Sattim.Web.Services.Bid;
 using Sattim.Web.ViewModels.Bid;
 using System.Threading.Tasks;
 
-[Authorize] // Bu controller'daki tüm metotlar giriş yapmış kullanıcı gerektirir
-[Route("Bids")] // URL: /Bids/PlaceBid, /Bids/MyBids vb.
+[Authorize]
+[Route("Bids")]
 public class BidsController : BaseController
 {
     private readonly IBidService _bidService;
@@ -23,17 +23,12 @@ public class BidsController : BaseController
         _userManager = userManager;
     }
 
-    // O anki giriş yapmış kullanıcının ID'sini alır
     private string GetUserId() => _userManager.GetUserId(User)!;
 
     // ====================================================================
-    //  COMMANDS (Teklif Verme/Ayarlama) - Genellikle Ürün Detay sayfasından
+    //  COMMANDS (Teklif Verme/Ayarlama)
     // ====================================================================
 
-    /// <summary>
-    /// Ürün detay sayfasındaki manuel teklif verme formunu işler.
-    /// </summary>
-    // POST: /Bids/PlaceBid
     [HttpPost("PlaceBid")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PlaceBid(PlaceBidViewModel model)
@@ -41,7 +36,6 @@ public class BidsController : BaseController
         if (!ModelState.IsValid)
         {
             TempData["ErrorMessage"] = "Teklif formu geçerli değil. Lütfen tutarı kontrol edin.";
-            // Hatalı form, ürün detay sayfasına geri döner
             return RedirectToAction("Details", "Products", new { id = model.ProductId });
         }
 
@@ -56,14 +50,9 @@ public class BidsController : BaseController
             TempData["ErrorMessage"] = errorMessage;
         }
 
-        // Başarılı da olsa, hata da olsa kullanıcıyı ürün detay sayfasına geri yönlendir
         return RedirectToAction("Details", "Products", new { id = model.ProductId });
     }
 
-    /// <summary>
-    /// Ürün detay sayfasındaki otomatik teklif ayarlama formunu işler.
-    /// </summary>
-    // POST: /Bids/PlaceAutoBid
     [HttpPost("PlaceAutoBid")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> PlaceAutoBid(AutoBidViewModel model)
@@ -88,13 +77,9 @@ public class BidsController : BaseController
         return RedirectToAction("Details", "Products", new { id = model.ProductId });
     }
 
-    /// <summary>
-    /// Ürün detay sayfasındaki "Otomatik Teklifi İptal Et" butonunu işler.
-    /// </summary>
-    // POST: /Bids/CancelAutoBid
     [HttpPost("CancelAutoBid")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CancelAutoBid(int productId) // Formdan 'productId' gelmeli
+    public async Task<IActionResult> CancelAutoBid(int productId)
     {
         var success = await _bidService.CancelAutoBidAsync(productId, GetUserId());
 
@@ -111,60 +96,38 @@ public class BidsController : BaseController
     }
 
     // ====================================================================
-    //  QUERIES (Okuma) - "Tekliflerim" sayfası ve AJAX Partial'ları
+    //  QUERIES (Okuma)
     // ====================================================================
 
-    /// <summary>
-    /// Kullanıcının "Tekliflerim" sayfasını (tam sayfa) döndürür.
-    /// </summary>
-    // GET: /Bids/MyBids?filter=Active
     [HttpGet("MyBids")]
     public async Task<IActionResult> MyBids(BidFilterType filter = BidFilterType.All)
     {
         var userBids = await _bidService.GetUserBidsAsync(GetUserId(), filter);
 
-        // Aktif filtreyi View'a gönder (Navigasyon menüsü için)
         ViewBag.CurrentFilter = filter;
 
-        return View(userBids); // List<UserBidItemViewModel> modelini View'a gönder
+        return View(userBids);
     }
 
-    /// <summary>
-    /// (AJAX/Fetch ile çağrılır)
-    /// Ürün detay sayfasındaki "Teklif Geçmişi" sekmesini doldurmak için
-    /// bir Partial View döndürür.
-    /// </summary>
-    // GET: /Bids/HistoryPartial/5
     [HttpGet("HistoryPartial/{productId}")]
     public async Task<IActionResult> GetBidHistoryPartial(int productId)
     {
         try
         {
             var history = await _bidService.GetProductBidHistoryAsync(productId);
-            // _BidHistoryPartial.cshtml'e 'ProductBidHistoryViewModel' modelini gönder
             return PartialView("_BidHistoryPartial", history);
         }
-        catch (System.Exception ex)
+        catch (System.Exception)
         {
-            // (Loglama)
-            // Ürün bulunamazsa veya hata olursa boş bir partial döndür
             return PartialView("_BidHistoryPartial", null);
         }
     }
 
-    /// <summary>
-    /// (AJAX/Fetch ile çağrılır)
-    /// Ürün detay sayfasındaki "Otomatik Teklif" sekmesini, kullanıcının
-    /// mevcut ayarlarıyla (eğer varsa) doldurmak için bir Partial View döndürür.
-    /// </summary>
-    // GET: /Bids/AutoBidSettingPartial/5
     [HttpGet("AutoBidSettingPartial/{productId}")]
     public async Task<IActionResult> GetAutoBidSettingPartial(int productId)
     {
-        // Mevcut ayarı al (yoksa null döner)
         var setting = await _bidService.GetUserAutoBidSettingAsync(productId, GetUserId());
 
-        // Modeli (AutoBidSettingViewModel veya null) _AutoBidSettingPartial.cshtml'e gönder
         return PartialView("_AutoBidSettingPartial", setting);
     }
 }

@@ -1,6 +1,5 @@
 ﻿namespace Sattim.Web.ViewModels.Profile
 {
-    // "Hesabım -> Güvenlik" sayfasının durumunu gösterir
     public class SecurityViewModel
     {
         public bool IsEnabled { get; set; }

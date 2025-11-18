@@ -4,7 +4,6 @@
 }
 
 <style>
-    /* Page Header */
     .page-header {
         display: flex;
         justify-content: space-between;
@@ -21,7 +20,6 @@
         line-height: 1.6;
     }
 
-    /* Add Address Button */
     .btn-add-address {
         background-color: #22c55e;
         border: 1px solid #22c55e;
@@ -43,14 +41,12 @@
             color: white;
         }
 
-    /* Address Cards Grid */
     .address-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 1.5rem;
     }
 
-    /* Address Card */
     .address-card {
         background: white;
         border: 1px solid #e5e5e5;
@@ -124,7 +120,6 @@
         flex-wrap: wrap;
     }
 
-    /* Badge */
     .badge-default {
         background-color: #0284c7;
         color: white;
@@ -136,7 +131,6 @@
         display: inline-block;
     }
 
-    /* Action Buttons */
     .btn-action {
         padding: 0.5rem 1rem;
         font-size: 0.75rem;
@@ -197,7 +191,6 @@
         gap: 0.5rem;
     }
 
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -224,7 +217,6 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Alerts */
     .alert {
         border-radius: 0;
         border: none;
@@ -259,51 +251,44 @@
         font-size: 1.1rem;
     }
 
-    /* Responsive */
     @@media (max-width: 768px) {
-        .page-header
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
 
-    {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
+        .address-grid {
+            grid-template-columns: 1fr;
+        }
 
-    .address-grid {
-        grid-template-columns: 1fr;
-    }
+        .address-card-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
 
-    .address-card-footer {
-        flex-direction: column;
-        align-items: stretch;
-    }
+        .action-group {
+            width: 100%;
+        }
 
-    .action-group {
-        width: 100%;
-    }
+        .btn-action {
+            flex: 1;
+            justify-content: center;
+        }
 
-    .btn-action {
-        flex: 1;
-        justify-content: center;
-    }
-
-    .btn-set-default {
-        width: 100%;
-    }
-
+        .btn-set-default {
+            width: 100%;
+        }
     }
 </style>
 
 <div class="container mt-4">
     <div class="row">
-        <!-- Sidebar Navigation -->
         <div class="col-md-3">
             @await Html.PartialAsync("_ProfileNav")
         </div>
 
-        <!-- Main Content -->
         <div class="col-md-9">
-            <!-- Page Header -->
             <div class="page-header">
                 <div>
                     <h2 style="font-size: 1.25rem; font-weight: 600; color: #1a1a1a; margin: 0;">@ViewData["Title"]</h2>
@@ -316,7 +301,6 @@
                 </a>
             </div>
 
-            <!-- Success/Error Messages -->
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success">
@@ -332,7 +316,6 @@
                 </div>
             }
 
-            <!-- Empty State -->
             @if (!Model.Any())
             {
                 <div class="empty-state">
@@ -347,14 +330,12 @@
                 </div>
             }
 
-            <!-- Address Cards Grid -->
             @if (Model.Any())
             {
                 <div class="address-grid">
                     @foreach (var address in Model)
                     {
                         <div class="address-card @(address.IsDefault ? "default" : "")">
-                            <!-- Card Header -->
                             <div class="address-card-header">
                                 <h5 class="address-card-title">
                                     <i class="fas fa-map-marker-alt" style="color: #666; font-size: 0.9rem; margin-right: 0.5rem;"></i>
@@ -366,7 +347,6 @@
                                 }
                             </div>
 
-                            <!-- Card Body -->
                             <div class="address-card-body">
                                 <div class="address-info">
                                     <div class="address-info-item">
@@ -385,7 +365,6 @@
                                 </div>
                             </div>
 
-                            <!-- Card Footer -->
                             <div class="address-card-footer">
                                 <div class="action-group">
                                     <a asp-action="EditAddress" asp-route-id="@address.Id" class="btn-action btn-edit">

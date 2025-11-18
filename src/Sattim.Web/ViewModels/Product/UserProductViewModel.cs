@@ -2,9 +2,6 @@
 
 namespace Sattim.Web.ViewModels.Product
 {
-    /// <summary>
-    /// Satıcının "Ürünlerim" sayfasındaki tek bir satırı temsil eder.
-    /// </summary>
     public class UserProductViewModel
     {
         public int Id { get; set; }

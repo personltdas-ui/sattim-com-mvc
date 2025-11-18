@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Sattim.Web.Data; // DbContext (Transaction)
+using Sattim.Web.Data;
 using Sattim.Web.Models.Blog;
 using Sattim.Web.Models.Category;
 using Sattim.Web.Models.UI;
-using Sattim.Web.Services.Repositories; // Tüm Repolar
-using Sattim.Web.ViewModels.Category; // DTOs
-using Sattim.Web.ViewModels.Content; // DTOs
+using Sattim.Web.Repositories.Interface;
+using Sattim.Web.ViewModels.Category;
+using Sattim.Web.ViewModels.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +15,8 @@ using System.Threading.Tasks;
 
 namespace Sattim.Web.Services.Content
 {
-    // BU SERVİSİN TAMAMI [Authorize(Roles = "Admin")] İLE KORUNMALIDIR
     public class ContentService : IContentService
     {
-        // Repositories
         private readonly IGenericRepository<SiteSettings> _settingsRepo;
         private readonly IGenericRepository<Category> _categoryRepo;
         private readonly IBlogPostRepository _blogPostRepo;
@@ -29,24 +27,23 @@ namespace Sattim.Web.Services.Content
         private readonly IGenericRepository<EmailTemplate> _emailTemplateRepo;
         private readonly IGenericRepository<Newsletter> _newsletterRepo;
 
-        // Utilities
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<ContentService> _logger;
 
         public ContentService(
-            IGenericRepository<SiteSettings> settingsRepo,
-            IGenericRepository<Category> categoryRepo,
-            IBlogPostRepository blogPostRepo,
-            ITagRepository tagRepo,
-            IGenericRepository<BlogPostTag> blogPostTagRepo,
-            IGenericRepository<FAQ> faqRepo,
-            IGenericRepository<Banner> bannerRepo,
-            IGenericRepository<EmailTemplate> emailTemplateRepo,
-            IGenericRepository<Newsletter> newsletterRepo,
-            ApplicationDbContext context,
-            IMapper mapper,
-            ILogger<ContentService> logger)
+          IGenericRepository<SiteSettings> settingsRepo,
+          IGenericRepository<Category> categoryRepo,
+          IBlogPostRepository blogPostRepo,
+          ITagRepository tagRepo,
+          IGenericRepository<BlogPostTag> blogPostTagRepo,
+          IGenericRepository<FAQ> faqRepo,
+          IGenericRepository<Banner> bannerRepo,
+          IGenericRepository<EmailTemplate> emailTemplateRepo,
+          IGenericRepository<Newsletter> newsletterRepo,
+          ApplicationDbContext context,
+          IMapper mapper,
+          ILogger<ContentService> logger)
         {
             _settingsRepo = settingsRepo;
             _categoryRepo = categoryRepo;
@@ -62,50 +59,39 @@ namespace Sattim.Web.Services.Content
             _logger = logger;
         }
 
-        // ====================================================================
-        //  1. SİTE AYARLARI (SiteSettings)
-        // ====================================================================
-
         public async Task<List<SiteSettingGroupViewModel>> GetSiteSettingsAsync()
         {
             var allSettings = await _settingsRepo.GetAllAsync();
 
-            // Ayarları Kategoriye göre grupla ve ViewModel'a dönüştür
             return allSettings
-                .GroupBy(s => s.Category)
-                .Select(g => new SiteSettingGroupViewModel
-                {
-                    Category = g.Key,
-                    Settings = _mapper.Map<List<SiteSettingUpdateViewModel>>(g.ToList())
-                })
-                .OrderBy(g => g.Category.ToString())
-                .ToList();
+              .GroupBy(s => s.Category)
+              .Select(g => new SiteSettingGroupViewModel
+              {
+                  Category = g.Key,
+                  Settings = _mapper.Map<List<SiteSettingUpdateViewModel>>(g.ToList())
+              })
+              .OrderBy(g => g.Category.ToString())
+              .ToList();
         }
 
-        /// <summary>
-        /// Bu metot BÜTÜNLEŞİK (Transactional) olmalıdır.
-        /// </summary>
         public async Task<bool> UpdateSiteSettingsAsync(List<SiteSettingUpdateViewModel> model)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Mevcut tüm ayarları (Key -> Entity) bir sözlüğe (Dictionary) al
                 var existingSettings = (await _settingsRepo.GetAllAsync())
-                                          .ToDictionary(s => s.Key, s => s);
+                             .ToDictionary(s => s.Key, s => s);
 
                 foreach (var item in model)
                 {
                     if (existingSettings.TryGetValue(item.Key, out var setting))
                     {
-                        // Ayar varsa: Güncelle (Model metoduyla)
                         setting.UpdateSetting(item.Value, item.Description);
                         _settingsRepo.Update(setting);
                     }
                     else
                     {
                         _logger.LogWarning($"Site ayarı güncellenemedi: '{item.Key}' anahtarı veritabanında bulunamadı.");
-                        // (Yeni ayar eklemeye izin vermiyoruz, sadece güncelleme)
                     }
                 }
 
@@ -123,17 +109,11 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // ====================================================================
-        //  2. KATEGORİ YÖNETİMİ (Category)
-        // ====================================================================
-
         public async Task<List<CategoryViewModel>> GetCategoryTreeAsync()
         {
-            // 1. Tüm kategorileri tek bir sorguda al
             var allCategories = await _categoryRepo.GetAllAsync();
             var lookup = allCategories.ToDictionary(c => c.Id);
 
-            // 2. ViewModel'a dönüştür ve hiyerarşiyi kur (Hafızada)
             var viewModels = _mapper.Map<List<CategoryViewModel>>(allCategories);
             var tree = new List<CategoryViewModel>();
 
@@ -141,13 +121,11 @@ namespace Sattim.Web.Services.Content
             {
                 if (item.ParentCategoryId.HasValue && lookup.ContainsKey(item.ParentCategoryId.Value))
                 {
-                    // Bu bir alt kategori, üst kategoriyi bul ve ona ekle
                     var parent = viewModels.First(p => p.Id == item.ParentCategoryId.Value);
                     parent.SubCategories.Add(item);
                 }
                 else
                 {
-                    // Bu bir ana (kök) kategori
                     tree.Add(item);
                 }
             }
@@ -165,20 +143,18 @@ namespace Sattim.Web.Services.Content
         {
             try
             {
-                // Slug (URL) benzersiz mi kontrol et
                 if (await _categoryRepo.AnyAsync(c => c.Slug == model.Slug))
                 {
                     _logger.LogWarning($"Kategori oluşturulamadı: '{model.Slug}' slug'ı zaten kullanılıyor.");
                     return false;
                 }
 
-                // Model metoduyla oluştur
                 var category = new Category(
-                    model.Name,
-                    model.Slug,
-                    model.ParentCategoryId,
-                    model.Description,
-                    model.ImageUrl
+                  model.Name,
+                  model.Slug,
+                  model.ParentCategoryId,
+                  model.Description,
+                  model.ImageUrl
                 );
 
                 if (!model.IsActive) category.Deactivate();
@@ -200,14 +176,12 @@ namespace Sattim.Web.Services.Content
             {
                 var category = await GetCategoryByIdAsync(id);
 
-                // Slug değiştiyse, benzersiz mi kontrol et
                 if (category.Slug != model.Slug && await _categoryRepo.AnyAsync(c => c.Slug == model.Slug && c.Id != id))
                 {
                     _logger.LogWarning($"Kategori güncellenemedi: '{model.Slug}' slug'ı zaten kullanılıyor.");
                     return false;
                 }
 
-                // Model metotlarıyla güncelle
                 category.UpdateDetails(model.Name, model.Slug, model.Description);
                 category.ChangeParent(model.ParentCategoryId);
                 category.UpdateImageUrl(model.ImageUrl);
@@ -231,10 +205,6 @@ namespace Sattim.Web.Services.Content
             {
                 var category = await GetCategoryByIdAsync(id);
 
-                // Not: DbContext'te 'OnDelete(DeleteBehavior.Restrict)' ayarladığımız için,
-                // eğer bu kategoriye bağlı alt kategori veya ürün varsa,
-                // 'SaveChangesAsync()' zaten bir 'DbUpdateException' fırlatacaktır.
-
                 _categoryRepo.Remove(category);
                 await _categoryRepo.UnitOfWork.SaveChangesAsync();
                 return true;
@@ -242,7 +212,7 @@ namespace Sattim.Web.Services.Content
             catch (DbUpdateException dbEx)
             {
                 _logger.LogWarning(dbEx, $"Kategori (ID: {id}) silinemedi (İlişkili veri var).");
-                return false; // İlişkili veri olduğu için silinemedi
+                return false;
             }
             catch (Exception ex)
             {
@@ -251,13 +221,6 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // ====================================================================
-        //  3. BLOG YÖNETİMİ (BlogPost, Tag)
-        // ====================================================================
-
-        // (Bu metotlar Desen A'ya (Basit CRUD) çok benzer)
-
-        // --- Blog Yazıları ---
         public async Task<List<BlogPostSummaryViewModel>> GetBlogPostsAsync()
         {
             var posts = await _blogPostRepo.GetAllPostsForAdminAsync();
@@ -273,21 +236,18 @@ namespace Sattim.Web.Services.Content
 
         public async Task<int> CreateBlogPostAsync(BlogPostFormViewModel model, string authorId)
         {
-            // Blog ve Etiketler (Tags) aynı anda yönetilmeli (Transactional)
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Slug benzersiz mi kontrol et
                 if (await _blogPostRepo.AnyAsync(p => p.Slug == model.Slug))
                     throw new InvalidOperationException($"'{model.Slug}' slug'ı zaten kullanılıyor.");
 
-                // 1. Modeli oluştur
                 var post = new BlogPost(
-                    model.Title,
-                    model.Slug,
-                    model.Content,
-                    authorId,
-                    model.Excerpt
+                  model.Title,
+                  model.Slug,
+                  model.Content,
+                  authorId,
+                  model.Excerpt
                 );
                 post.UpdateFeaturedImage(model.FeaturedImage);
 
@@ -295,11 +255,10 @@ namespace Sattim.Web.Services.Content
                 else if (model.Status == BlogPostStatus.Archived) post.Archive();
 
                 await _blogPostRepo.AddAsync(post);
-                await _context.SaveChangesAsync(); // ID'yi almak için kaydet
+                await _context.SaveChangesAsync();
 
-                // 2. Etiketleri (Tags) işle
                 await ProcessTagsAsync(post, model.CommaSeparatedTags);
-                await _context.SaveChangesAsync(); // Etiket ilişkilerini kaydet
+                await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
                 _logger.LogInformation($"Yeni blog yazısı oluşturuldu (ID: {post.Id})");
@@ -318,14 +277,12 @@ namespace Sattim.Web.Services.Content
             await using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                var post = await _blogPostRepo.GetPostForEditAsync(id); // (Takip edilen entity)
+                var post = await _blogPostRepo.GetPostForEditAsync(id);
                 if (post == null) throw new KeyNotFoundException("Blog yazısı bulunamadı.");
 
-                // Slug değiştiyse, benzersiz mi kontrol et
                 if (post.Slug != model.Slug && await _blogPostRepo.AnyAsync(p => p.Slug == model.Slug && p.Id != id))
                     throw new InvalidOperationException($"'{model.Slug}' slug'ı zaten kullanılıyor.");
 
-                // 1. Modeli güncelle
                 post.Update(model.Title, model.Slug, model.Content, model.Excerpt);
                 post.UpdateFeaturedImage(model.FeaturedImage);
 
@@ -333,7 +290,6 @@ namespace Sattim.Web.Services.Content
                 else if (model.Status == BlogPostStatus.Archived) post.Archive();
                 else post.SetAsDraft();
 
-                // 2. Etiketleri (Tags) güncelle
                 await ProcessTagsAsync(post, model.CommaSeparatedTags);
 
                 _blogPostRepo.Update(post);
@@ -369,7 +325,6 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // --- Etiketler (Tags) ---
         public async Task<List<TagViewModel>> GetTagsAsync()
         {
             var tags = await _tagRepo.GetAllTagsWithPostCountAsync();
@@ -381,7 +336,7 @@ namespace Sattim.Web.Services.Content
             try
             {
                 if (await _tagRepo.AnyAsync(t => t.Slug == model.Slug))
-                    return false; // Zaten var
+                    return false;
 
                 var tag = new Tag(model.Name, model.Slug);
                 await _tagRepo.AddAsync(tag);
@@ -409,7 +364,7 @@ namespace Sattim.Web.Services.Content
             catch (DbUpdateException dbEx)
             {
                 _logger.LogWarning(dbEx, $"Etiket (ID: {id}) silinemedi (İlişkili yazı var).");
-                return false; // İlişkili veri olduğu için silinemedi
+                return false;
             }
             catch (Exception ex)
             {
@@ -418,22 +373,17 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        /// <summary>
-        /// (Yardımcı Metot) Bir blog yazısının etiketlerini günceller (Çoka-Çok).
-        /// </summary>
         private async Task ProcessTagsAsync(BlogPost post, string commaSeparatedTags)
         {
-            // Mevcut ilişkileri (eğer varsa) temizle
-            // (EF Core 5+ ise bu daha kolay, ama 3.1 için bu yöntem sağlamdır)
             post.BlogPostTags.Clear();
 
             if (string.IsNullOrWhiteSpace(commaSeparatedTags))
-                return; // Etiket yok
+                return;
 
             var tagNames = commaSeparatedTags.Split(',')
-                .Select(t => t.Trim().ToLower())
-                .Where(t => !string.IsNullOrEmpty(t))
-                .Distinct();
+              .Select(t => t.Trim().ToLower())
+              .Where(t => !string.IsNullOrEmpty(t))
+              .Distinct();
 
             foreach (var tagName in tagNames)
             {
@@ -445,26 +395,13 @@ namespace Sattim.Web.Services.Content
                     tag = new Tag(tagName, tagSlug);
                     await _tagRepo.AddAsync(tag);
 
-                    // ==========================================================
-                    // ÇÖZÜM: Değişiklikleri hemen veritabanına kaydet.
-                    // Bu, 'tag.Id'nin (örn: 5) veritabanından atanmasını sağlar.
-                    // (Bu serviste 'DbContext'in '_context' adıyla 
-                    // erişilebilir olduğunu varsayıyorum)
                     await _context.SaveChangesAsync();
-                    // ==========================================================
                 }
 
-                // 'tag.Id' artık '5' (veya geçerli bir ID) olduğu için bu satır
-                // 'new BlogPostTag(post.Id, 5)' olarak güvenle çalışır.
                 post.BlogPostTags.Add(new BlogPostTag(post.Id, tag.Id));
             }
         }
 
-        // ====================================================================
-        //  4. ARAYÜZ (UI) YÖNETİMİ (FAQ, Banner)
-        // ====================================================================
-
-        // --- SSS (FAQ) ---
         public async Task<List<FAQ>> GetFAQsAsync() => (await _faqRepo.GetAllAsync()).ToList();
 
         public async Task<FAQ> GetFAQByIdAsync(int id)
@@ -495,7 +432,7 @@ namespace Sattim.Web.Services.Content
             try
             {
                 var faq = await GetFAQByIdAsync(id);
-                _mapper.Map(model, faq); // AutoMapper (var olanı güncelle)
+                _mapper.Map(model, faq);
                 _faqRepo.Update(faq);
                 await _faqRepo.UnitOfWork.SaveChangesAsync();
                 return true;
@@ -523,7 +460,6 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // --- Banner ---
         public async Task<List<Banner>> GetBannersAsync() => (await _bannerRepo.GetAllAsync()).ToList();
 
         public async Task<Banner> GetBannerByIdAsync(int id)
@@ -554,7 +490,7 @@ namespace Sattim.Web.Services.Content
             try
             {
                 var banner = await GetBannerByIdAsync(id);
-                _mapper.Map(model, banner); // AutoMapper (var olanı güncelle)
+                _mapper.Map(model, banner);
                 _bannerRepo.Update(banner);
                 await _bannerRepo.UnitOfWork.SaveChangesAsync();
                 return true;
@@ -582,12 +518,8 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // ====================================================================
-        //  5. E-POSTA ŞABLONU YÖNETİMİ (EmailTemplate)
-        // ====================================================================
-
         public async Task<List<EmailTemplate>> GetEmailTemplatesAsync() =>
-            (await _emailTemplateRepo.GetAllAsync()).ToList();
+          (await _emailTemplateRepo.GetAllAsync()).ToList();
 
         public async Task<EmailTemplate> GetEmailTemplateByIdAsync(int id)
         {
@@ -624,7 +556,6 @@ namespace Sattim.Web.Services.Content
             {
                 var template = await GetEmailTemplateByIdAsync(id);
 
-                // Model metotlarını kullanarak güncelle
                 template.UpdateTemplate(model.Subject, model.Body);
                 if (model.IsActive) template.Activate();
                 else template.Deactivate();
@@ -656,16 +587,10 @@ namespace Sattim.Web.Services.Content
             }
         }
 
-        // ====================================================================
-        //  6. BÜLTEN (Newsletter) YÖNETİMİ
-        // ====================================================================
-
         public async Task<List<string>> GetActiveNewsletterSubscribersAsync()
         {
-            // Jenerik repoyu (FindAsync) kullanarak sadece aktif aboneleri ve
-            // sadece 'Email' sütununu çek (performans).
             var subscribers = await _newsletterRepo.FindAsync(
-                n => n.IsActive == true
+              n => n.IsActive == true
             );
 
             return subscribers.Select(n => n.Email).ToList();

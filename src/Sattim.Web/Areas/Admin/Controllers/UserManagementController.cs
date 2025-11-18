@@ -7,11 +7,12 @@ using System.Linq;
 using Microsoft.AspNetCore.Identity;
 using Sattim.Web.Models.User;
 using System.Collections.Generic;
+using System;
 
 namespace Sattim.Web.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")] // Kullanıcı yönetimi sadece Admin'e özel
+    [Authorize(Roles = "Admin")]
     public class UserManagementController : Controller
     {
         private readonly IUserManagementService _userManagementService;
@@ -24,22 +25,16 @@ namespace Sattim.Web.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        /// <summary>
-        /// Tüm kullanıcıları listeler.
-        /// Rota: /Admin/UserManagement
-        /// </summary>
         public async Task<IActionResult> Index()
         {
             var users = await _userManagementService.GetAllUsersAsync();
 
-            // Gelen 'ApplicationUser' listesini 'UserListViewModel'e çeviriyoruz.
             var viewModel = new List<UserListViewModel>();
             foreach (var user in users)
             {
                 viewModel.Add(new UserListViewModel
                 {
                     UserId = user.Id,
-                    // FullName = user.UserProfile?.FullName ?? user.UserName, // Profil varsa AdSoyad, yoksa KullanıcıAdı
                     Email = user.Email,
                     EmailConfirmed = user.EmailConfirmed,
                     IsActive = !user.LockoutEnd.HasValue || user.LockoutEnd.Value <= DateTimeOffset.UtcNow,
@@ -50,10 +45,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Tek bir kullanıcının tüm detaylarını (rolleri, profili vb.) gösterir.
-        /// Rota: /Admin/UserManagement/Detail/some-guid
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Detail(string id)
         {
@@ -68,7 +59,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             var viewModel = new UserDetailViewModel
             {
                 User = user,
-                //Profile = user.UserProfile, // Servis ApplicationUser'a Profile'ı dahil etmeli (Include)
                 CurrentRoles = userRoles,
                 AllRoles = allRoles.Select(r => new UserRoleViewModel
                 {
@@ -81,9 +71,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return View(viewModel);
         }
 
-        /// <summary>
-        /// Kullanıcı rollerini günceller (Detail sayfasındaki formdan gelir).
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateRoles(string userId, List<UserRoleViewModel> allRoles)
@@ -96,9 +83,7 @@ namespace Sattim.Web.Areas.Admin.Controllers
             var currentRoles = (await _userManagementService.GetUserRolesAsync(userId)).ToList();
             var selectedRoles = allRoles.Where(r => r.IsSelected).Select(r => r.RoleName).ToList();
 
-            // Eklenecek roller (Yeni seçilip, mevcut olmayanlar)
             var rolesToAdd = selectedRoles.Except(currentRoles).ToList();
-            // Kaldırılacak roller (Mevcut olup, yeni listede seçili olmayanlar)
             var rolesToRemove = currentRoles.Except(selectedRoles).ToList();
 
             foreach (var role in rolesToAdd)
@@ -114,9 +99,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id = userId });
         }
 
-        /// <summary>
-        /// Bir kullanıcıyı banlar (hesabı kilitler).
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> BanUser(string userId, string banReason)
@@ -139,9 +121,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id = userId });
         }
 
-        /// <summary>
-        /// Kullanıcının banını açar.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnbanUser(string userId)
@@ -160,9 +139,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id = userId });
         }
 
-        /// <summary>
-        /// Kullanıcının kimlik/profil doğrulamasını onaylar.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> VerifyIdentity(string userId)
@@ -178,9 +154,6 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Detail), new { id = userId });
         }
 
-        /// <summary>
-        /// Kullanıcının kimlik/profil doğrulamasını reddeder.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectIdentity(string userId, string rejectReason)

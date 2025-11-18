@@ -2,42 +2,20 @@
 using Sattim.Web.Models.User;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.User
 {
-    /// <summary>
-    /// Bir kullanıcının başka bir kullanıcıyı belirli bir ürün
-    /// işlemi üzerinden değerlendirmesini temsil eder (Çoka-Çok ilişki).
-    /// </summary>
     public class UserRating
     {
-        #region Bileşik Anahtar (Composite Key) Özellikleri
-
-        // Bu üç alan birlikte bu tablonun Birincil Anahtarını (PK) oluşturur.
-        // Bu yapılandırma DbContext -> OnModelCreating içinde yapılmalıdır.
-
-        /// <summary>
-        /// Değerlendirilen kullanıcının kimliği (PK parçası, FK).
-        /// </summary>
         [Required]
         public string RatedUserId { get; private set; }
 
-        /// <summary>
-        /// Değerlendirmeyi yapan kullanıcının kimliği (PK parçası, FK).
-        /// </summary>
         [Required]
         public string RaterUserId { get; private set; }
 
-        /// <summary>
-        /// Değerlendirmenin yapıldığı ürünün kimliği (PK parçası, FK).
-        /// </summary>
         [Required]
         public int ProductId { get; private set; }
-
-        #endregion
-
-        #region Diğer Özellikler (Properties)
 
         [Required]
         [Range(1, 5)]
@@ -49,12 +27,6 @@ namespace Sattim.Web.Models.User
         public DateTime CreatedDate { get; private set; }
         public DateTime? LastModifiedDate { get; private set; }
 
-        #endregion
-
-        #region Navigasyon Özellikleri (Navigation Properties)
-
-        // DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-
         [ForeignKey("RatedUserId")]
         public virtual ApplicationUser RatedUser { get; private set; }
 
@@ -64,18 +36,8 @@ namespace Sattim.Web.Models.User
         [ForeignKey("ProductId")]
         public virtual Product.Product Product { get; private set; }
 
-        #endregion
-
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
-
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private UserRating() { }
 
-        /// <summary>
-        /// Yeni bir 'UserRating' nesnesi oluşturur ve alan doğrulamalarını yapar.
-        /// </summary>
         public UserRating(int productId, string raterUserId, string ratedUserId, int rating, string? comment)
         {
             if (string.Equals(raterUserId, ratedUserId))
@@ -97,26 +59,19 @@ namespace Sattim.Web.Models.User
             RaterUserId = raterUserId;
             RatedUserId = ratedUserId;
             Rating = rating;
-            // İyileştirme: Boş string yerine 'null' kaydet
             Comment = string.IsNullOrWhiteSpace(comment) ? null : comment;
             CreatedDate = DateTime.UtcNow;
             LastModifiedDate = null;
         }
 
-        /// <summary>
-        /// Mevcut bir değerlendirmeyi günceller.
-        /// </summary>
         public void Update(int newRating, string? newComment)
         {
             if (newRating < 1 || newRating > 5)
                 throw new ArgumentOutOfRangeException(nameof(newRating), "Puan 1-5 arası olmalıdır.");
 
             Rating = newRating;
-            // İyileştirme: Boş string yerine 'null' kaydet
             Comment = string.IsNullOrWhiteSpace(newComment) ? null : newComment;
             LastModifiedDate = DateTime.UtcNow;
         }
-
-        #endregion
     }
 }

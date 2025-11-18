@@ -8,7 +8,6 @@
 }
 
 <style>
-    /* Breadcrumb */
     .breadcrumb-wrapper {
         margin-bottom: 2rem;
         margin-top: 2rem;
@@ -51,7 +50,6 @@
             font-weight: 500;
         }
 
-    /* Main Grid */
     .product-grid {
         display: grid;
         grid-template-columns: 550px 1fr;
@@ -59,7 +57,6 @@
         align-items: start;
     }
 
-    /* Image Gallery */
     .image-gallery {
         position: sticky;
         top: 2rem;
@@ -90,7 +87,6 @@
         transform: scale(1.03);
     }
 
-    /* Status Badge */
     .status-badge {
         position: absolute;
         top: 1rem;
@@ -119,7 +115,6 @@
             background-color: #f59e0b;
         }
 
-    /* Thumbnails */
     .thumbnail-grid {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
@@ -151,7 +146,6 @@
             object-fit: cover;
         }
 
-    /* Zoom Icon */
     .zoom-icon {
         position: absolute;
         bottom: 1rem;
@@ -172,21 +166,18 @@
             background: rgba(0, 0, 0, 0.8);
         }
 
-    /* Product Info Sidebar */
     .product-sidebar {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
     }
 
-    /* Info Card */
     .info-card {
         background: white;
         border: 1px solid #e5e5e5;
         padding: 1.5rem;
     }
 
-    /* Title */
     .product-title {
         font-size: 1.5rem;
         font-weight: 600;
@@ -196,7 +187,6 @@
         line-height: 1.4;
     }
 
-    /* Seller Card */
     .seller-card {
         display: flex;
         align-items: center;
@@ -256,7 +246,6 @@
             font-size: 0.7rem;
         }
 
-    /* Price Card */
     .price-card {
         background: #1a1a1a;
         color: white;
@@ -303,7 +292,6 @@
         font-weight: 600;
     }
 
-    /* Countdown Card */
     .countdown-card {
         text-align: center;
     }
@@ -360,7 +348,6 @@
         gap: 0.5rem;
     }
 
-    /* Bid Form */
     .bid-form-card {
         background: #fafafa;
         border: 2px solid #1a1a1a;
@@ -446,7 +433,6 @@
             cursor: not-allowed;
         }
 
-    /* Alert */
     .alert-custom {
         background-color: #fef2f2;
         border-left: 3px solid #dc2626;
@@ -458,7 +444,6 @@
         gap: 0.75rem;
     }
 
-    /* Action Buttons */
     .action-buttons {
         display: flex;
         gap: 0.5rem;
@@ -488,13 +473,11 @@
             color: #1a1a1a;
         }
 
-   
     .description-section {
         background: white;
         border: 1px solid #e5e5e5;
         padding: 2rem;
         margin-top: 2rem;
-        
     }
 
     .section-title {
@@ -519,10 +502,8 @@
             margin-bottom: 1rem;
         }
 
-  
     @@media (max-width: 991px) {
         .product-grid {
-            
             grid-template-columns: 1fr;
         }
 
@@ -813,8 +794,6 @@
             </button>
         </div>
     </div>
-
-   
 </div>
 
 <div class="description-section">
@@ -827,18 +806,14 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        // Image gallery
         function changeImage(imageUrl, thumbnail) {
             document.getElementById('mainImage').src = imageUrl;
-            // Aktif sınıfını yönet
             document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
             thumbnail.classList.add('active');
         }
 
-        // Countdown timer
         const countdownElement = document.querySelector('[data-end-date]');
         if (countdownElement) {
             const endDate = new Date(countdownElement.getAttribute('data-end-date'));
@@ -850,19 +825,16 @@
                 const difference = endDate - now;
 
                 if (difference <= 0) {
-                    clearInterval(intervalId); // Geri sayımı durdur
+                    clearInterval(intervalId);
 
-                    // DOM'u manuel olarak 'Sona Erdi' durumuna getir
                     document.querySelector('.countdown-card').innerHTML = `
                         <div class="countdown-label">AÇIK ARTIRMA SONA ERDİ</div>
                         <div class="countdown-ended">
                             <i class="fas fa-clock"></i> Süre Doldu
                         </div>
                     `;
-                    // Teklif formunu kaldır
                     document.querySelector('.bid-form-card')?.remove();
 
-                    // Durum etiketini güncelle
                     var activeBadge = document.querySelector('.status-badge.active');
                     if(activeBadge) {
                         activeBadge.classList.remove('active');
@@ -877,7 +849,6 @@
                 const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-                // ID'lerin null olmadığını kontrol et (sağlamlık için)
                 const daysEl = document.getElementById('days');
                 const hoursEl = document.getElementById('hours');
                 const minutesEl = document.getElementById('minutes');
@@ -889,10 +860,9 @@
                 if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
             }
 
-            updateCountdown(); // İlk çalıştırma
+            updateCountdown();
         }
 
-        // Zoom functionality (placeholder)
         document.querySelector('.zoom-icon')?.addEventListener('click', function() {
             const mainImageUrl = document.getElementById('mainImage').src;
             window.open(mainImageUrl, '_blank');

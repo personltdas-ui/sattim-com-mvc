@@ -1,12 +1,10 @@
 ﻿@{
-    // Mevcut aktif olan eylemi (Action) ve controller'ı al
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentPage = ViewContext.RouteData.Values["page"]?.ToString();
 }
 
 <style>
-    /* Profile Navigation Container */
     .profile-nav {
         background: white;
         border: 1px solid #e5e5e5;
@@ -14,7 +12,6 @@
         top: 20px;
     }
 
-    /* Section Header */
     .profile-nav-section {
         padding: 1rem 1.25rem;
         background-color: #fafafa;
@@ -30,14 +27,12 @@
         margin: 0;
     }
 
-    /* Navigation List */
     .profile-nav-list {
         list-style: none;
         padding: 0;
         margin: 0;
     }
 
-    /* Navigation Item */
     .profile-nav-item {
         border-bottom: 1px solid #f0f0f0;
     }
@@ -71,7 +66,6 @@
             font-weight: 600;
         }
 
-    /* Link Content */
     .profile-nav-link-content {
         display: flex;
         align-items: center;
@@ -94,7 +88,6 @@
         flex: 1;
     }
 
-    /* Badge */
     .profile-nav-badge {
         font-size: 0.7rem;
         color: #999;
@@ -110,92 +103,77 @@
         border-color: #1a1a1a;
     }
 
-    /* Spacing between sections */
     .profile-nav-section + .profile-nav-list {
         border-bottom: 1px solid #e5e5e5;
     }
 
-    /* Mobile Responsive */
     @@media (max-width: 768px) {
-        .profile-nav
-
-    {
-        position: static;
-        margin-bottom: 2rem;
-    }
-
-    .profile-nav-link {
-        padding: 0.75rem 1rem;
-    }
-
-    .profile-nav-section {
-        padding: 0.75rem 1rem;
-    }
-
-    }
-
-    /* Collapsed Mobile Menu (Optional) */
-    @@media (max-width: 768px) {
-        .profile-nav-toggle
-
-    {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 1.25rem;
-        background-color: #1a1a1a;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        width: 100%;
-        font-size: 0.9rem;
-    }
-
-    .profile-nav-toggle i {
-        transition: transform 0.3s;
-    }
-
-    .profile-nav-toggle.collapsed i {
-        transform: rotate(180deg);
-    }
-
-    .profile-nav-content {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-    }
-
-        .profile-nav-content.show {
-            max-height: 2000px;
+        .profile-nav {
+            position: static;
+            margin-bottom: 2rem;
         }
 
+        .profile-nav-link {
+            padding: 0.75rem 1rem;
+        }
+
+        .profile-nav-section {
+            padding: 0.75rem 1rem;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .profile-nav-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            background-color: #1a1a1a;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+            .profile-nav-toggle i {
+                transition: transform 0.3s;
+            }
+
+            .profile-nav-toggle.collapsed i {
+                transform: rotate(180deg);
+            }
+
+        .profile-nav-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+            .profile-nav-content.show {
+                max-height: 2000px;
+            }
     }
 
     @@media (min-width: 769px) {
-        .profile-nav-toggle
+        .profile-nav-toggle {
+            display: none;
+        }
 
-    {
-        display: none;
-    }
-
-    .profile-nav-content {
-        max-height: none !important;
-    }
-
+        .profile-nav-content {
+            max-height: none !important;
+        }
     }
 </style>
 
 <nav class="profile-nav">
-    <!-- Mobile Toggle Button -->
     <button class="profile-nav-toggle" onclick="toggleProfileNav()">
         <span><i class="fas fa-user-circle me-2"></i>Profil Menüsü</span>
         <i class="fas fa-chevron-down"></i>
     </button>
 
-    <!-- Navigation Content -->
     <div class="profile-nav-content">
-        <!-- Section: Alış & Satış -->
         <div class="profile-nav-section">
             <h6 class="profile-nav-section-title">Alış & Satış</h6>
         </div>
@@ -242,7 +220,6 @@
             </li>
         </ul>
 
-        <!-- Section: Finans & Destek -->
         <div class="profile-nav-section">
             <h6 class="profile-nav-section-title">Finans & Destek</h6>
         </div>
@@ -267,7 +244,6 @@
             </li>
         </ul>
 
-        <!-- Section: Hesap & Ayarlar -->
         <div class="profile-nav-section">
             <h6 class="profile-nav-section-title">Hesap & Ayarlar</h6>
         </div>
@@ -299,7 +275,6 @@
                     </div>
                 </a>
             </li>
-            
         </ul>
     </div>
 </nav>
@@ -313,3 +288,4 @@
         content.classList.toggle('show');
     }
 </script>
+

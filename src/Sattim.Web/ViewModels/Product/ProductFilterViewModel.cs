@@ -1,9 +1,5 @@
 ﻿namespace Sattim.Web.ViewModels.Product
 {
-    /// <summary>
-    /// GetProductListAsync için tüm filtreleme, sıralama ve sayfalama
-    /// bilgilerini tutan DTO.
-    /// </summary>
     public class ProductFilterViewModel
     {
         public string? Query { get; set; }

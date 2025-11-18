@@ -21,23 +21,13 @@ namespace Sattim.Web.Areas.Admin.Controllers
             _userManager = userManager;
         }
 
-        // Mevcut admin/moderatör ID'sini almak için yardımcı metot
         private string GetCurrentAdminId() => _userManager.GetUserId(User);
 
-        // ==================
-        // 1. ŞİKAYETLER (Reports)
-        // ==================
-
-        /// <summary>
-        /// Bekleyen şikayetleri listeler.
-        /// Rota: /Admin/Moderation/Reports
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Reports()
         {
             var reports = await _moderationService.GetPendingReportsAsync();
             return View(reports);
-            // Views/Admin/Moderation/Reports.cshtml
         }
 
         [HttpPost]
@@ -67,38 +57,21 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Reports));
         }
 
-        // ==================
-        // 2. İHTİLAFLAR (Disputes)
-        // ==================
-
-        /// <summary>
-        /// Bekleyen ihtilafları (sipariş anlaşmazlıkları) listeler.
-        /// Rota: /Admin/Moderation/Disputes
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Disputes()
         {
             var disputes = await _moderationService.GetPendingDisputesAsync();
             return View(disputes);
-            // Views/Admin/Moderation/Disputes.cshtml
         }
 
-        /// <summary>
-        /// İhtilaf detay sayfasını (mesajlaşma) gösterir.
-        /// Rota: /Admin/Moderation/DisputeDetail/123
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> DisputeDetail(int id)
         {
             var disputeDetails = await _moderationService.GetDisputeDetailsAsync(id);
             if (disputeDetails == null) return NotFound();
             return View(disputeDetails);
-            // Views/Admin/Moderation/DisputeDetail.cshtml
         }
 
-        /// <summary>
-        /// Adminin ihtilafa mesaj eklemesini sağlar.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDisputeMessage(int disputeId, string message)
@@ -114,21 +87,15 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(DisputeDetail), new { id = disputeId });
         }
 
-        /// <summary>
-        /// (KRİTİK) İhtilafı SATICI lehine çözer.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResolveDisputeForSeller(int disputeId, string resolutionNote)
         {
             await _moderationService.ResolveDisputeForSellerAsync(disputeId, GetCurrentAdminId(), resolutionNote);
             TempData["SuccessMessage"] = "İhtilaf SATICI lehine çözüldü. Bakiye serbest bırakıldı.";
-            return RedirectToAction(nameof(Disputes)); // Detaydan liste sayfasına yönlendir
+            return RedirectToAction(nameof(Disputes));
         }
 
-        /// <summary>
-        /// (KRİTİK) İhtilafı ALICI lehine çözer.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResolveDisputeForBuyer(int disputeId, string resolutionNote)
@@ -138,20 +105,11 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Disputes));
         }
 
-        // ==================
-        // 3. İÇERİK MODERASYONU
-        // ==================
-
-        /// <summary>
-        /// Onay bekleyen yorumları listeler.
-        /// Rota: /Admin/Moderation/Comments
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Comments()
         {
             var comments = await _moderationService.GetPendingCommentsAsync();
             return View(comments);
-            // Views/Admin/Moderation/Comments.cshtml
         }
 
         [HttpPost]
@@ -172,16 +130,11 @@ namespace Sattim.Web.Areas.Admin.Controllers
             return RedirectToAction(nameof(Comments));
         }
 
-        /// <summary>
-        /// Onay bekleyen ürünleri listeler.
-        /// Rota: /Admin/Moderation/Products
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> Products()
         {
             var products = await _moderationService.GetPendingProductsAsync();
             return View(products);
-            
         }
     }
 }

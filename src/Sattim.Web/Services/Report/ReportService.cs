@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Sattim.Web.Data;
-using Sattim.Web.Models.Analytical; // Report modeli için
-using Sattim.Web.Models.Product; // Product kontrolü için
-using Sattim.Web.Models.User; // User kontrolü için
-using Sattim.Web.Services.Notification; // INotificationService
+using Sattim.Web.Models.Analytical;
+using Sattim.Web.Models.Product;
+using Sattim.Web.Models.User;
+using Sattim.Web.Services.Notification;
 using Sattim.Web.ViewModels.Report;
 using System;
 using System.Threading.Tasks;
@@ -29,8 +29,6 @@ namespace Sattim.Web.Services.Report
 
         public async Task<(bool Success, string ErrorMessage)> CreateReportAsync(ReportFormViewModel model, string reporterId)
         {
-            // --- 1. Varlık Doğrulaması (Entity Validation) ---
-            // Şikayet edilen şey (ürün, kullanıcı vb.) gerçekten var mı?
             bool entityExists = false;
             switch (model.EntityType)
             {
@@ -62,12 +60,6 @@ namespace Sattim.Web.Services.Report
                 return (false, "Şikayet etmeye çalıştığınız varlık (ürün, kullanıcı vb.) bulunamadı.");
             }
 
-            // --- 2. Tekrar Eden Şikayet Kontrolü ---
-            // (MİMARİ KURALIMIZ) Birleşik anahtar (Composite Key) kontrolü:
-            // Bu kullanıcı (ReporterId) bu varlığı (EntityType + EntityId)
-            // daha önce şikayet etmiş mi?
-
-            // FindAsync kullanamayız, çünkü anahtarımız 'Id' değil
             var existingReport = await _context.Reports
                 .FirstOrDefaultAsync(r => r.ReporterId == reporterId &&
                                           r.EntityType == model.EntityType &&
@@ -78,10 +70,8 @@ namespace Sattim.Web.Services.Report
                 return (false, "Bu varlığı zaten daha önce şikayet etmişsiniz.");
             }
 
-            // --- 3. Şikayeti Oluşturma ---
             try
             {
-                // KURAL 4: YARAT (Constructor'ı kullan)
                 var report = new Models.Analytical.Report(
                     reporterId,
                     model.EntityType,
@@ -90,22 +80,15 @@ namespace Sattim.Web.Services.Report
                     model.Description
                 );
 
-                // KURAL 5: KAYDET
                 await _context.Reports.AddAsync(report);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"Yeni şikayet (ID: {report.Id}) alındı. (Reporter: {reporterId}, Entity: {model.EntityType}/{model.EntityId})");
 
-                // (Opsiyonel) Adminlere bildirim gönder
-                // await _notificationService.SendNewReportToAdminsAsync(report);
-
                 return (true, null);
             }
             catch (DbUpdateException ex)
             {
-                // Bu, 'HasIndex(...).IsUnique(true)' kuralının (eğer 'Id' yerine
-                // onu kullansaydık) veya başka bir veritabanı kısıtlamasının
-                // ihlal edilmesi durumunda çalışır.
                 _logger.LogWarning(ex, $"CreateReportAsync DbUpdateException (Muhtemelen mükerrer kayıt): {ex.InnerException?.Message}");
                 return (false, "Bu varlığı zaten daha önce şikayet etmişsiniz.");
             }

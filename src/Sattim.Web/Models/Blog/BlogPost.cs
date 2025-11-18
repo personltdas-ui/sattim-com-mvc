@@ -3,16 +3,13 @@ using Sattim.Web.Models.Blog;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Blog
 {
-    /// <summary>
-    /// Bir blog yazısını ve ilgili durumlarını/içeriğini temsil eder.
-    /// </summary>
     public class BlogPost
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -23,7 +20,7 @@ namespace Sattim.Web.Models.Blog
 
         [Required]
         [StringLength(300)]
-        public string Slug { get; private set; } // Benzersizliği Service katmanında kontrol edilmeli
+        public string Slug { get; private set; }
 
         [Required]
         public string Content { get; private set; }
@@ -44,7 +41,6 @@ namespace Sattim.Web.Models.Blog
         public DateTime? PublishedDate { get; private set; }
         public DateTime? ModifiedDate { get; private set; }
 
-        // --- SEO Alanları ---
         [StringLength(255)]
         public string? MetaTitle { get; private set; }
         [StringLength(500)]
@@ -54,47 +50,24 @@ namespace Sattim.Web.Models.Blog
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
-        /// <summary>
-        /// Yazının yazarının kimliği (Foreign Key).
-        /// </summary>
         [Required]
         public string AuthorId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Yazar (ApplicationUser).
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("AuthorId")]
         public virtual ApplicationUser Author { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Bu yazıya yapılan yorumlar (1'e Çok).
-        /// DÜZELTME: 'IEnumerable<T>' -> 'ICollection<T>' olarak değiştirildi.
-        /// DÜZELTME: 'virtual' eklendi.
-        /// </summary>
         public virtual ICollection<BlogComment> Comments { get; private set; } = new List<BlogComment>();
 
-        /// <summary>
-        /// Navigasyon: Bu yazının etiketleri (Çoka Çok ilişki).
-        /// DÜZELTME: 'IEnumerable<T>' -> 'ICollection<T>' olarak değiştirildi.
-        /// DÜZELTME: 'virtual' eklendi.
-        /// </summary>
         public virtual ICollection<BlogPostTag> BlogPostTags { get; private set; } = new List<BlogPostTag>();
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private BlogPost() { }
 
-        /// <summary>
-        /// Yeni bir 'BlogPost' nesnesi oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public BlogPost(string title, string slug, string content, string authorId, string? excerpt = null)
         {
             if (string.IsNullOrWhiteSpace(title)) throw new ArgumentNullException(nameof(title));
@@ -108,24 +81,19 @@ namespace Sattim.Web.Models.Blog
             AuthorId = authorId;
             Excerpt = excerpt;
 
-            Status = BlogPostStatus.Draft; // Her zaman 'Taslak' olarak başlar
+            Status = BlogPostStatus.Draft;
             ViewCount = 0;
             CreatedDate = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Yazının ana içeriğini günceller ve doğrulamaları uygular.
-        /// </summary>
         public void Update(string title, string slug, string content, string? excerpt)
         {
-            // DÜZELTME: Kapsüllemeyi korumak için doğrulamalar eklendi.
-            // Nesnenin geçersiz bir duruma (örn. boş başlık) güncellenmesini engeller.
             if (string.IsNullOrWhiteSpace(title)) throw new ArgumentException("Başlık boş olamaz.", nameof(title));
             if (string.IsNullOrWhiteSpace(slug)) throw new ArgumentException("Slug (URL) boş olamaz.", nameof(slug));
             if (string.IsNullOrWhiteSpace(content)) throw new ArgumentException("İçerik boş olamaz.", nameof(content));
 
             Title = title;
-            Slug = slug; // Servis katmanı, slug'ın benzersizliğini ayrıca kontrol etmeli
+            Slug = slug;
             Content = content;
             Excerpt = excerpt;
             ModifiedDate = DateTime.UtcNow;
@@ -145,14 +113,11 @@ namespace Sattim.Web.Models.Blog
             ModifiedDate = DateTime.UtcNow;
         }
 
-        // --- Durum Makinesi Metotları (State Machine Methods) ---
-
         public void Publish()
         {
-            if (Status == BlogPostStatus.Published) return; // Zaten yayınlanmış
+            if (Status == BlogPostStatus.Published) return;
 
             Status = BlogPostStatus.Published;
-            // Sadece ilk yayınlanmada tarihi ayarla
             if (!PublishedDate.HasValue)
             {
                 PublishedDate = DateTime.UtcNow;
@@ -162,7 +127,7 @@ namespace Sattim.Web.Models.Blog
 
         public void Archive()
         {
-            if (Status == BlogPostStatus.Archived) return; // Zaten arşivlenmiş
+            if (Status == BlogPostStatus.Archived) return;
 
             Status = BlogPostStatus.Archived;
             ModifiedDate = DateTime.UtcNow;
@@ -170,25 +135,21 @@ namespace Sattim.Web.Models.Blog
 
         public void SetAsDraft()
         {
-            if (Status == BlogPostStatus.Draft) return; // Zaten taslak
+            if (Status == BlogPostStatus.Draft) return;
 
             Status = BlogPostStatus.Draft;
-            PublishedDate = null; // Taslağa geri dönerse yayın tarihi kalkar (İyi bir karar)
+            PublishedDate = null;
             ModifiedDate = DateTime.UtcNow;
         }
 
         public void IncrementViewCount()
         {
             ViewCount++;
-            // Not: Bu işlem için 'ModifiedDate' güncellenmez.
         }
 
         #endregion
     }
 
-    /// <summary>
-    /// Bir blog yazısının durumunu belirler (Taslak, Yayınlanmış, Arşivlenmiş).
-    /// </summary>
     public enum BlogPostStatus
     {
         Draft,

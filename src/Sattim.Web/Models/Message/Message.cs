@@ -1,18 +1,14 @@
 ﻿using Sattim.Web.Models.User;
-using Sattim.Web.Models.Product; // Product namespace'i için eklendi
-using System; // ArgumentException vb. için eklendi
+using Sattim.Web.Models.Product;
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Message
 {
-    /// <summary>
-    /// İki kullanıcı (Sender, Receiver) arasındaki, isteğe bağlı olarak
-    /// bir ürünle (Product) ilişkilendirilmiş tek bir mesajı temsil eder.
-    /// </summary>
     public class Message
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -27,7 +23,7 @@ namespace Sattim.Web.Models.Message
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
         [Required]
         public string SenderId { get; private set; }
@@ -35,47 +31,25 @@ namespace Sattim.Web.Models.Message
         [Required]
         public string ReceiverId { get; private set; }
 
-        /// <summary>
-        /// Mesajın ilgili olduğu ürün (isteğe bağlı, Foreign Key).
-        /// </summary>
         public int? ProductId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Mesajı gönderen kullanıcı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("SenderId")]
         public virtual ApplicationUser Sender { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Mesajı alan kullanıcı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("ReceiverId")]
         public virtual ApplicationUser Receiver { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Mesajın ilgili olduğu ürün (isteğe bağlı).
-        /// DÜZELTME: EF Core Tembel Yüklemesi için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("ProductId")]
         public virtual Product.Product? Product { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private Message() { }
 
-        /// <summary>
-        /// Yeni bir 'Message' nesnesi oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public Message(string senderId, string receiverId, string content, int? productId = null)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için tüm ID'ler ve değerler doğrulandı.
             if (string.IsNullOrWhiteSpace(senderId))
                 throw new ArgumentNullException(nameof(senderId), "Gönderen kullanıcı kimliği boş olamaz.");
             if (string.IsNullOrWhiteSpace(receiverId))
@@ -97,12 +71,9 @@ namespace Sattim.Web.Models.Message
             ReadDate = null;
         }
 
-        /// <summary>
-        /// Mesajı 'Okundu' olarak işaretler.
-        /// </summary>
         public void MarkAsRead()
         {
-            if (IsRead) return; // Zaten okunduysa tekrar işlem yapma
+            if (IsRead) return;
 
             IsRead = true;
             ReadDate = DateTime.UtcNow;

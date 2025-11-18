@@ -1,19 +1,14 @@
-﻿using Sattim.Web.Models.Dispute; 
+﻿using Sattim.Web.Models.Dispute;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sattim.Web.ViewModels.Dispute
 {
-    
-
-    /// <summary>
-    /// Controller'dan OpenDisputeAsync'e gelen ihtilaf açma modeli.
-    /// </summary>
     public class OpenDisputeViewModel
     {
         [Required]
-        public int ProductId { get; set; } // (Bu aynı zamanda EscrowId'dir)
+        public int ProductId { get; set; }
 
         [Required]
         public DisputeReason Reason { get; set; }
@@ -23,9 +18,6 @@ namespace Sattim.Web.ViewModels.Dispute
         public string Description { get; set; }
     }
 
-    /// <summary>
-    /// Controller'dan AddDisputeMessageAsync'e gelen mesaj ekleme modeli.
-    /// </summary>
     public class AddDisputeMessageViewModel
     {
         [Required]
@@ -36,13 +28,6 @@ namespace Sattim.Web.ViewModels.Dispute
         public string Message { get; set; }
     }
 
-
-    
-
-    /// <summary>
-    /// "İhtilaflarım" sayfasındaki tek bir ihtilaf özetini temsil eder.
-    /// (GetMyDisputesAsync tarafından döndürülür)
-    /// </summary>
     public class DisputeSummaryViewModel
     {
         public int DisputeId { get; set; }
@@ -51,13 +36,9 @@ namespace Sattim.Web.ViewModels.Dispute
         public string ProductImageUrl { get; set; }
         public DisputeStatus Status { get; set; }
         public DateTime CreatedDate { get; set; }
-        public string RoleInDispute { get; set; } // (Rolüm: "Alıcı" veya "Satıcı")
+        public string RoleInDispute { get; set; }
     }
 
-    /// <summary>
-    /// Bir ihtilafın detay sayfasını temsil eder.
-    /// (GetMyDisputeDetailsAsync tarafından döndürülür)
-    /// </summary>
     public class DisputeDetailViewModel
     {
         public int DisputeId { get; set; }
@@ -73,9 +54,6 @@ namespace Sattim.Web.ViewModels.Dispute
         public List<DisputeMessageViewModel> Messages { get; set; } = new List<DisputeMessageViewModel>();
     }
 
-    /// <summary>
-    /// Bir ihtilaf detayındaki tek bir mesajı temsil eder.
-    /// </summary>
     public class DisputeMessageViewModel
     {
         public string SenderId { get; set; }

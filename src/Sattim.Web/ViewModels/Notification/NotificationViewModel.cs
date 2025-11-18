@@ -1,12 +1,8 @@
-﻿using Sattim.Web.Models.UI; // NotificationType enum'u için
+﻿using Sattim.Web.Models.UI;
 using System;
 
 namespace Sattim.Web.ViewModels.Notification
 {
-    /// <summary>
-    /// Kullanıcının "Bildirimlerim" sayfasında gördüğü tek bir bildirim DTO'su.
-    /// (GetUžserNotificationsAsync tarafından döndürülür)
-    /// </summary>
     public class NotificationViewModel
     {
         public int Id { get; set; }
@@ -16,7 +12,6 @@ namespace Sattim.Web.ViewModels.Notification
         public DateTime CreatedDate { get; set; }
         public NotificationType Type { get; set; }
 
-        // Tıklandığında yönlendirilecek URL (Servis katmanında oluşturulur)
         public string LinkUrl { get; set; }
     }
 }

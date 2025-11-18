@@ -1,22 +1,21 @@
-﻿using Sattim.Web.Models.Escrow; // Escrow namespace'i eklendi
+﻿using Sattim.Web.Models.Escrow;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System;
 
 namespace Sattim.Web.Models.Payment
 {
     public class Payment
     {
-        public int Id { get; private set; } // Kendi anahtarı
+        [Key]
+        public int Id { get; private set; }
 
         [Required]
-        // MİMARİ: Bu, Escrow tablosuna olan Yabancı Anahtardır (FK).
-        // Escrow'un anahtarı ProductId olduğu için bu alanı
-        // EscrowProductId olarak adlandırmak mantıklıdır.
         public int EscrowProductId { get; private set; }
 
         [Required]
-        // KRİTİK HATA DÜZELTMESİ: decimal.MaxValue
         [Range(typeof(decimal), "0.01", "79228162514264337593543950335")]
-        public decimal Amount { get; private set; } // Ödenmeye çalışılan tutar
+        public decimal Amount { get; private set; }
 
         public PaymentMethod Method { get; private set; }
 
@@ -32,13 +31,8 @@ namespace Sattim.Web.Models.Payment
         public DateTime? PaidDate { get; private set; }
         public DateTime? RefundedDate { get; private set; }
 
-        // --- Navigation Properties ---
+        public virtual Escrow.Escrow Escrow { get; private set; }
 
-        // PERFORMANS & KAPSÜLLEME
-        public Escrow.Escrow Escrow { get; private set; }
-
-
-        // --- Constructor ve Davranışsal Metotlar ---
 
         private Payment() { }
 
@@ -48,14 +42,11 @@ namespace Sattim.Web.Models.Payment
                 throw new ArgumentOutOfRangeException(nameof(amount), "Tutar pozitif olmalıdır.");
 
             EscrowProductId = escrowProductId;
-            Amount = amount; // Bu tutarın Escrow.Amount ile eşleştiği
-                             // Servis Katmanında kontrol edilmelidir.
+            Amount = amount;
             Method = method;
             Status = PaymentStatus.Pending;
             CreatedDate = DateTime.UtcNow;
         }
-
-        // --- Durum Makinesi (State Machine) Metotları ---
 
         public void StartProcessing()
         {
@@ -95,7 +86,6 @@ namespace Sattim.Web.Models.Payment
         }
     }
 
-    // Enum'lar (Değişiklik yok, gayet iyi)
     public enum PaymentMethod
     {
         CreditCard,
@@ -105,7 +95,6 @@ namespace Sattim.Web.Models.Payment
         Stripe,
         Iyzico,
         Wallet
-
     }
     public enum PaymentStatus
     {
@@ -115,12 +104,5 @@ namespace Sattim.Web.Models.Payment
         Failed,
         Refunded,
         Cancelled
-
     }
 }
-
-
-
-
-
-

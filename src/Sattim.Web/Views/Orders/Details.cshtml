@@ -1,15 +1,13 @@
 ﻿@model Sattim.Web.ViewModels.Order.OrderDetailViewModel
-@using Sattim.Web.Models.Escrow // EscrowStatus enum'ı için
+@using Sattim.Web.Models.Escrow
 @using Sattim.Web.Models.User
-@using Sattim.Web.ViewModels.Shipping // MarkAsShippedViewModel için (DİKKAT: Yeni)
+@using Sattim.Web.ViewModels.Shipping
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
 
 @{
     ViewData["Title"] = "Sipariş Detayı";
-    var userRole = (string)ViewBag.UserRoleInOrder; // "Buyer" veya "Seller"
-
-    // Controller'dan gelen kargo formunu MarkAsShippedViewModel'e cast et
+    var userRole = (string)ViewBag.UserRoleInOrder;
     var shippingForm = ViewBag.ShippingForm as MarkAsShippedViewModel;
 }
 

@@ -1,30 +1,19 @@
 ﻿using Sattim.Web.Models.User;
 using Sattim.Web.Models.Product;
-using System; // ArgumentException vb. için eklendi
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [Key], [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Shipping
 {
-    /// <summary>
-    /// Bir ürün satışı (Product) için kargo bilgilerini ve durumunu temsil eder.
-    /// Product ile Bire-Bir (1-to-1) ilişkiye sahiptir.
-    /// Adres bilgileri oluşturulduktan sonra değiştirilemez (immutable).
-    /// </summary>
     public class ShippingInfo
     {
         #region Özellikler ve Bire-Bir İlişki
 
-        /// <summary>
-        /// Bu tablonun Birincil Anahtarı (PK).
-        /// Aynı zamanda Product tablosuna olan Yabancı Anahtardır (FK).
-        /// Bu, birebir ilişkiyi garanti eder.
-        /// </summary>
         [Key]
         [ForeignKey("Product")]
         public int ProductId { get; private set; }
 
-        // --- Adres Bilgileri (Değişmez) ---
         [Required]
         [StringLength(150)]
         public string FullName { get; private set; }
@@ -45,7 +34,6 @@ namespace Sattim.Web.Models.Shipping
         [StringLength(20)]
         public string Phone { get; private set; }
 
-        // --- Kargo Durum Bilgileri ---
         [StringLength(100)]
         public string? TrackingNumber { get; private set; }
 
@@ -61,45 +49,29 @@ namespace Sattim.Web.Models.Shipping
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
         [Required]
-        public string BuyerId { get; private set; } // Değişmez
+        public string BuyerId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Kargonun ait olduğu ürün/satış.
-        /// DÜZELTME: EF Core Tembel Yüklemesi için 'virtual' eklendi.
-        /// </summary>
         public virtual Product.Product Product { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Kargonun alıcısı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("BuyerId")]
         public virtual ApplicationUser Buyer { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private ShippingInfo() { }
 
-        /// <summary>
-        /// Yeni bir 'ShippingInfo' (kargo etiketi) oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public ShippingInfo(int productId, string buyerId, string fullName, string address, string city, string postalCode, string phone)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için ID doğrulamaları eklendi.
             if (productId <= 0)
                 throw new ArgumentException("Geçersiz ürün kimliği.", nameof(productId));
             if (string.IsNullOrWhiteSpace(buyerId))
                 throw new ArgumentNullException(nameof(buyerId), "Alıcı kimliği boş olamaz.");
 
-            // Adres doğrulamaları (Sizin kodunuzda zaten vardı, çok iyi)
             if (string.IsNullOrWhiteSpace(fullName)) throw new ArgumentException("Tam ad boş olamaz.", nameof(fullName));
             if (string.IsNullOrWhiteSpace(address)) throw new ArgumentException("Adres boş olamaz.", nameof(address));
             if (string.IsNullOrWhiteSpace(city)) throw new ArgumentException("Şehir boş olamaz.", nameof(city));
@@ -114,15 +86,12 @@ namespace Sattim.Web.Models.Shipping
             PostalCode = postalCode;
             Phone = phone;
 
-            Status = ShippingStatus.Pending; // Her zaman 'Beklemede' başlar
+            Status = ShippingStatus.Pending;
             CreatedDate = DateTime.UtcNow;
         }
 
-        // --- Durum Makinesi (State Machine) Metotları (Fail-Fast) ---
-
         public void MarkAsPreparing()
         {
-            // DÜZELTME: 'Fail-Fast' (Hızlı Hata Ver)
             if (Status != ShippingStatus.Pending)
                 throw new InvalidOperationException("Sadece 'Beklemede' olan kargolar 'Hazırlanıyor' olarak işaretlenebilir.");
 
@@ -172,11 +141,11 @@ namespace Sattim.Web.Models.Shipping
 
     public enum ShippingStatus
     {
-        Pending,   // Ödeme tamamlandı, satıcının kargolaması bekleniyor
-        Preparing, // Satıcı kargoyu hazırlıyor (Opsiyonel ara durum)
-        Shipped,   // Satıcı tarafından kargoya verildi
-        InTransit, // Kargo firması tarafından "Yolda" olarak tarandı
-        Delivered, // Alıcıya teslim edildi
-        Returned   // Alıcı tarafından iade edildi
+        Pending,
+        Preparing,
+        Shipped,
+        InTransit,
+        Delivered,
+        Returned
     }
 }

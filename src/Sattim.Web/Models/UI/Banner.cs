@@ -1,17 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [Column] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.UI
 {
-    /// <summary>
-    /// Arayüzde gösterilecek bir reklam alanını (Banner) temsil eder.
-    /// Tüm iş kuralları (tarih, zorunlu alanlar) aktif olarak zorunlu kılınır.
-    /// </summary>
     public class Banner
     {
-        #region Özellikler (Properties)
-
         [Key]
         public int Id { get; private set; }
 
@@ -46,50 +40,29 @@ namespace Sattim.Web.Models.UI
         [Range(0, int.MaxValue)]
         public int ViewCount { get; private set; }
 
-        #endregion
-
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
-
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private Banner() { }
 
-        /// <summary>
-        /// Yeni bir 'Banner' nesnesi oluşturur ve tüm iş kurallarını zorunlu kılar.
-        /// </summary>
         public Banner(string title, string imageUrl, BannerPosition position, DateTime startDate, DateTime endDate, string? linkUrl = null, int displayOrder = 0)
         {
-            // Kuralları doğrulamak ve atamak için merkezi metodu kullan (DRY Prensibi)
             SetValues(title, imageUrl, position, startDate, endDate, linkUrl, displayOrder);
 
-            IsActive = true; // Varsayılan olarak aktif
+            IsActive = true;
             ClickCount = 0;
             ViewCount = 0;
         }
 
-        /// <summary>
-        /// Banner detaylarını günceller ve tüm iş kurallarını yeniden doğrular.
-        /// </summary>
         public void UpdateDetails(string newTitle, string newImageUrl, BannerPosition newPosition, DateTime newStartDate, DateTime newEndDate, string? newLinkUrl, int newDisplayOrder)
         {
-            // Kuralları doğrulamak ve atamak için merkezi metodu kullan (DRY Prensibi)
             SetValues(newTitle, newImageUrl, newPosition, newStartDate, newEndDate, newLinkUrl, newDisplayOrder);
         }
 
-        /// <summary>
-        /// Değerleri atayan ve tüm iş kurallarını zorunlu kılan merkezi metot.
-        /// (Constructor ve UpdateDetails tarafından kullanılır).
-        /// </summary>
         private void SetValues(string title, string imageUrl, BannerPosition position, DateTime startDate, DateTime endDate, string? linkUrl, int displayOrder)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için tüm doğrulamalar eklendi.
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Başlık boş olamaz.", nameof(title));
             if (string.IsNullOrWhiteSpace(imageUrl))
                 throw new ArgumentException("Resim URL'i boş olamaz.", nameof(imageUrl));
 
-            // DÜZELTME: (Aktif Doğrulama) IValidatableObject'taki mantık buraya taşındı.
             if (endDate <= startDate)
                 throw new ArgumentException("Bitiş tarihi, başlangıç tarihinden sonra olmalıdır.");
             if (displayOrder < 0)
@@ -104,8 +77,6 @@ namespace Sattim.Web.Models.UI
             DisplayOrder = displayOrder;
         }
 
-        // --- Sayaç Metotları ---
-
         public void IncrementView()
         {
             ViewCount++;
@@ -116,24 +87,19 @@ namespace Sattim.Web.Models.UI
             ClickCount++;
         }
 
-        // --- Durum Metotları ---
-
         public void Activate()
         {
-            if (IsActive) return; // Zaten aktifse işlem yapma
+            if (IsActive) return;
             IsActive = true;
         }
 
         public void Deactivate()
         {
-            if (!IsActive) return; // Zaten pasifse işlem yapma
+            if (!IsActive) return;
             IsActive = false;
         }
-
-        #endregion
     }
 
-    // Enum (Değişiklik yok, gayet iyi)
     public enum BannerPosition
     {
         HomePage_Top,

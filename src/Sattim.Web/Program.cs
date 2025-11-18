@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Sattim.Web.Models.User;
+using Sattim.Web.Repositories.Concrete;
+using Sattim.Web.Repositories.Interface;
 using Sattim.Web.Services.Account;
 
 using Sattim.Web.Services.Bid;
@@ -17,7 +19,6 @@ using Sattim.Web.Services.Payment;
 using Sattim.Web.Services.Product;
 using Sattim.Web.Services.Profile;
 using Sattim.Web.Services.Report;
-using Sattim.Web.Services.Repositories;
 using Sattim.Web.Services.Shipping;
 using Sattim.Web.Services.Storage;
 using Sattim.Web.Services.Wallet;
@@ -35,7 +36,7 @@ builder.Services.AddControllersWithViews()
     });
 
 
-// AutoMapper — tüm assembly'leri otomatik tara
+// AutoMapper 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
@@ -79,7 +80,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 
-
+// =================================================================
+// SERVİCE KATMANI KAYITLARI (DI)
+// =================================================================
 
 
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -110,12 +113,10 @@ builder.Services.AddScoped<IGatewayService, IyzicoGatewayService>();
 // REPOSITORY KATMANI KAYITLARI (DI)
 // =================================================================
 
-// 1. Jenerik (Generic) Repository'yi kaydet
-// (Birisi IGenericRepository<Wallet> isterse, ona GenericRepository<Wallet> ver)
+
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
-// 2. Özel (Specific) Repository'leri kaydet
-// (Her arayüzün kendi somut sınıfına eşlenmesi)
+
 
 // Product
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -148,11 +149,8 @@ builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 // Notification
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
-
-
-
-
-
+// Product Images
+builder.Services.AddScoped<IProductImageRepository, ProductImageRepository>();
 
 
 
@@ -202,7 +200,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogCritical(ex, "Veritabanı tohumlama (seeding) sırasında ölümcül bir hata oluştu.");
+        logger.LogCritical(ex, "Veritabanı seeding sırasında ölümcül bir hata oluştu.");
         throw; 
     }
 }

@@ -5,10 +5,6 @@ namespace Sattim.Web.Services.Management
 {
     public interface IDashboardService
     {
-        /// <summary>
-        /// Admin paneli ana sayfası için tüm özet istatistikleri
-        /// ve moderasyon kuyruklarını veritabanından toplar.
-        /// </summary>
         Task<AdminDashboardViewModel> GetDashboardStatisticsAsync();
     }
 }

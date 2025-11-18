@@ -7,7 +7,6 @@
 }
 
 <style>
-    /* Page Intro */
     .page-intro {
         color: #666;
         font-size: 0.9rem;
@@ -15,7 +14,6 @@
         line-height: 1.6;
     }
 
-    /* Profile Cards */
     .profile-card {
         background: white;
         border: 1px solid #e5e5e5;
@@ -39,7 +37,6 @@
         padding: 1.5rem;
     }
 
-    /* Profile Image Section */
     .profile-image-wrapper {
         display: flex;
         align-items: center;
@@ -60,7 +57,6 @@
         min-width: 250px;
     }
 
-    /* Form Styling */
     .form-label {
         font-size: 0.85rem;
         font-weight: 600;
@@ -104,7 +100,6 @@
         display: block;
     }
 
-    /* Input Group */
     .input-group {
         display: flex;
         gap: 0.5rem;
@@ -114,7 +109,6 @@
             flex: 1;
         }
 
-    /* Buttons */
     .btn-primary {
         background-color: #1a1a1a;
         border: 1px solid #1a1a1a;
@@ -172,7 +166,6 @@
             background-color: #fafafa;
         }
 
-    /* Section Title */
     .section-title {
         font-size: 1rem;
         font-weight: 600;
@@ -189,7 +182,6 @@
         line-height: 1.5;
     }
 
-    /* Verification Badge */
     .verification-status {
         display: flex;
         align-items: center;
@@ -246,7 +238,6 @@
         margin: 0;
     }
 
-    /* Alerts */
     .alert {
         border-radius: 0;
         border: none;
@@ -275,7 +266,6 @@
         font-size: 1.1rem;
     }
 
-    /* Validation */
     .text-danger {
         font-size: 0.8rem;
         color: #dc2626;
@@ -283,7 +273,6 @@
         display: block;
     }
 
-    /* Responsive Grid */
     .form-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -291,41 +280,33 @@
         margin-bottom: 1.25rem;
     }
 
-    /* Mobile Responsive */
     @@media (max-width: 768px) {
-        .profile-image-wrapper
+        .profile-image-wrapper {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-    {
-        flex-direction: column;
-        align-items: flex-start;
-    }
+        .profile-upload-form {
+            width: 100%;
+        }
 
-    .profile-upload-form {
-        width: 100%;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
+        .form-row {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
 <div class="container mt-4">
     <div class="row">
-        <!-- Sidebar Navigation -->
         <div class="col-md-3">
             @await Html.PartialAsync("_ProfileNav")
         </div>
 
-        <!-- Main Content -->
         <div class="col-md-9">
-            <!-- Page Intro -->
             <p class="page-intro">
                 Profil bilgilerinizi güncelleyin ve hesabınızı doğrulayarak güvenilir satıcı rozeti kazanın.
             </p>
 
-            <!-- Success/Error Messages -->
             @if (TempData["SuccessMessage"] != null)
             {
                 <div class="alert alert-success">
@@ -341,7 +322,6 @@
                 </div>
             }
 
-            <!-- Profile Image Card -->
             <div class="profile-card">
                 <div class="profile-card-header">
                     <h3 class="profile-card-title">Profil Resmi</h3>
@@ -367,7 +347,6 @@
                 </div>
             </div>
 
-            <!-- Personal Information Card -->
             <div class="profile-card">
                 <div class="profile-card-header">
                     <h3 class="profile-card-title">Kişisel Bilgiler</h3>
@@ -389,7 +368,6 @@
                             <small class="form-hint">Bu bilgi profil sayfanızda görünecektir</small>
                         </div>
 
-                        <!-- Address Section -->
                         <h5 class="section-title">Varsayılan Adres Bilgileri</h5>
                         <p class="section-hint">
                             Bu adres profilinizde görünür. Kargo işlemleri için <strong>"Adres Defterim"</strong> bölümünü kullanın.
@@ -422,7 +400,6 @@
                 </div>
             </div>
 
-            <!-- Account Verification Card -->
             <div class="profile-card">
                 <div class="profile-card-header">
                     <h3 class="profile-card-title">Hesap Doğrulama</h3>

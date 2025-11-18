@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization; // GÜVENLİK
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Sattim.Web.Models.User;
 using Sattim.Web.Services.Product;
 using System.Threading.Tasks;
 
-[Authorize(Roles = "Admin,Moderator")] // Sadece Admin ve Moderator rolleri erişebilir
-[Area("Admin")] // Yönetim panelini /Admin alanı altına alabiliriz
+[Authorize(Roles = "Admin,Moderator")]
+[Area("Admin")]
 [Route("Admin/Products")]
 public class AdminProductsController : Controller
 {
@@ -21,11 +21,6 @@ public class AdminProductsController : Controller
 
     private string GetAdminId() => _userManager.GetUserId(User)!;
 
-    // NOT: Bu controller'da genellikle "PendingList" (Onay Bekleyenler)
-    // gibi bir Index metodu daha olur, ancak servis arayüzünde
-    // bu metot tanımı olmadığı için eklemedim.
-
-    // POST: /Admin/Products/Approve/5
     [HttpPost("Approve/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Approve(int id)
@@ -41,12 +36,9 @@ public class AdminProductsController : Controller
             TempData["ErrorMessage"] = "Ürün onaylanırken bir hata oluştu.";
         }
 
-        // Admin'i onay bekleyenler listesine geri yönlendir
-        
         return RedirectToAction("Products", "Moderation", new { Area = "Admin" });
     }
 
-    // POST: /Admin/Products/Reject
     [HttpPost("Reject")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Reject(int productId, string reason)
@@ -54,7 +46,6 @@ public class AdminProductsController : Controller
         if (string.IsNullOrWhiteSpace(reason))
         {
             TempData["ErrorMessage"] = "Reddetme sebebi girmek zorunludur.";
-            // Admin'i ilgili ürünün detay sayfasına geri yönlendir
             return RedirectToAction("ProductDetails", "AdminDashboard", new { id = productId });
         }
 
@@ -69,11 +60,9 @@ public class AdminProductsController : Controller
             TempData["ErrorMessage"] = "Ürün reddedilirken bir hata oluştu.";
         }
 
-        // DOĞRUSU BU OLMALI:
         return RedirectToAction("Products", "Moderation", new { Area = "Admin" });
     }
 
-    // POST: /Admin/Products/Delete/5
     [HttpPost("Delete/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -89,8 +78,6 @@ public class AdminProductsController : Controller
             TempData["ErrorMessage"] = "Ürün silinirken bir hata oluştu.";
         }
 
-        // Admin'i tüm ürünler listesine yönlendir
-        // DOĞRUSU BU OLMALI:
         return RedirectToAction("Products", "Moderation", new { Area = "Admin" });
     }
 }

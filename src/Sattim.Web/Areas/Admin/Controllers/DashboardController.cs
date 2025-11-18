@@ -17,16 +17,11 @@ namespace Sattim.Web.Areas.Admin.Controllers
             _dashboardService = dashboardService;
         }
 
-        /// <summary>
-        /// Admin panelinin ana sayfası.
-        /// Rota: /Admin/ veya /Admin/Dashboard/Index
-        /// </summary>
         [Route("/Admin")]
         [Route("/Admin/Dashboard")]
         [Route("/Admin/Dashboard/Index")]
         public async Task<IActionResult> Index()
         {
-            // Servis, view için gereken tüm veriyi toplayan hazır view modeli döner.
             AdminDashboardViewModel viewModel = await _dashboardService.GetDashboardStatisticsAsync();
             return View(viewModel);
         }

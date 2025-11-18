@@ -1,21 +1,18 @@
-﻿using Sattim.Web.Models.Analytical; // Enum'lar için
+﻿using Sattim.Web.Models.Analytical;
 using System.ComponentModel.DataAnnotations;
 
 namespace Sattim.Web.ViewModels.Report
 {
-    /// <summary>
-    /// CreateReportAsync metodu için şikayet formu verisi.
-    /// </summary>
     public class ReportFormViewModel
     {
         [Required]
         [StringLength(50)]
         [Display(Name = "Şikayet Edilen ID")]
-        public string EntityId { get; set; } // Örn: ProductId="123", UserId="abc-xyz"
+        public string EntityId { get; set; }
 
         [Required(ErrorMessage = "Şikayet tipi zorunludur.")]
         [Display(Name = "Şikayet Tipi")]
-        public ReportEntityType EntityType { get; set; } // Product, User, Bid, Message
+        public ReportEntityType EntityType { get; set; }
 
         [Required(ErrorMessage = "Bir sebep seçmelisiniz.")]
         [Display(Name = "Şikayet Sebebi")]

@@ -9,14 +9,12 @@
 }
 
 <style>
-    /* Page Container */
     .products-container {
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem 1rem;
     }
 
-    /* Page Header */
     .products-header {
         margin-bottom: 2rem;
     }
@@ -35,7 +33,6 @@
         margin: 0;
     }
 
-    /* Layout Grid */
     .products-layout {
         display: grid;
         grid-template-columns: 280px 1fr;
@@ -43,7 +40,6 @@
         align-items: start;
     }
 
-    /* Sidebar Filter */
     .filter-sidebar {
         position: sticky;
         top: 2rem;
@@ -116,7 +112,6 @@
         gap: 0.75rem;
     }
 
-    /* Filter Actions */
     .filter-actions {
         display: flex;
         gap: 0.75rem;
@@ -166,12 +161,10 @@
             color: #1a1a1a;
         }
 
-    /* Products Content */
     .products-content {
         min-height: 400px;
     }
 
-    /* Results Bar */
     .results-bar {
         display: flex;
         justify-content: space-between;
@@ -206,14 +199,12 @@
         gap: 0.5rem;
     }
 
-    /* Products Grid */
     .products-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1.5rem;
     }
 
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -241,7 +232,6 @@
         margin-bottom: 1.5rem;
     }
 
-    /* Pagination */
     .pagination-wrapper {
         margin-top: 2rem;
         display: flex;
@@ -294,7 +284,6 @@
         pointer-events: none;
     }
 
-    /* Mobile Filter Overlay */
     .filter-overlay {
         position: fixed;
         top: 0;
@@ -358,7 +347,6 @@
             color: #1a1a1a;
         }
 
-    /* Responsive */
     @@media (max-width: 991px) {
         .products-layout {
             grid-template-columns: 1fr;
@@ -421,7 +409,6 @@
 </style>
 
 <div class="products-container">
-    <!-- Page Header -->
     <div class="products-header">
         <h1 class="products-title">@ViewData["Title"]</h1>
         <p class="products-subtitle">
@@ -440,9 +427,7 @@
         </p>
     </div>
 
-    <!-- Main Layout -->
     <div class="products-layout">
-        <!-- Desktop Filter Sidebar -->
         <aside class="filter-sidebar">
             <div class="filter-header">
                 <h3 class="filter-title">
@@ -455,7 +440,6 @@
                     <input type="hidden" asp-for="@currentFilter.Query" />
                     <input type="hidden" asp-for="@currentFilter.CategoryId" />
 
-                    <!-- Sort -->
                     <div class="filter-group">
                         <label class="filter-label">Sıralama</label>
                         <select asp-for="@currentFilter.SortBy"
@@ -464,7 +448,6 @@
                         </select>
                     </div>
 
-                    <!-- Price Range -->
                     <div class="filter-group">
                         <label class="filter-label">Fiyat Aralığı</label>
                         <div class="price-range-inputs">
@@ -479,7 +462,6 @@
                         </div>
                     </div>
 
-                    <!-- Actions -->
                     <div class="filter-actions">
                         <input type="hidden" name="Page" value="1" />
                         <button type="submit" class="btn-filter">
@@ -493,9 +475,7 @@
             </div>
         </aside>
 
-        <!-- Products Content -->
         <div class="products-content">
-            <!-- Results Bar -->
             <div class="results-bar">
                 <div class="results-count">
                     <strong>@totalProducts</strong> ürün bulundu
@@ -506,7 +486,6 @@
                 </button>
             </div>
 
-            <!-- Products Grid -->
             @if (!Model.Any())
             {
                 <div class="empty-state">
@@ -529,12 +508,10 @@
                     }
                 </div>
 
-                <!-- Pagination -->
                 @if (totalPages > 1)
                 {
                     <nav class="pagination-wrapper" aria-label="Sayfa navigasyonu">
                         <ul class="pagination">
-                            <!-- Previous -->
                             <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
                                 <a class="page-link"
                                    asp-action="Index"
@@ -548,7 +525,6 @@
                                 </a>
                             </li>
 
-                            <!-- Pages -->
                             @{
                                 int startPage = Math.Max(1, currentPage - 2);
                                 int endPage = Math.Min(totalPages, currentPage + 2);
@@ -608,7 +584,6 @@
                                 </li>
                             }
 
-                            <!-- Next -->
                             <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
                                 <a class="page-link"
                                    asp-action="Index"
@@ -629,7 +604,6 @@
     </div>
 </div>
 
-<!-- Mobile Filter Overlay & Sidebar -->
 <div class="filter-overlay" id="filterOverlay" onclick="toggleMobileFilter()"></div>
 <aside class="filter-sidebar-mobile" id="filterSidebarMobile">
     <div class="filter-mobile-header">
@@ -690,11 +664,9 @@
             overlay.classList.toggle('show');
             sidebar.classList.toggle('show');
 
-            // Prevent body scroll when filter is open
             document.body.style.overflow = sidebar.classList.contains('show') ? 'hidden' : '';
         }
 
-        // Close filter with Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const sidebar = document.getElementById('filterSidebarMobile');

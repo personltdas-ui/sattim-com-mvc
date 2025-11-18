@@ -1,61 +1,54 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Sattim.Web.Data; // DbContext (Transaction)
+using Sattim.Web.Data;
 using Sattim.Web.Models.Analytical;
 using Sattim.Web.Models.Blog;
 using Sattim.Web.Models.Dispute;
 using Sattim.Web.Models.Escrow;
 using Sattim.Web.Models.Product;
-using Sattim.Web.Services.Repositories; // Gerekli tüm Repolar
-using Sattim.Web.Services.Wallet; // IWalletService (Servis-Servis)
-using Sattim.Web.ViewModels.Moderation; // Arayüzün istediği DTO'lar
+using Sattim.Web.Repositories.Interface;
+using Sattim.Web.Services.Wallet;
+using Sattim.Web.ViewModels.Moderation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-// Arayüzünüzle aynı namespace'i kullanır
 namespace Sattim.Web.Services.Moderation
 {
-    // BU SERVİSİN TAMAMI [Authorize(Roles = "Admin,Moderator")] İLE KORUNMALIDIR
     public class ModerationService : IModerationService
     {
-        // Gerekli Özel Repolar
         private readonly IReportRepository _reportRepo;
         private readonly IDisputeRepository _disputeRepo;
         private readonly IBlogCommentRepository _commentRepo;
         private readonly IProductRepository _productRepo;
 
-        // Gerekli Jenerik Repolar
         private readonly IGenericRepository<DisputeMessage> _messageRepo;
         private readonly IGenericRepository<Escrow> _escrowRepo;
-        private readonly IGenericRepository<Models.Product.Product> _productGenericRepo; // (Approve için)
-        private readonly IGenericRepository<BlogComment> _commentGenericRepo; // (Approve/Reject için)
+        private readonly IGenericRepository<Models.Product.Product> _productGenericRepo;
+        private readonly IGenericRepository<BlogComment> _commentGenericRepo;
 
-        // Gerekli Diğer Servisler
-        private readonly IWalletService _walletService; // KRİTİK: Para akışı için
+        private readonly IWalletService _walletService;
 
-        // Yardımcılar
-        private readonly ApplicationDbContext _context; // Transaction yönetimi için
+        private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly ILogger<ModerationService> _logger;
-        // private readonly INotificationService _notificationService;
 
         public ModerationService(
-            IReportRepository reportRepo,
-            IDisputeRepository disputeRepo,
-            IBlogCommentRepository commentRepo,
-            IProductRepository productRepo,
-            IGenericRepository<DisputeMessage> messageRepo,
-            IGenericRepository<Escrow> escrowRepo,
-            IGenericRepository<Models.Product.Product> productGenericRepo,
-            IGenericRepository<BlogComment> commentGenericRepo,
-            IWalletService walletService,
-            ApplicationDbContext context,
-            IMapper mapper,
-            ILogger<ModerationService> logger
-            //, INotificationService notificationService
-            )
+          IReportRepository reportRepo,
+          IDisputeRepository disputeRepo,
+          IBlogCommentRepository commentRepo,
+          IProductRepository productRepo,
+          IGenericRepository<DisputeMessage> messageRepo,
+          IGenericRepository<Escrow> escrowRepo,
+          IGenericRepository<Models.Product.Product> productGenericRepo,
+          IGenericRepository<BlogComment> commentGenericRepo,
+          IWalletService walletService,
+          ApplicationDbContext context,
+          IMapper mapper,
+          ILogger<ModerationService> logger
+          )
         {
             _reportRepo = reportRepo;
             _disputeRepo = disputeRepo;
@@ -69,12 +62,7 @@ namespace Sattim.Web.Services.Moderation
             _context = context;
             _mapper = mapper;
             _logger = logger;
-            //_notificationService = notificationService;
         }
-
-        // ====================================================================
-        //  1. KULLANICI ŞİKAYETLERİ (Report)
-        // ====================================================================
 
         public async Task<List<ReportViewModel>> GetPendingReportsAsync()
         {
@@ -82,7 +70,6 @@ namespace Sattim.Web.Services.Moderation
             return _mapper.Map<List<ReportViewModel>>(reports);
         }
 
-        // (Bu 3 metot Desen A: Basit CRUD'a benzer)
         public async Task<bool> MarkReportAsUnderReviewAsync(int reportId, string adminId)
         {
             try
@@ -142,10 +129,6 @@ namespace Sattim.Web.Services.Moderation
             }
         }
 
-        // ====================================================================
-        //  2. SİPARİŞ İHTİLAFLARI (Dispute) - PARA AKIŞI
-        // ====================================================================
-
         public async Task<List<DisputeViewModel>> GetPendingDisputesAsync()
         {
             var disputes = await _disputeRepo.GetPendingDisputesForAdminAsync();
@@ -154,23 +137,20 @@ namespace Sattim.Web.Services.Moderation
 
         public async Task<DisputeDetailViewModel> GetDisputeDetailsAsync(int disputeId)
         {
-            // (IDisputeService'teki GetMyDisputeDetailsAsync'in aynısı,
-            // ancak güvenlik (Alıcı/Satıcı) kontrolü olmadan)
             var dispute = await _disputeRepo.GetDisputeWithDetailsAsync(disputeId);
             if (dispute == null)
                 throw new KeyNotFoundException("İhtilaf bulunamadı.");
 
             var viewModel = _mapper.Map<DisputeDetailViewModel>(dispute);
 
-            // Profil resimlerini manuel olarak al
             var senderIds = viewModel.Messages.Select(m => m.SenderId).Distinct().ToList();
             if (senderIds.Any())
             {
                 var users = (await _context.Users
-                                .Where(u => senderIds.Contains(u.Id))
-                                .Select(u => new { u.Id, u.ProfileImageUrl })
-                                .ToListAsync())
-                                .ToDictionary(u => u.Id, u => u.ProfileImageUrl);
+                        .Where(u => senderIds.Contains(u.Id))
+                        .Select(u => new { u.Id, u.ProfileImageUrl })
+                        .ToListAsync())
+                        .ToDictionary(u => u.Id, u => u.ProfileImageUrl);
 
                 foreach (var messageVM in viewModel.Messages)
                 {
@@ -185,26 +165,23 @@ namespace Sattim.Web.Services.Moderation
 
         public async Task<bool> AddDisputeMessageAsync(int disputeId, string adminId, string message)
         {
-            // (IDisputeService'teki AddDisputeMessageAsync'in Admin versiyonu)
             try
             {
                 var dispute = await _disputeRepo.GetByIdAsync(disputeId);
                 if (dispute == null) return false;
 
                 if (dispute.Status == DisputeStatus.Closed || dispute.Status == DisputeStatus.Resolved)
-                    return false; // Kapanmış ihtilafa admin mesaj atamaz
+                    return false;
 
                 var disputeMessage = new DisputeMessage(
-                    disputeId: disputeId,
-                    senderId: adminId,
-                    message: message
+                  disputeId: disputeId,
+                  senderId: adminId,
+                  message: message
                 );
 
                 await _messageRepo.AddAsync(disputeMessage);
                 await _messageRepo.UnitOfWork.SaveChangesAsync();
 
-                // (Burada Alıcı ve Satıcı'ya bildirim gönderilmeli)
-                // await _notificationService.NotifyDisputeMessage(dispute, disputeMessage, ...);
                 return true;
             }
             catch (Exception ex)
@@ -214,11 +191,6 @@ namespace Sattim.Web.Services.Moderation
             }
         }
 
-        /// <summary>
-        /// (KRİTİK) İhtilafı SATICI lehine çözer.
-        /// Transactional: Dispute ve Escrow durumunu GÜNCELLER.
-        /// Post-Transaction: WalletService'i TETİKLER.
-        /// </summary>
         public async Task<bool> ResolveDisputeForSellerAsync(int disputeId, string adminId, string resolutionNote)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -226,36 +198,24 @@ namespace Sattim.Web.Services.Moderation
 
             try
             {
-                var dispute = await _disputeRepo.GetDisputeWithDetailsAsync(disputeId); // Escrow'u da yükler
+                var dispute = await _disputeRepo.GetDisputeWithDetailsAsync(disputeId);
                 if (dispute == null || dispute.Product.Escrow == null)
                     throw new KeyNotFoundException("İhtilaf veya ilişkili Escrow bulunamadı.");
 
                 var escrow = dispute.Product.Escrow;
                 string logNote = $"Admin ({adminId}) tarafından satıcı lehine çözüldü. Not: {resolutionNote}";
 
-                // 1. İş Mantığını Modele Devret (Dispute)
                 dispute.Resolve(logNote);
 
-                // 2. İş Mantığını Modele Devret (Escrow)
-                escrow.ResolveByReleasing(); // Durumu 'Released' yapar
+                escrow.ResolveByReleasing();
 
-                // 3. Değişiklikleri Bildir
                 _disputeRepo.Update(dispute);
                 _escrowRepo.Update(escrow);
 
-                // 4. Transaction'ı Kaydet ve Onayla
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 _logger.LogInformation($"İhtilaf SATICI lehine çözüldü (Commit). Admin: {adminId}, Dispute: {disputeId}");
-
-                // 5. (Transaction DIŞINDA) Finansal Servisi Tetikle
-                // Artık Escrow 'Released' olduğuna göre, IWalletService
-                // parayı (komisyonu ve satıcı payını) dağıtabilir.
-                // await _walletService.ProcessEscrowPayoutAsync(escrow.ProductId);
-
-                // (Alıcı ve Satıcı'ya bildirim gönder)
-                // await _notificationService.NotifyDisputeResolved(dispute, "Seller");
 
                 return true;
             }
@@ -267,11 +227,6 @@ namespace Sattim.Web.Services.Moderation
             }
         }
 
-        /// <summary>
-        /// (KRİTİK) İhtilafı ALICI lehine çözer.
-        /// Transactional: Dispute ve Escrow durumunu GÜNCELLER.
-        /// Post-Transaction: WalletService'i TETİKLER.
-        /// </summary>
         public async Task<bool> ResolveDisputeForBuyerAsync(int disputeId, string adminId, string resolutionNote)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -279,36 +234,24 @@ namespace Sattim.Web.Services.Moderation
 
             try
             {
-                var dispute = await _disputeRepo.GetDisputeWithDetailsAsync(disputeId); // Escrow'u da yükler
+                var dispute = await _disputeRepo.GetDisputeWithDetailsAsync(disputeId);
                 if (dispute == null || dispute.Product.Escrow == null)
                     throw new KeyNotFoundException("İhtilaf veya ilişkili Escrow bulunamadı.");
 
                 var escrow = dispute.Product.Escrow;
                 string logNote = $"Admin ({adminId}) tarafından alıcı lehine çözüldü. Not: {resolutionNote}";
 
-                // 1. İş Mantığını Modele Devret (Dispute)
                 dispute.Resolve(logNote);
 
-                // 2. İş Mantığını Modele Devret (Escrow)
-                escrow.ResolveByRefunding(); // Durumu 'Refunded' yapar
+                escrow.ResolveByRefunding();
 
-                // 3. Değişiklikleri Bildir
                 _disputeRepo.Update(dispute);
                 _escrowRepo.Update(escrow);
 
-                // 4. Transaction'ı Kaydet ve Onayla
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 _logger.LogInformation($"İhtilaf ALICI lehine çözüldü (Commit). Admin: {adminId}, Dispute: {disputeId}");
-
-                // 5. (Transaction DIŞINDA) Finansal Servisi Tetikle
-                // Artık Escrow 'Refunded' olduğuna göre, IWalletService
-                // parayı (Alıcının cüzdanına) iade edebilir.
-                // await _walletService.ProcessEscrowRefundAsync(escrow.ProductId);
-
-                // (Alıcı ve Satıcı'ya bildirim gönder)
-                // await _notificationService.NotifyDisputeResolved(dispute, "Buyer");
 
                 return true;
             }
@@ -320,10 +263,6 @@ namespace Sattim.Web.Services.Moderation
             }
         }
 
-        // ====================================================================
-        //  3. İÇERİK MODERASYONU (BlogComment, Product)
-        // ====================================================================
-
         public async Task<List<CommentModerationViewModel>> GetPendingCommentsAsync()
         {
             var comments = await _commentRepo.GetPendingCommentsWithDetailsAsync();
@@ -334,16 +273,14 @@ namespace Sattim.Web.Services.Moderation
         {
             try
             {
-                // Jenerik repoyu kullanıyoruz, çünkü özel 'Include'a gerek yok
                 var comment = await _commentGenericRepo.GetByIdAsync(commentId);
                 if (comment == null) return false;
 
-                comment.Approve(); // Model metodu
+                comment.Approve();
                 _commentGenericRepo.Update(comment);
                 await _commentGenericRepo.UnitOfWork.SaveChangesAsync();
 
                 _logger.LogInformation($"Yorum onaylandı (ID: {commentId}). Onaylayan: {adminId}");
-                // (Burada yorum sahibine bildirim gönderilebilir)
                 return true;
             }
             catch (Exception ex)
@@ -360,7 +297,7 @@ namespace Sattim.Web.Services.Moderation
                 var comment = await _commentGenericRepo.GetByIdAsync(commentId);
                 if (comment == null) return false;
 
-                comment.Reject(); // Model metodu
+                comment.Reject();
                 _commentGenericRepo.Update(comment);
                 await _commentGenericRepo.UnitOfWork.SaveChangesAsync();
 
@@ -379,7 +316,5 @@ namespace Sattim.Web.Services.Moderation
             var products = await _productRepo.GetPendingProductsForAdminAsync();
             return _mapper.Map<List<ProductModerationViewModel>>(products);
         }
-
-        
     }
 }

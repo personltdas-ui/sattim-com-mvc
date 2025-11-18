@@ -14,17 +14,12 @@ using System.Threading.Tasks;
 
 namespace Sattim.Web.Data
 {
-    /// <summary>
-    /// Veritabanını başlangıç verileriyle (roller, admin, ayarlar vb.)
-    /// doldurmak için kullanılır. Bu sınıf "tekrarlanabilir" (idempotent)
-    /// olacak şekilde tasarlanmıştır; yani, sadece eksik olan veriyi ekler.
-    /// </summary>
     public static class SeedData
     {
         private const string AdminPassword = "Admin!123";
         private const string AdminEmail = "admin@sattim.com";
         private const string AdminFullName = "Sistem Yöneticisi";
-        private const string AdminUserName = "admin"; // E-posta yerine özel bir kullanıcı adı
+        private const string AdminUserName = "admin";
 
         public static async Task InitializeAsync(IServiceProvider serviceProvider)
         {
@@ -36,50 +31,34 @@ namespace Sattim.Web.Data
 
             logger.LogInformation("Veritabanı tohumlama (seeding) işlemi başlıyor...");
 
-            // Veritabanı (varsa) bekleyen migration'ları uygular.
-            // Geliştirme (Development) ortamı için güvenlidir.
             await context.Database.MigrateAsync();
 
-            // --- 1. Adım: Roller (Roles) ---
             await SeedRolesAsync(roleManager, logger);
 
-            // --- 2. Adım: Admin Kullanıcısı ---
             var adminUser = await SeedAdminUserAsync(userManager, logger);
 
             if (adminUser != null)
             {
-                // --- 3. Adım: Admin İlişkileri (Wallet, Profile, 2FA) ---
-                // (Sadece admin yeni oluşturulduysa veya eksikse çalışır)
                 await SeedUserRelationsAsync(context, adminUser.Id, logger);
             }
             else
             {
                 logger.LogCritical("Admin kullanıcısı bulunamadı veya oluşturulamadı. Seed işlemi devam edemez.");
-                return; // Admin yoksa devam etmenin anlamı yok.
+                return;
             }
 
-            // --- 4. Adım: Site Ayarları (SiteSettings) ---
             await SeedSiteSettingsAsync(context, adminUser.Id, logger);
 
-            // --- 5. Adım: E-posta Şablonları (EmailTemplates) ---
             await SeedEmailTemplatesAsync(context, logger);
 
-            // --- 6. Adım: Kök Kategoriler (Categories) ---
             await SeedCategoriesAsync(context, logger);
-
-            // --- 7. Adım: Diğer Geliştirme Verileri (Opsiyonel) ---
-            // await SeedDevelopmentDataAsync(context, userManager, logger);
 
             logger.LogInformation("Veritabanı tohumlama işlemi başarıyla tamamlandı.");
         }
 
 
-        /// <summary>
-        /// 1. Roller: Admin, Moderator ve User rollerini (eksikse) oluşturur.
-        /// </summary>
         private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager, ILogger logger)
         {
-            // DÜZELTME: "All-or-nothing" yerine "Idempotent" (Eksik olanı ekle)
             string[] roleNames = { "Admin", "Moderator", "User" };
 
             foreach (var roleName in roleNames)
@@ -92,10 +71,6 @@ namespace Sattim.Web.Data
             }
         }
 
-        /// <summary>
-        /// 2. Admin: Admin kullanıcısını oluşturur ve 'Admin' rolüne atar.
-        /// (Not: Bu metot zaten mükemmeldi, sadece Kullanıcı Adı eklendi)
-        /// </summary>
         private static async Task<ApplicationUser> SeedAdminUserAsync(UserManager<ApplicationUser> userManager, ILogger logger)
         {
             var adminUser = await userManager.FindByEmailAsync(AdminEmail);
@@ -107,14 +82,12 @@ namespace Sattim.Web.Data
 
             logger.LogInformation("Admin kullanıcısı oluşturuluyor...");
 
-            // ApplicationUser constructor'ını kullanarak geçerli bir nesne oluştur
             adminUser = new ApplicationUser(
                 userName: AdminUserName,
                 email: AdminEmail,
                 fullName: AdminFullName
             );
 
-            // E-postayı varsayılan olarak onayla
             adminUser.EmailConfirmed = true;
 
             var result = await userManager.CreateAsync(adminUser, AdminPassword);
@@ -132,19 +105,13 @@ namespace Sattim.Web.Data
             return adminUser;
         }
 
-        /// <summary>
-        /// 3. Admin'e ait 1-to-1 ilişkili zorunlu modelleri (Wallet, Profile, 2FA) oluşturur.
-        /// (Not: Bu metotunuz zaten MÜKEMMEL, A+ seviyesinde. Hiçbir değişiklik yapılmadı.)
-        /// </summary>
         private static async Task SeedUserRelationsAsync(ApplicationDbContext context, string adminUserId, ILogger logger)
         {
-            // Atomik (bütünleşik) işlem başlat
             await using var transaction = await context.Database.BeginTransactionAsync();
             try
             {
                 bool saveChangesNeeded = false;
 
-                // Cüzdanı kontrol et ve (eksikse) oluştur
                 if (!await context.Wallets.AnyAsync(w => w.UserId == adminUserId))
                 {
                     logger.LogInformation($"Admin (UserId: {adminUserId}) için Wallet oluşturuluyor...");
@@ -152,7 +119,6 @@ namespace Sattim.Web.Data
                     saveChangesNeeded = true;
                 }
 
-                // Profili kontrol et ve (eksikse) oluştur
                 if (!await context.UserProfiles.AnyAsync(p => p.UserId == adminUserId))
                 {
                     logger.LogInformation($"Admin (UserId: {adminUserId}) için UserProfile oluşturuluyor...");
@@ -160,7 +126,6 @@ namespace Sattim.Web.Data
                     saveChangesNeeded = true;
                 }
 
-                // 2FA kaydını kontrol et ve (eksikse) oluştur
                 if (!await context.TwoFactorAuths.AnyAsync(t => t.UserId == adminUserId))
                 {
                     logger.LogInformation($"Admin (UserId: {adminUserId}) için TwoFactorAuth oluşturuluyor...");
@@ -177,7 +142,7 @@ namespace Sattim.Web.Data
                 else
                 {
                     logger.LogInformation("Admin 1-to-1 ilişkili modelleri (Wallet, Profile, 2FA) zaten mevcut.");
-                    await transaction.RollbackAsync(); // Değişiklik yapılmadığı için geri al
+                    await transaction.RollbackAsync();
                 }
             }
             catch (Exception ex)
@@ -188,19 +153,12 @@ namespace Sattim.Web.Data
             }
         }
 
-        /// <summary>
-        /// 4. Site Ayarları: Servislerin çalışması için gereken ayarları (eksikse) ekler.
-        /// </summary>
         private static async Task SeedSiteSettingsAsync(ApplicationDbContext context, string adminUserId, ILogger logger)
         {
-            // DÜZELTME: Performans ve Tekrarlanabilirlik (Idempotency)
-            // Önce mevcut tüm ayar anahtarlarını TEK BİR sorgu ile al.
-            // 1. Önce asenkron olarak LİSTEYE çekin
             var existingKeysList = await context.SiteSettings
                 .Select(s => s.Key)
                 .ToListAsync();
 
-            // 2. Sonra hafızada HashSet'e dönüştürün
             var existingKeys = new HashSet<string>(existingKeysList);
 
             var allSettings = new List<SiteSettings>
@@ -217,7 +175,6 @@ namespace Sattim.Web.Data
                 new SiteSettings("SiteName", SettingCategory.General, "Sattim.com - Açık Artırma Sitesi", "Sitenin genel adı"),
             };
 
-            // Sadece veritabanında OLMAYAN ayarları filtrele.
             var settingsToAdd = allSettings.Where(s => !existingKeys.Contains(s.Key)).ToList();
 
             if (settingsToAdd.Any())
@@ -232,18 +189,12 @@ namespace Sattim.Web.Data
             }
         }
 
-        /// <summary>
-        /// 5. E-posta Şablonları: Bildirimlerin çalışması için gereken temel şablonları (eksikse) ekler.
-        /// </summary>
         private static async Task SeedEmailTemplatesAsync(ApplicationDbContext context, ILogger logger)
         {
-            // DÜZELTME: Performans ve Tekrarlanabilirlik (Idempotency)
-            // 1. Önce asenkron olarak LİSTEYE çekin
             var existingNamesList = await context.EmailTemplates
                 .Select(t => t.Name)
                 .ToListAsync();
 
-            // 2. Sonra hafızada HashSet'e dönüştürün
             var existingNames = new HashSet<string>(existingNamesList);
 
             var allTemplates = new List<EmailTemplate>
@@ -280,16 +231,10 @@ namespace Sattim.Web.Data
             }
         }
 
-        /// <summary>
-        /// 6. Kök Kategoriler: Sitenin çalışması için temel kategorileri (eksikse) ekler.
-        /// (Hiyerarşi nedeniyle bu metot, diğerlerinin aksine birden çok SaveChanges içerebilir)
-        /// </summary>
         private static async Task SeedCategoriesAsync(ApplicationDbContext context, ILogger logger)
         {
-            // DÜZELTME: Hiyerarşiyi koruyarak "Idempotent" hale getirildi.
             bool needsSave = false;
 
-            // 1. Ana Kategori: Elektronik
             if (!await context.Categories.AnyAsync(c => c.Slug == "elektronik"))
             {
                 logger.LogInformation("'Elektronik' ana kategorisi oluşturuluyor...");
@@ -297,7 +242,6 @@ namespace Sattim.Web.Data
                 needsSave = true;
             }
 
-            // 2. Ana Kategori: Moda
             if (!await context.Categories.AnyAsync(c => c.Slug == "moda"))
             {
                 logger.LogInformation("'Moda' ana kategorisi oluşturuluyor...");
@@ -307,17 +251,14 @@ namespace Sattim.Web.Data
 
             if (needsSave)
             {
-                await context.SaveChangesAsync(); // Ana kategorilerin ID'lerini almak için kaydet
+                await context.SaveChangesAsync();
             }
 
-            // --- Alt Kategoriler ---
-            needsSave = false; // Flag'i sıfırla
+            needsSave = false;
 
-            // Ana kategorileri veritabanından çek (ID'lerini almak için)
             var elektronikCat = await context.Categories.SingleOrDefaultAsync(c => c.Slug == "elektronik");
             var modaCat = await context.Categories.SingleOrDefaultAsync(c => c.Slug == "moda");
 
-            // 3. Alt Kategori: Cep Telefonları
             if (elektronikCat != null && !await context.Categories.AnyAsync(c => c.Slug == "cep-telefonlari"))
             {
                 logger.LogInformation("'Cep Telefonları' alt kategorisi oluşturuluyor...");
@@ -325,7 +266,6 @@ namespace Sattim.Web.Data
                 needsSave = true;
             }
 
-            // 4. Alt Kategori: Giyim
             if (modaCat != null && !await context.Categories.AnyAsync(c => c.Slug == "giyim"))
             {
                 logger.LogInformation("'Giyim' alt kategorisi oluşturuluyor...");
@@ -335,7 +275,7 @@ namespace Sattim.Web.Data
 
             if (needsSave)
             {
-                await context.SaveChangesAsync(); // Alt kategorileri kaydet
+                await context.SaveChangesAsync();
             }
 
             if (!needsSave && elektronikCat != null && modaCat != null)

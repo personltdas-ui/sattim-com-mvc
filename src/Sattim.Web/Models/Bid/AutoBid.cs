@@ -2,36 +2,23 @@
 using Sattim.Web.Models.Product;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Bid
 {
-    /// <summary>
-    /// Bir kullanıcının belirli bir ürün için otomatik teklif ayarlarını temsil eder.
-    /// Bir kullanıcı bir ürüne sadece bir adet 'AutoBid' ayarı yapabilir.
-    /// </summary>
     public class AutoBid
     {
-        #region Bileşik Anahtar (Composite Key) Özellikleri
+        #region Bileşik Anahtar Özellikleri
 
-        // Bu iki alan birlikte bu tablonun Birincil Anahtarını (PK) oluşturur.
-        // Bu yapılandırma DbContext -> OnModelCreating içinde yapılmalıdır.
-
-        /// <summary>
-        /// Ayarı yapan kullanıcının kimliği (PK parçası, FK).
-        /// </summary>
         [Required]
         public string UserId { get; private set; }
 
-        /// <summary>
-        /// Ayarın yapıldığı ürünün kimliği (PK parçası, FK).
-        /// </summary>
         [Required]
         public int ProductId { get; private set; }
 
         #endregion
 
-        #region Diğer Özellikler (Properties)
+        #region Diğer Özellikler
 
         [Required]
         [Range(typeof(decimal), "0.01", "79228162514264337593543950335")]
@@ -47,9 +34,7 @@ namespace Sattim.Web.Models.Bid
 
         #endregion
 
-        #region Navigasyon Özellikleri (Navigation Properties)
-
-        // DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
+        #region Navigasyon Özellikleri
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser User { get; private set; }
@@ -59,16 +44,10 @@ namespace Sattim.Web.Models.Bid
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private AutoBid() { }
 
-        /// <summary>
-        /// Yeni bir 'AutoBid' ayarı oluşturur ve alan kurallarını zorunlu kılar.
-        /// </summary>
         public AutoBid(string userId, int productId, decimal maxAmount, decimal incrementAmount)
         {
             if (string.IsNullOrWhiteSpace(userId))
@@ -76,22 +55,17 @@ namespace Sattim.Web.Models.Bid
             if (productId <= 0)
                 throw new ArgumentException("Geçersiz ProductId.", nameof(productId));
 
-            // Ayarları 'UpdateSettings' üzerinden yaparak doğrulamayı tek bir yerde topluyoruz (DRY).
             UpdateSettings(maxAmount, incrementAmount);
 
             UserId = userId;
             ProductId = productId;
-            IsActive = true; // Varsayılan olarak aktif
+            IsActive = true;
             CreatedDate = DateTime.UtcNow;
             LastModifiedDate = null;
         }
 
-        /// <summary>
-        /// Otomatik teklif ayarlarını günceller ve kuralları zorunlu kılar.
-        /// </summary>
         public void UpdateSettings(decimal newMaxAmount, decimal newIncrementAmount)
         {
-            // DÜZELTME: Alan (Domain) kuralları burada zorunlu kılındı.
             if (newMaxAmount <= 0)
                 throw new ArgumentOutOfRangeException(nameof(newMaxAmount), "Maksimum tutar pozitif olmalıdır.");
             if (newIncrementAmount <= 0)
@@ -106,14 +80,14 @@ namespace Sattim.Web.Models.Bid
 
         public void Activate()
         {
-            if (IsActive) return; // Zaten aktifse işlem yapma
+            if (IsActive) return;
             IsActive = true;
             LastModifiedDate = DateTime.UtcNow;
         }
 
         public void Deactivate()
         {
-            if (!IsActive) return; // Zaten pasifse işlem yapma
+            if (!IsActive) return;
             IsActive = false;
             LastModifiedDate = DateTime.UtcNow;
         }

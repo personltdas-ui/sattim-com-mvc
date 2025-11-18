@@ -2,10 +2,6 @@
 
 namespace Sattim.Web.ViewModels.Management
 {
-    /// <summary>
-    /// Admin/UserManagement/Index sayfasındaki
-    /// kullanıcı listesindeki tek bir satırı temsil eder.
-    /// </summary>
     public class UserListViewModel
     {
         public string UserId { get; set; }

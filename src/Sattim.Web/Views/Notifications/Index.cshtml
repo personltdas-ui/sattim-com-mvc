@@ -5,11 +5,8 @@
     ViewData["Title"] = "Bildirimlerim";
 }
 
-
-
 @section Styles {
     <style>
-        /* Breadcrumb (Önceki örneklerden) */
         .breadcrumb-wrapper {
             margin-bottom: 2rem;
             margin-top: 2rem;
@@ -52,19 +49,16 @@
                 font-weight: 500;
             }
 
-        /* Profil Sayfası Ana Kartı (Önceki örneklerden) */
         .profile-content-card {
             background: #fff;
             border: 1px solid var(--border-color);
             padding: 2rem;
         }
 
-        /* Başlık ve Eylem Butonu Hizalaması */
         .profile-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* Butonun başlık metniyle hizalanması için */
-            /* section-title'ın kendi alt kenarlığı ve marjı var */
+            align-items: flex-start;
         }
 
             .profile-header .section-title {
@@ -72,11 +66,10 @@
             }
 
             .profile-header form {
-                margin-top: 0.25rem; /* Görsel hizalama */
+                margin-top: 0.25rem;
                 flex-shrink: 0;
             }
 
-        /* Başlık (Önceki örneklerden) */
         .section-title {
             font-size: 1.5rem;
             font-weight: 600;
@@ -89,7 +82,6 @@
             gap: 0.75rem;
         }
 
-        /* Modern Outline Düğme (ProductDetail'den 'action-btn' uyarlandı) */
         .btn-outline-modern {
             background: white;
             border: 1px solid var(--border-color);
@@ -109,7 +101,6 @@
                 color: var(--primary-color);
             }
 
-        /* Bildirim Listesi (Wallet'tan 'tx-list-wrapper' alındı) */
         .notification-list-wrapper {
             display: flex;
             flex-direction: column;
@@ -133,17 +124,16 @@
             .notification-item:hover {
                 background-color: var(--bg-light);
             }
-            /* Okunmamış bildirimler için özel stil */
+
             .notification-item.unread {
                 background-color: var(--bg-light);
                 font-weight: 500;
             }
 
                 .notification-item.unread:hover {
-                    background-color: #f0f0f0; /* bg-light'tan biraz daha koyu */
+                    background-color: #f0f0f0;
                 }
 
-        /* Bildirim İkonu (Wallet'tan 'tx-icon' uyarlandı) */
         .notification-icon {
             width: 36px;
             height: 36px;
@@ -155,7 +145,7 @@
             font-size: 0.9rem;
             margin-top: 0.25rem;
         }
-        /* Pastel Renk Eşlemeleri */
+
         .icon-bg-success {
             background-color: #f0fdf4;
             color: #166534;
@@ -216,18 +206,16 @@
             color: #333;
         }
 
-        /* Okunmadı Noktası (Orijinal badge yerine) */
         .unread-dot {
             width: 10px;
             height: 10px;
-            background-color: #2563eb; /* primary color */
+            background-color: #2563eb;
             border-radius: 50%;
             flex-shrink: 0;
             margin-left: 1rem;
             margin-top: 0.6rem;
         }
 
-        /* Boş Liste Uyarısı (MyBids'den) */
         .alert-info-custom {
             background-color: #f3f4f6;
             border-left: 3px solid #6b7280;

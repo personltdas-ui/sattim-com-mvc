@@ -1,17 +1,14 @@
 ﻿using Sattim.Web.Models.User;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Sattim.Web.Models.Analytical
 {
-    /// <summary>
-    /// Bir kullanıcı (Reporter) tarafından başka bir varlığı (Ürün, Kullanıcı vb.)
-    /// raporlamasını temsil eder.
-    /// </summary>
     public class Report
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -41,33 +38,22 @@ namespace Sattim.Web.Models.Analytical
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
         [Required]
         public string ReporterId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Raporu oluşturan kullanıcı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("ReporterId")]
         public virtual ApplicationUser Reporter { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private Report() { }
 
-        /// <summary>
-        /// Yeni bir 'Report' kaydı oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public Report(string reporterId, ReportEntityType entityType, string entityId, ReportReason reason, string description)
         {
-            // Mükemmel Doğrulamalar (Zaten vardı)
             if (string.IsNullOrWhiteSpace(reporterId)) throw new ArgumentNullException(nameof(reporterId));
             if (string.IsNullOrWhiteSpace(entityId)) throw new ArgumentNullException(nameof(entityId));
             if (string.IsNullOrWhiteSpace(description)) throw new ArgumentNullException(nameof(description));
@@ -77,15 +63,12 @@ namespace Sattim.Web.Models.Analytical
             EntityId = entityId;
             Reason = reason;
             Description = description;
-            Status = ReportStatus.Pending; // Varsayılan durum
+            Status = ReportStatus.Pending;
             CreatedDate = DateTime.UtcNow;
         }
 
-        // --- Durum Makinesi (State Machine) Metotları (Fail-Fast) ---
-
         public void PutUnderReview(string? adminNote = null)
         {
-            // DÜZELTME: 'Fail-Fast' (Hızlı Hata Ver)
             if (Status != ReportStatus.Pending)
                 throw new InvalidOperationException("Sadece 'Beklemede' olan bir rapor 'İncelemeye' alınabilir.");
 
@@ -120,7 +103,6 @@ namespace Sattim.Web.Models.Analytical
         #endregion
     }
 
-    // Enum'lar (Değişiklik yok, gayet iyi)
     public enum ReportEntityType
     {
         Product,

@@ -390,7 +390,7 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Slug otomatik oluşturma (opsiyonel)
+        // Slug otomatik oluşturma
         document.querySelector('input[name="Title"]')?.addEventListener('blur', function() {
             const slugInput = document.querySelector('input[name="Slug"]');
             if (!slugInput.value) {

@@ -1,9 +1,7 @@
-﻿namespace Sattim.Web.ViewModels.Wallet
+﻿using System.Collections.Generic;
+
+namespace Sattim.Web.ViewModels.Wallet
 {
-    /// <summary>
-    /// Kullanıcının "Cüzdanım" sayfasını doldurur.
-    /// (GetWalletDashboardAsync tarafından döndürülür)
-    /// </summary>
     public class WalletDashboardViewModel
     {
         public decimal CurrentBalance { get; set; }

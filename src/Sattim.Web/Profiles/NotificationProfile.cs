@@ -8,9 +8,6 @@ namespace Sattim.Web.Profiles
     {
         public NotificationProfile()
         {
-            // Notification (Entity) -> NotificationViewModel (DTO)
-            // Not: 'LinkUrl' alanı, Entity'de bulunmadığı için
-            // Servis katmanında (NotificationService) manuel olarak atanacaktır.
             CreateMap<Notification, NotificationViewModel>();
         }
     }

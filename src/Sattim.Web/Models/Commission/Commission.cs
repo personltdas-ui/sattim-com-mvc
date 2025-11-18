@@ -1,45 +1,27 @@
 ﻿using Sattim.Web.Models.Product;
-using System; // ArgumentException vb. için eklendi
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Commission
 {
-    /// <summary>
-    /// Bir ürünün başarılı satışından sonra hesaplanan komisyonu temsil eder.
-    /// Product ile Bire-Bir (1-to-1) ilişkiye sahiptir.
-    /// </summary>
     public class Commission
     {
         #region Özellikler ve Bire-Bir İlişki
 
-        /// <summary>
-        /// Bu tablonun Birincil Anahtarı (PK).
-        /// Aynı zamanda Product tablosuna olan Yabancı Anahtardır (FK).
-        /// Bu, birebir ilişkiyi garanti eder.
-        /// </summary>
         [Key]
         [ForeignKey("Product")]
         public int ProductId { get; private set; }
 
-        /// <summary>
-        /// Komisyonun hesaplandığı andaki ürün fiyatı (snapshot).
-        /// </summary>
         [Required]
-        [Column(TypeName = "decimal(18,2)")] // Para birimi için net tip
+        [Column(TypeName = "decimal(18,2)")]
         public decimal ProductPrice { get; private set; }
 
-        /// <summary>
-        /// Uygulanan komisyon oranı (Örn: 15.5 -> %15.5).
-        /// </summary>
         [Required]
         [Range(0, 100)]
-        [Column(TypeName = "decimal(5,2)")] // Oran için net tip
+        [Column(TypeName = "decimal(5,2)")]
         public decimal CommissionRate { get; private set; }
 
-        /// <summary>
-        /// Hesaplanan net komisyon tutarı (ProductPrice * (CommissionRate / 100)).
-        /// </summary>
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal CommissionAmount { get; private set; }
@@ -47,33 +29,22 @@ namespace Sattim.Web.Models.Commission
         [Required]
         public CommissionStatus Status { get; private set; }
         public DateTime CreatedDate { get; private set; }
-        public DateTime? PaidDate { get; private set; } // 'Collected' durumuna geçiş tarihi
+        public DateTime? PaidDate { get; private set; }
 
         #endregion
 
-        #region Navigasyon Özellikleri (Navigation Properties)
+        #region Navigasyon Özellikleri
 
-        /// <summary>
-        /// Navigasyon: Komisyonun ait olduğu ürün.
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         public virtual Product.Product Product { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private Commission() { }
 
-        /// <summary>
-        /// Yeni bir 'Commission' nesnesi oluşturur ve komisyonu hesaplar.
-        /// </summary>
         public Commission(int productId, decimal productPrice, decimal commissionRate)
         {
-            // DÜZELTME: Kapsüllemeyi tamamlamak için ID doğrulaması eklendi.
             if (productId <= 0)
                 throw new ArgumentException("Geçersiz ürün kimliği.", nameof(productId));
             if (productPrice <= 0)
@@ -85,32 +56,22 @@ namespace Sattim.Web.Models.Commission
             ProductPrice = productPrice;
             CommissionRate = commissionRate;
 
-            // Alan (Domain) Mantığı: Komisyon burada hesaplanır
             CommissionAmount = CalculateCommission(productPrice, commissionRate);
 
-            Status = CommissionStatus.Pending; // Her zaman 'Beklemede' başlar
+            Status = CommissionStatus.Pending;
             CreatedDate = DateTime.UtcNow;
             PaidDate = null;
         }
 
-        /// <summary>
-        /// Komisyon tutarını 2 ondalık basamağa yuvarlayarak hesaplar.
-        /// </summary>
         private decimal CalculateCommission(decimal price, decimal rate)
         {
             var amount = price * (rate / 100m);
-            // Finansal hesaplamalarda yuvarlama (Rounding) kritiktir.
             return Math.Round(amount, 2, MidpointRounding.AwayFromZero);
         }
 
-        // --- Durum Makinesi Metotları ---
-
-        /// <summary>
-        /// Komisyonu 'Tahsil Edildi' olarak işaretler.
-        /// </summary>
         public void MarkAsCollected()
         {
-            if (Status == CommissionStatus.Collected) return; // Zaten bu durumda
+            if (Status == CommissionStatus.Collected) return;
 
             if (Status != CommissionStatus.Pending)
                 throw new InvalidOperationException("'Beklemede' olmayan bir komisyon 'Tahsil Edildi' olarak işaretlenemez.");
@@ -119,30 +80,24 @@ namespace Sattim.Web.Models.Commission
             PaidDate = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Komisyondan 'Feragat Edildi' olarak işaretler (örn. iade, promosyon).
-        /// </summary>
         public void Waive()
         {
-            if (Status == CommissionStatus.Waived) return; // Zaten bu durumda
+            if (Status == CommissionStatus.Waived) return;
 
             if (Status != CommissionStatus.Pending)
                 throw new InvalidOperationException("'Beklemede' olmayan bir komisyondan 'Feragat Edilemez'.");
 
             Status = CommissionStatus.Waived;
-            PaidDate = null; // Feragat edildiği için ödeme tarihi olmaz
+            PaidDate = null;
         }
 
         #endregion
     }
 
-    /// <summary>
-    /// Bir komisyonun durumunu (beklemede, tahsil edildi, feragat edildi) belirtir.
-    /// </summary>
     public enum CommissionStatus
     {
-        Pending,   // Beklemede (Satış tamamlandı, ödeme bekleniyor)
-        Collected, // Tahsil Edildi (Para site hesabına geçti)
-        Waived     // Feragat Edildi (İade, iptal veya promosyon nedeniyle alınmadı)
+        Pending,
+        Collected,
+        Waived
     }
 }

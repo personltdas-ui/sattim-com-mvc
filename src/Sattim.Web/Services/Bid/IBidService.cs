@@ -1,4 +1,4 @@
-﻿using Sattim.Web.ViewModels.Bid; // Gerekli ViewModel'ları içe aktar
+﻿using Sattim.Web.ViewModels.Bid;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -76,7 +76,6 @@ namespace Sattim.Web.Services.Bid
         Task<List<UserBidItemViewModel>> GetUserBidsAsync(string userId, BidFilterType filter);
 
         /// <summary>
-        /// EKSİK METOT (EKLENDİ): Bir kullanıcının, belirli bir ürün için mevcut
         /// Otomatik Teklif ayarını (maksimum tutarını vb.) getirir.
         /// </summary>
         /// <param name="productId">Ürün ID'si</param>

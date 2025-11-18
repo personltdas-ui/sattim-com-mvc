@@ -2,13 +2,10 @@
 
 namespace Sattim.Web.ViewModels.Wallet
 {
-    /// <summary>
-    /// RequestPayoutAsync metodu için para çekme formu verisi.
-    /// </summary>
     public class PayoutRequestViewModel
     {
         [Required(ErrorMessage = "Tutar zorunludur.")]
-        [Range(10, double.MaxValue, ErrorMessage = "Minimum 10 TL çekebilirsiniz.")] // Örn: Min 10 TL
+        [Range(10, double.MaxValue, ErrorMessage = "Minimum 10 TL çekebilirsiniz.")]
         public decimal Amount { get; set; }
 
         [Required(ErrorMessage = "Banka adı zorunludur.")]

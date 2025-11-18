@@ -1,17 +1,13 @@
 ﻿using Sattim.Web.Models.User;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Security
 {
-    /// <summary>
-    /// Kullanıcılarla ilgili (veya anonim) güvenlik olaylarını kaydeden
-    /// değiştirilemez (immutable) bir log varlığı.
-    /// </summary>
     public class SecurityLog
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -24,7 +20,7 @@ namespace Sattim.Web.Models.Security
         public string Description { get; private set; }
 
         [Required]
-        [StringLength(50)] // IPv6 uyumlu
+        [StringLength(50)]
         public string IpAddress { get; private set; }
 
         [StringLength(500)]
@@ -37,42 +33,26 @@ namespace Sattim.Web.Models.Security
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
-        /// <summary>
-        /// Olayın ilgili olduğu kullanıcı (eğer varsa, Foreign Key).
-        /// Örn: 'FailedLogin' için null olabilir.
-        /// </summary>
         public string? UserId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Olayın ilgili olduğu kullanıcı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar (Constructors)
+        #region Yapıcı Metotlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private SecurityLog() { }
 
-        /// <summary>
-        /// Yeni bir 'SecurityLog' kaydı oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public SecurityLog(SecurityEventType eventType, SeverityLevel severity, string description, string ipAddress, string? userId = null, string? userAgent = null)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için doğrulamalar eklendi.
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentNullException(nameof(description), "Açıklama boş olamaz.");
             if (string.IsNullOrWhiteSpace(ipAddress))
                 throw new ArgumentNullException(nameof(ipAddress), "IP adresi boş olamaz.");
 
-            // İyileştirme: Boş string'leri 'null' olarak kaydet
             UserId = string.IsNullOrWhiteSpace(userId) ? null : userId;
             UserAgent = string.IsNullOrWhiteSpace(userAgent) ? null : userAgent;
 
@@ -80,13 +60,12 @@ namespace Sattim.Web.Models.Security
             Description = description;
             IpAddress = ipAddress;
             Severity = severity;
-            Timestamp = DateTime.UtcNow; // Zaman damgası O AN atanır, dışarıdan alınmaz
+            Timestamp = DateTime.UtcNow;
         }
 
         #endregion
     }
 
-    // Enum'lar (Değişiklik yok, gayet iyi)
     public enum SecurityEventType
     {
         Login,

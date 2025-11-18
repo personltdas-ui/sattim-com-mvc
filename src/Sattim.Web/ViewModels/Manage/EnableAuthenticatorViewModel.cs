@@ -4,7 +4,7 @@ namespace Sattim.Web.ViewModels.Manage
 {
     public class EnableAuthenticatorViewModel
     {
-        // Kullanıcının girmesi için
+        
         [Required(ErrorMessage = "Doğrulama kodu zorunludur.")]
         [Display(Name = "Doğrulama Kodu")]
         public string Code { get; set; }

@@ -14,14 +14,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Product
 {
-    /// <summary>
-    /// Bir açık artırma ürününü (Aggregate Root - Kök Varlık) temsil eder.
-    /// Teklifler, resimler ve diğer ilgili alt varlıkların (child entities)
-    /// yaşam döngüsünü yönetir ve iş kurallarını zorunlu kılar.
-    /// </summary>
     public class Product
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -68,7 +63,7 @@ namespace Sattim.Web.Models.Product
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
         [Required]
         public string SellerId { get; private set; }
@@ -77,9 +72,6 @@ namespace Sattim.Web.Models.Product
         public int CategoryId { get; private set; }
 
         public string? WinnerId { get; private set; }
-
-        // --- 1'e Çok İlişkiler (Navigasyon) ---
-        // DÜZELTME: Tembel Yükleme (Lazy Loading) için 'virtual' eklendi.
 
         [ForeignKey("SellerId")]
         public virtual ApplicationUser Seller { get; private set; }
@@ -90,18 +82,12 @@ namespace Sattim.Web.Models.Product
         [ForeignKey("CategoryId")]
         public virtual Category.Category Category { get; private set; }
 
-        // --- 1'e 1 İlişkiler (Navigasyon) ---
-        // DÜZELTME: Tembel Yükleme için 'virtual' eklendi.
+        [ForeignKey("ProductId")]
         public virtual Commission.Commission? Commission { get; private set; }
         public virtual Escrow.Escrow? Escrow { get; private set; }
         public virtual ShippingInfo? ShippingInfo { get; private set; }
         public virtual ProductAnalytics? Analytics { get; private set; }
         public virtual CouponUsage? CouponUsage { get; private set; }
-
-        // --- Koleksiyonlar (Navigasyon) ---
-        // DÜZELTME: 'IEnumerable<T>' -> 'virtual ICollection<T>' olarak değiştirildi.
-        // (EF Core'un ilişki düzeltmesi (relationship fix-up) ve
-        // Tembel Yükleme (Lazy Loading) yapabilmesi için zorunludur).
 
         public virtual ICollection<ProductImage> Images { get; private set; } = new List<ProductImage>();
         public virtual ICollection<Bid.Bid> Bids { get; private set; } = new List<Bid.Bid>();
@@ -113,38 +99,25 @@ namespace Sattim.Web.Models.Product
 
         #endregion
 
-        #region Yapıcı Metotlar ve Davranışlar (Constructors & Methods)
+        #region Yapıcı Metotlar ve Davranışlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private Product() { }
 
-        /// <summary>
-        /// Yeni bir 'Product' nesnesi oluşturur ve tüm iş kurallarını zorunlu kılar.
-        /// </summary>
         public Product(string title, string description, decimal startingPrice, decimal bidIncrement, DateTime startDate, DateTime endDate, int categoryId, string sellerId, decimal? reservePrice = null)
         {
-            // DÜZELTME: Kapsüllemeyi sağlamak için Değişmez (Immutable) alanlar doğrulandı.
             if (string.IsNullOrWhiteSpace(sellerId))
                 throw new ArgumentNullException(nameof(sellerId), "Satıcı kimliği boş olamaz.");
 
-            // Diğer tüm alanlar 'UpdateDetails' tarafından doğrulanır ve ayarlanır (DRY Prensibi)
             UpdateDetails(title, description, startingPrice, bidIncrement, startDate, endDate, categoryId, reservePrice);
 
             SellerId = sellerId;
-            Status = ProductStatus.Pending; // Her zaman 'Onay Bekler' başlar
+            Status = ProductStatus.Pending;
             CreatedDate = DateTime.UtcNow;
             IsEndingSoonNotified = false;
         }
 
-        /// <summary>
-        /// Ürün detaylarını günceller (Sadece 'Pending' durumdayken çağrılmalıdır - Servis Katmanı).
-        /// Tüm iş kurallarını zorunlu kılar (Aktif Doğrulama).
-        /// </summary>
         public void UpdateDetails(string title, string description, decimal startingPrice, decimal bidIncrement, DateTime startDate, DateTime endDate, int categoryId, decimal? reservePrice)
         {
-            // DÜZELTME: Tüm doğrulamalar (IValidatableObject'tan taşındı) burada ZORUNLU kılındı.
             if (string.IsNullOrWhiteSpace(title))
                 throw new ArgumentException("Başlık boş olamaz.", nameof(title));
             if (string.IsNullOrWhiteSpace(description))
@@ -169,19 +142,12 @@ namespace Sattim.Web.Models.Product
             CategoryId = categoryId;
             ReservePrice = reservePrice;
 
-            // Başlangıç fiyatı değişirse, mevcut fiyatı da sıfırla (sadece teklif almadıysa)
             CurrentPrice = startingPrice;
             ModifiedDate = DateTime.UtcNow;
         }
 
-        // --- Durum Makinesi (State Machine) Metotları (Fail-Fast) ---
-
-        /// <summary>
-        /// Ürünü (Admin tarafından) onaylar ve 'Aktif' hale getirir.
-        /// </summary>
         public void Approve()
         {
-            // DÜZELTME: 'Fail-Fast' (Hızlı Hata Ver)
             if (Status != ProductStatus.Pending)
                 throw new InvalidOperationException("Sadece 'Beklemede' olan ürünler onaylanabilir.");
 
@@ -189,9 +155,6 @@ namespace Sattim.Web.Models.Product
             ModifiedDate = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Ürünü iptal eder (Teklif alıyor olsa bile).
-        /// </summary>
         public void Cancel()
         {
             if (Status == ProductStatus.Cancelled || Status == ProductStatus.Sold)
@@ -201,37 +164,27 @@ namespace Sattim.Web.Models.Product
             ModifiedDate = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Gelen yeni bir teklif sonrası mevcut fiyatı günceller (BidService tarafından çağrılır).
-        /// </summary>
         public void UpdateCurrentPrice(decimal newAmount)
         {
             if (Status != ProductStatus.Active)
                 throw new InvalidOperationException("Sadece 'Aktif' ürünler teklif alabilir.");
             if (newAmount <= CurrentPrice)
                 throw new ArgumentException("Yeni teklif, mevcut fiyattan düşük veya eşit olamaz.");
-            // Not: 'newAmount'un 'CurrentPrice + BidIncrement' kuralına uyması
-            // Servis katmanında (BidService) kontrol edilmelidir, çünkü bu metot
-            // AutoBid'den (toplu) veya manuel tekliften (tekil) tetiklenebilir.
 
             CurrentPrice = newAmount;
             ModifiedDate = DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Açık artırmayı sonlandırır (Arka plan servisi tarafından çağrılır).
-        /// </summary>
         public void CloseAuction(string? winnerId)
         {
             if (Status != ProductStatus.Active)
                 throw new InvalidOperationException("Sadece 'Aktif' bir açık artırma sonlandırılabilir.");
 
-            // DÜZELTME: WinnerId'yi doğrula (boş string vs. null)
             string? actualWinnerId = string.IsNullOrWhiteSpace(winnerId) ? null : winnerId;
 
             if (actualWinnerId == null)
             {
-                Status = ProductStatus.Closed; // Süresi doldu, satılmadı
+                Status = ProductStatus.Closed;
             }
             else
             {
@@ -243,7 +196,7 @@ namespace Sattim.Web.Models.Product
 
         public void MarkAsEndingSoonNotified()
         {
-            if (IsEndingSoonNotified) return; // Zaten bildirildiyse işlem yapma
+            if (IsEndingSoonNotified) return;
             IsEndingSoonNotified = true;
             ModifiedDate = DateTime.UtcNow;
         }
@@ -253,10 +206,10 @@ namespace Sattim.Web.Models.Product
 
     public enum ProductStatus
     {
-        Pending,   // Admin onayı bekliyor
-        Active,    // Aktif (Teklif alıyor)
-        Closed,    // Süresi doldu (Satılmadı / Rezerv fiyata ulaşmadı)
-        Cancelled, // İptal edildi (Satıcı/Admin tarafından)
-        Sold       // Satıldı
+        Pending,
+        Active,
+        Closed,
+        Cancelled,
+        Sold
     }
 }

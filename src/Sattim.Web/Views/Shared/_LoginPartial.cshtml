@@ -4,20 +4,15 @@
 @inject UserManager<ApplicationUser> UserManager
 
 @{
-    // Mevcut kullanıcının "FullName" (Ad Soyad) gibi detaylarına
-    // erişmek için ApplicationUser nesnesini alıyoruz.
     ApplicationUser user = null;
     if (SignInManager.IsSignedIn(User))
     {
-        // Not: Bu async çağrı, her sayfa yüklemesinde küçük bir
-        // performans maliyeti yaratır. Yüksek trafikte bu
-        // 'FullName' bilgisi 'Claim' içinde saklanmalıdır.
         user = await UserManager.GetUserAsync(User);
     }
 }
 
 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-    @if (user != null) // Kullanıcı giriş yapmışsa
+    @if (user != null)
     {
         <li class="nav-item">
             <a class="nav-link text-light position-relative" asp-controller="Notification" asp-action="Index" title="Bildirimler">
@@ -63,7 +58,7 @@
             </form>
         </li>
     }
-    else // Kullanıcı giriş yapmamışsa
+    else
     {
         <li class="nav-item">
             <a class="nav-link text-light" asp-controller="Account" asp-action="Register">Kayıt Ol</a>

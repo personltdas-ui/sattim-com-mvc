@@ -2,18 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Sattim.Web.Models.User; // ApplicationUser
-using Sattim.Web.Services.Account; // IAccountService
-using Sattim.Web.Services.Email; // IEmailService
-using Sattim.Web.ViewModels.Account; // LoginViewModel, RegisterViewModel vb.
+using Sattim.Web.Models.User;
+using Sattim.Web.Services.Account;
+using Sattim.Web.Services.Email;
+using Sattim.Web.ViewModels.Account;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Sattim.Web.Controllers
 {
-    // [Authorize] attribute'u, [AllowAnonymous] ile
-    // işaretlenmemiş TÜM metotlar için giriş yapılmasını zorunlu kılar.
     [Authorize]
     public class AccountController : BaseController
     {
@@ -40,7 +38,7 @@ namespace Sattim.Web.Controllers
         // ====================================================================
 
         [HttpGet]
-        [AllowAnonymous] // Bu metot, giriş yapılmamışken de erişilebilir olmalı
+        [AllowAnonymous]
         public IActionResult Login(string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
@@ -60,18 +58,15 @@ namespace Sattim.Web.Controllers
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "UNKNOWN";
 
-            // 1. Controller'ın görevi sadece servisi çağırmaktır
             var (result, user) = await _accountService.LoginUserAsync(model, ipAddress);
 
-            // 2. Servisten dönen sonucu (SignInResult) işle
             if (result.Succeeded)
             {
                 _logger.LogInformation($"Kullanıcı girişi başarılı: {model.Email}");
-                return RedirectToLocal(returnUrl); // Güvenli yönlendirme
+                return RedirectToLocal(returnUrl);
             }
             if (result.RequiresTwoFactor)
             {
-                // 2FA (İki Faktörlü) gerekiyorsa, 2FA sayfasına yönlendir
                 return RedirectToAction(nameof(LoginWith2FA), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
             }
             if (result.IsLockedOut)
@@ -82,15 +77,12 @@ namespace Sattim.Web.Controllers
             }
             if (result.IsNotAllowed)
             {
-                // IAccountService'te e-posta onayı (IsEmailConfirmed) kontrolü
-                // eklediysek, bu hata döner.
                 _logger.LogWarning($"Kullanıcı girişi engellendi (onaysız e-posta?): {model.Email}");
                 ModelState.AddModelError(string.Empty, "Giriş yapabilmek için lütfen e-posta adresinizi onaylayın.");
                 return View(model);
             }
             else
             {
-                // Genel hata (örn: şifre yanlış)
                 ModelState.AddModelError(string.Empty, "Geçersiz giriş denemesi. Lütfen e-postanızı ve şifrenizi kontrol edin.");
                 return View(model);
             }
@@ -120,24 +112,20 @@ namespace Sattim.Web.Controllers
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "UNKNOWN";
 
-            // 1. Servisi Çağır (IAccountService, bu işlemi 'transactional' yapar)
             var (result, user) = await _accountService.RegisterUserAsync(model, ipAddress);
 
             if (result.Succeeded)
             {
                 _logger.LogInformation($"Yeni kullanıcı kaydedildi: {model.Email}");
 
-                // 2. E-posta Onay Token'ı Oluştur (Servisten)
                 var token = await _accountService.GenerateEmailConfirmationTokenAsync(user);
 
-                // 3. Callback (Geri Çağrı) URL'ini Oluştur (Controller)
                 var callbackUrl = Url.Action(
                     action: nameof(ConfirmEmail),
                     controller: "Account",
                     values: new { userId = user.Id, token = token },
                     protocol: Request.Scheme);
 
-                // 4. E-posta Servisini Çağır
                 await _emailService.SendTemplateEmailAsync(
                     toEmail: user.Email,
                     templateName: "EmailVerification",
@@ -152,7 +140,6 @@ namespace Sattim.Web.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Hata varsa:
             AddErrorsToModelState(result);
             return View(model);
         }
@@ -165,7 +152,6 @@ namespace Sattim.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            // (BaseController'dan gelir, [Authorize] olduğu için null olamaz)
             var userId = GetRequiredUserId();
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "UNKNOWN";
 
@@ -219,25 +205,20 @@ namespace Sattim.Web.Controllers
 
             var user = await _accountService.GetUserByEmailAsync(model.Email);
 
-            // GÜVENLİK: Kullanıcı yoksa veya e-postası onaysızsa,
-            // bunu KÖTÜ NİYETLİ kişilere belli etmiyoruz. "Sessizce" başarılı oluyoruz.
             if (user == null)
             {
                 _logger.LogWarning($"Var olmayan veya onaysız e-posta için şifre sıfırlama denemesi: {model.Email}");
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 
-            // 1. Token Oluştur (Servis)
             var token = await _accountService.GeneratePasswordResetTokenAsync(user);
 
-            // 2. URL Oluştur (Controller)
             var callbackUrl = Url.Action(
                 action: nameof(ResetPassword),
                 controller: "Account",
                 values: new { email = user.Email, token = token },
                 protocol: Request.Scheme);
 
-            // 3. E-posta Gönder (Servis)
             await _emailService.SendTemplateEmailAsync(
                 toEmail: user.Email,
                 templateName: "PasswordReset",
@@ -255,7 +236,7 @@ namespace Sattim.Web.Controllers
         [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
         {
-            return View(); // (Sadece "E-postanızı kontrol edin" diyen bir sayfa)
+            return View();
         }
 
         [HttpGet]
@@ -280,7 +261,6 @@ namespace Sattim.Web.Controllers
                 return View(model);
             }
 
-            // Servis, kullanıcıyı bulup şifreyi (token'ı doğrulayarak) sıfırlar
             var result = await _accountService.ResetPasswordAsync(model);
 
             if (result.Succeeded)
@@ -301,8 +281,6 @@ namespace Sattim.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> LoginWith2FA(string returnUrl, bool rememberMe)
         {
-            // (IAccountService.LoginUserAsync'ten yönlendirildi)
-            // Önceki girişten gelen kullanıcıyı doğrula
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
             {
@@ -341,12 +319,10 @@ namespace Sattim.Web.Controllers
             }
         }
 
-        // (LoginWithRecoveryCodeAsync metodu da buraya eklenebilir, benzer mantıkta)
-
         [HttpGet]
         public IActionResult Lockout()
         {
-            return View(); // (Hesabınız kilitlendi sayfası)
+            return View();
         }
 
         // ====================================================================

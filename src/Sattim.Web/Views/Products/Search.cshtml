@@ -10,7 +10,6 @@
         padding: 2rem 0;
     }
 
-    /* Search Header */
     .search-header {
         background: #fff;
         border: 1px solid #e5e5e5;
@@ -44,7 +43,6 @@
             font-weight: 600;
         }
 
-    /* Search Form */
     .search-form-wrapper {
         max-width: 600px;
     }
@@ -87,7 +85,6 @@
             color: white;
         }
 
-    /* Filters Bar */
     .filters-bar {
         background: #fafafa;
         border: 1px solid #e5e5e5;
@@ -140,12 +137,10 @@
         color: #666;
     }
 
-    /* Results Grid */
     .results-grid {
         margin-bottom: 2rem;
     }
 
-    /* Empty State */
     .empty-state {
         text-align: center;
         padding: 4rem 2rem;
@@ -239,7 +234,6 @@
             color: white;
         }
 
-    /* Popular Searches */
     .popular-searches {
         background: #fff;
         border: 1px solid #e5e5e5;
@@ -278,15 +272,10 @@
             border-color: #1a1a1a;
             color: white;
         }
-
-   
-
-    
 </style>
 
 <div class="search-container">
     <div class="container">
-        <!-- Search Header -->
         <div class="search-header">
             <h1 class="search-title">
                 @if (!string.IsNullOrEmpty(query))
@@ -306,7 +295,6 @@
                 </p>
             }
 
-            <!-- Search Form -->
             <div class="search-form-wrapper">
                 <form asp-controller="Products" asp-action="Search" method="get">
                     <div class="search-input-group">
@@ -323,7 +311,6 @@
 
         @if (Model != null && Model.Any())
         {
-            <!-- Filters Bar -->
             <div class="filters-bar">
                 <div class="filter-left">
                     <div class="filter-item">
@@ -353,7 +340,6 @@
                 </div>
             </div>
 
-            <!-- Results Grid -->
             <div class="results-grid">
                 <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
                     @foreach (var product in Model)
@@ -365,7 +351,6 @@
                 </div>
             </div>
 
-            <!-- Popular Searches -->
             <div class="popular-searches">
                 <h3 class="popular-searches-title">Popüler Aramalar</h3>
                 <div class="popular-tags">
@@ -382,7 +367,6 @@
         }
         else
         {
-            <!-- Empty State -->
             <div class="empty-state">
                 <div class="empty-state-icon">
                     <i class="fas fa-search-minus"></i>
@@ -436,9 +420,9 @@
                 <a asp-controller="Products" asp-action="Index" class="empty-state-btn">
                     <i class="fas fa-th me-2"></i>Tüm Ürünlere Göz Atın
                 </a>
+
             </div>
 
-            <!-- Popular Searches -->
             <div class="popular-searches">
                 <h3 class="popular-searches-title">Popüler Aramalar</h3>
                 <div class="popular-tags">
@@ -474,7 +458,6 @@
             window.location.href = currentUrl.toString();
         }
 
-        // Preserve selected values
         document.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const sortBy = urlParams.get('sortBy');

@@ -8,9 +8,6 @@ namespace Sattim.Web.Profiles
     {
         public ShippingProfile()
         {
-            // ShippingInfo (Entity) -> ShippingDetailViewModel (DTO)
-            // (Tüm özellik adları birebir eşleştiği için
-            // manuel 'ForMember' tanımına gerek yoktur)
             CreateMap<ShippingInfo, ShippingDetailViewModel>();
         }
     }

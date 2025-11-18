@@ -1,8 +1,5 @@
 ﻿namespace Sattim.Web.ViewModels.Product
 {
-    /// <summary>
-    /// Katalog/arama listelerindeki tek bir ürün kartını temsil eder.
-    /// </summary>
     public class ProductSummaryViewModel
     {
         public int Id { get; set; }

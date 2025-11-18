@@ -1,19 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity; // UserManager için
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Sattim.Web.Controllers;
 using Sattim.Web.Models.User;
 using Sattim.Web.Services.Product;
 using Sattim.Web.ViewModels.Product;
-using System.Security.Claims; // GetUserId için
+using System.Security.Claims;
 using System.Threading.Tasks;
 
-// Halka açık (anonim) kullanıcıların erişebileceği metotlar.
-// Ürün listeleme, detay görme ve arama.
 public class ProductsController : BaseController
 {
     private readonly IProductService _productService;
-    private readonly UserManager<ApplicationUser> _userManager; // Kullanıcı ID'si almak için
-    private readonly IHttpContextAccessor _httpContextAccessor; // IP almak için
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public ProductsController(
         IProductService productService,
@@ -25,28 +24,17 @@ public class ProductsController : BaseController
         _httpContextAccessor = httpContextAccessor;
     }
 
-    /// <summary>
-    /// Ana sayfa veya kategori sayfası gibi ürün listeleme alanı.
-    /// </summary>
-    // GET: /Products veya /Products?CategoryId=5&Page=2
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] ProductFilterViewModel filter)
     {
-        // Servisten hem ürünleri hem de sayfa bilgisini al
         var (products, totalPages) = await _productService.GetProductListAsync(filter);
 
-        // Sayfalama bilgisini View'a taşı
         ViewBag.TotalPages = totalPages;
-        // Mevcut filtreyi View'a geri gönder (sayfalama linkleri için)
         ViewBag.CurrentFilter = filter;
 
-        return View(products); // List<ProductSummaryViewModel> model olarak gönderilir
+        return View(products);
     }
 
-    /// <summary>
-    /// Ürün detay sayfası.
-    /// </summary>
-    // GET: /Products/Details/5
     [HttpGet]
     public async Task<IActionResult> Details(int? id)
     {
@@ -55,7 +43,6 @@ public class ProductsController : BaseController
             return NotFound();
         }
 
-        // Görüntüleme log'laması için yardımcı metotlardan IP ve UserID al
         string? userId = GetCurrentUserId();
         string ipAddress = GetUserIpAddress();
 
@@ -66,23 +53,17 @@ public class ProductsController : BaseController
             return NotFound();
         }
 
-        return View(productDetail); // ProductDetailViewModel model olarak gönderilir
+        return View(productDetail);
     }
 
-    /// <summary>
-    /// Arama sonuçları sayfası.
-    /// </summary>
-    // GET: /Products/Search?query=bisiklet
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] string query)
     {
         if (string.IsNullOrWhiteSpace(query))
         {
-            // Boş arama yapılırsa anasayfaya yönlendir (veya boş bir view döndür)
             return RedirectToAction(nameof(Index));
         }
 
-        // Arama log'laması için yardımcı metotlardan IP ve UserID al
         string? userId = GetCurrentUserId();
         string ipAddress = GetUserIpAddress();
 
@@ -91,20 +72,16 @@ public class ProductsController : BaseController
         ViewBag.ResultCount = resultCount;
         ViewBag.Query = query;
 
-        return View(products); // List<ProductSummaryViewModel> model olarak gönderilir
+        return View(products);
     }
-
-    // --- Yardımcı Metotlar ---
 
     private string? GetCurrentUserId()
     {
-        // Kullanıcı giriş yapmışsa ID'sini al
         return _userManager.GetUserId(User);
     }
 
     private string GetUserIpAddress()
     {
-        // IP adresini al (Proxy/Load balancer arkasındaysa X-Forwarded-For'a bakmak gerekebilir)
         return _httpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "0.0.0.0";
     }
 }

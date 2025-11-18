@@ -1,9 +1,6 @@
 ﻿namespace Sattim.Web.ViewModels.Bid
 {
-    /// <summary>
-    /// Bir kullanıcının ürün için mevcut otomatik teklif ayarını temsil eder.
-    /// (GetUserAutoBidSettingAsync tarafından döndürülür)
-    /// </summary>
+    
     public class AutoBidSettingViewModel
     {
         public int ProductId { get; set; }

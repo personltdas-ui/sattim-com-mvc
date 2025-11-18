@@ -1,17 +1,13 @@
 ﻿using Sattim.Web.Models.User;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // [ForeignKey] için eklendi
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sattim.Web.Models.Analytical
 {
-    /// <summary>
-    /// Bir kullanıcının (veya anonim bir ziyaretçinin) yaptığı tek bir
-    /// arama işlemini (log kaydı) temsil eder. Değiştirilemez (immutable).
-    /// </summary>
     public class SearchHistory
     {
-        #region Özellikler (Properties)
+        #region Özellikler
 
         [Key]
         public int Id { get; private set; }
@@ -26,40 +22,26 @@ namespace Sattim.Web.Models.Analytical
         public DateTime SearchDate { get; private set; }
 
         [Required]
-        [StringLength(50)] // IPv6 uyumlu
+        [StringLength(50)]
         public string IpAddress { get; private set; }
 
         #endregion
 
-        #region İlişkiler ve Yabancı Anahtarlar (Relationships & FKs)
+        #region İlişkiler ve Yabancı Anahtarlar
 
-        /// <summary>
-        /// Aramayı yapan kullanıcı (giriş yaptıysa, Foreign Key).
-        /// </summary>
         public string? UserId { get; private set; }
 
-        /// <summary>
-        /// Navigasyon: Aramayı yapan kullanıcı.
-        /// DÜZELTME: EF Core Tembel Yüklemesi (Lazy Loading) için 'virtual' eklendi.
-        /// </summary>
         [ForeignKey("UserId")]
         public virtual ApplicationUser? User { get; private set; }
 
         #endregion
 
-        #region Yapıcı Metotlar (Constructors)
+        #region Yapıcı Metotlar
 
-        /// <summary>
-        /// Entity Framework Core için gerekli özel yapıcı metot.
-        /// </summary>
         private SearchHistory() { }
 
-        /// <summary>
-        /// Yeni bir 'SearchHistory' log kaydı oluşturur ve kuralları zorunlu kılar.
-        /// </summary>
         public SearchHistory(string searchTerm, int resultCount, string ipAddress, string? userId = null)
         {
-            // Mükemmel Doğrulamalar (Zaten vardı)
             if (string.IsNullOrWhiteSpace(searchTerm))
                 throw new ArgumentNullException(nameof(searchTerm), "Arama terimi boş olamaz.");
             if (string.IsNullOrWhiteSpace(ipAddress))
@@ -67,13 +49,12 @@ namespace Sattim.Web.Models.Analytical
             if (resultCount < 0)
                 throw new ArgumentOutOfRangeException(nameof(resultCount), "Sonuç sayısı negatif olamaz.");
 
-            // DÜZELTME: Boş string yerine 'null' kaydet
             UserId = string.IsNullOrWhiteSpace(userId) ? null : userId;
 
             SearchTerm = searchTerm;
             ResultCount = resultCount;
             IpAddress = ipAddress;
-            SearchDate = DateTime.UtcNow; // Zaman damgası O AN atanır
+            SearchDate = DateTime.UtcNow;
         }
 
         #endregion

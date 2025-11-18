@@ -2,23 +2,17 @@
 
 @{
     ViewData["Title"] = "Ödeme Yapılıyor...";
-    // Ödeme sayfası, dönüşümü artırmak için kasıtlı olarak
-    // minimal bir layout kullanır. Bu ayar korunmalıdır.
     Layout = "_MinimalLayout";
 }
 
-
-
 @section Styles {
     <style>
-        
         :root {
             --primary-color: #1a1a1a;
             --border-color: #e5e5e5;
             --bg-light: #fafafa;
         }
 
-        /* Sayfanın tamamı için hafif bir arka plan */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-light);
@@ -27,7 +21,6 @@
             padding-bottom: 3rem;
         }
 
-        /* Ana Ödeme Kartı (profile-content-card'dan uyarlandı) */
         .payment-card {
             background: #fff;
             border: 1px solid var(--border-color);
@@ -35,7 +28,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
-        /* Yükleme ve Başlık Alanı */
         .loading-area {
             text-align: center;
             border-bottom: 1px solid var(--border-color);
@@ -43,7 +35,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Başlık (section-title'dan uyarlandı) */
         .payment-title {
             font-size: 1.5rem;
             font-weight: 600;
@@ -61,16 +52,13 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Modern Spinner */
         .loading-spinner {
-            color: var(--primary-color); /* Tema rengi */
+            color: var(--primary-color);
             width: 2rem;
             height: 2rem;
         }
 
-        /* Harici Form (Iyzico, PayTR vb.) */
         .payment-form-wrapper {
-            
         }
     </style>
 }

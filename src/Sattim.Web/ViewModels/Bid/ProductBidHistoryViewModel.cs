@@ -2,10 +2,7 @@
 
 namespace Sattim.Web.ViewModels.Bid
 {
-    /// <summary>
-    /// Bir ürünün detay sayfasında teklif geçmişini gösteren ana model.
-    /// (GetProductBidHistoryAsync tarafından döndürülür)
-    /// </summary>
+    
     public class ProductBidHistoryViewModel
     {
         public int ProductId { get; set; }

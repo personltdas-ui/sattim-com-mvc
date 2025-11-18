@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity; // UserManager için eklendi
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Sattim.Web.Data;
-using Sattim.Web.Models.Analytical; // Report için
-using Sattim.Web.Models.Blog; // BlogComment için
-using Sattim.Web.Models.Dispute; // Dispute için
+using Sattim.Web.Models.Analytical;
+using Sattim.Web.Models.Blog;
+using Sattim.Web.Models.Dispute;
 using Sattim.Web.Models.Product;
 using Sattim.Web.Models.Shipping;
 using Sattim.Web.Models.UI;
@@ -23,14 +23,14 @@ namespace Sattim.Web.Services.Notification
     {
         private readonly ApplicationDbContext _context;
         private readonly IEmailService _emailService;
-        private readonly UserManager<ApplicationUser> _userManager; // Adminleri bulmak için
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<NotificationService> _logger;
 
         public NotificationService(
-            ApplicationDbContext context,
-            IEmailService emailService,
-            UserManager<ApplicationUser> userManager,
-            ILogger<NotificationService> logger)
+          ApplicationDbContext context,
+          IEmailService emailService,
+          UserManager<ApplicationUser> userManager,
+          ILogger<NotificationService> logger)
         {
             _context = context;
             _emailService = emailService;
@@ -38,25 +38,15 @@ namespace Sattim.Web.Services.Notification
             _logger = logger;
         }
 
-        // ====================================================================
-        //  1. ÖZEL (PRIVATE) YARDIMCI METOTLAR
-        // ====================================================================
-
-        /// <summary>
-        /// Site içi bildirim (zil ikonu) oluşturur ve kaydeder.
-        /// (DÜZELTİLDİ: entityId artık string)
-        /// </summary>
         private async Task CreateNotificationAsync(string userId, string title, string message, NotificationType type, string? entityId = null, string? entityType = null)
         {
             try
             {
                 var notification = new Models.UI.Notification(
-                    userId, title, message, type, entityId, entityType
+                  userId, title, message, type, entityId, entityType
                 );
                 await _context.Notifications.AddAsync(notification);
                 await _context.SaveChangesAsync();
-
-                // (SignalR tetiklemesi buraya eklenebilir)
             }
             catch (Exception ex)
             {
@@ -64,16 +54,13 @@ namespace Sattim.Web.Services.Notification
             }
         }
 
-        /// <summary>
-        /// E-posta şablonunu (EmailTemplate) bulur, doldurur ve gönderir.
-        /// </summary>
         private async Task SendEmailFromTemplateAsync(ApplicationUser user, EmailTemplateType templateType, Dictionary<string, string> placeholders)
         {
             try
             {
                 var template = await _context.EmailTemplates
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(t => t.Type == templateType && t.IsActive);
+                  .AsNoTracking()
+                  .FirstOrDefaultAsync(t => t.Type == templateType && t.IsActive);
 
                 if (template == null)
                 {
@@ -85,7 +72,7 @@ namespace Sattim.Web.Services.Notification
                 string body = template.Body;
 
                 placeholders.TryAdd("{{UserName}}", user.FullName);
-                placeholders.TryAdd("{{SiteUrl}}", "https://www.sattim.com"); // (SiteSettings'ten gelmeli)
+                placeholders.TryAdd("{{SiteUrl}}", "https://www.sattim.com");
 
                 foreach (var (key, value) in placeholders)
                 {
@@ -101,9 +88,6 @@ namespace Sattim.Web.Services.Notification
             }
         }
 
-        /// <summary>
-        /// Adminlere ve Moderatörlere site-içi bildirim gönderir.
-        /// </summary>
         private async Task NotifyAdminsAsync(string title, string message, NotificationType type, string? entityId = null, string? entityType = null)
         {
             try
@@ -123,11 +107,6 @@ namespace Sattim.Web.Services.Notification
             }
         }
 
-        // ====================================================================
-        //  2. COMMANDS (Bildirim Gönderme) - EKSİKSİZ
-        // ====================================================================
-
-        // --- Hesap ---
         public async Task SendWelcomeNotificationAsync(ApplicationUser user)
         {
             await CreateNotificationAsync(user.Id, "Hoş Geldiniz!", "Sattim'a başarıyla kaydoldunuz.", NotificationType.System);
@@ -147,29 +126,27 @@ namespace Sattim.Web.Services.Notification
             await SendEmailFromTemplateAsync(user, EmailTemplateType.PasswordReset, placeholders);
         }
 
-        // --- Ürün Moderasyon (EKLENDİ) ---
         public async Task SendProductApprovedNotificationAsync(ApplicationUser seller, Models.Product.Product product)
         {
             await CreateNotificationAsync(
-                seller.Id, "Ürününüz Onaylandı", $"'{product.Title}' adlı ürününüz onaylandı ve açık artırmaya açıldı.",
-                NotificationType.ProductApproved, product.Id.ToString(), "Product"
+              seller.Id, "Ürününüz Onaylandı", $"'{product.Title}' adlı ürününüz onaylandı ve açık artırmaya açıldı.",
+              NotificationType.ProductApproved, product.Id.ToString(), "Product"
             );
         }
 
         public async Task SendProductRejectedNotificationAsync(ApplicationUser seller, Models.Product.Product product, string reason)
         {
             await CreateNotificationAsync(
-               seller.Id, "Ürününüz Reddedildi", $"'{product.Title}' adlı ürününüz reddedildi. Sebep: {reason}",
-               NotificationType.System, product.Id.ToString(), "Product"
+             seller.Id, "Ürününüz Reddedildi", $"'{product.Title}' adlı ürününüz reddedildi. Sebep: {reason}",
+             NotificationType.System, product.Id.ToString(), "Product"
            );
         }
 
-        // --- Teklif & İhale ---
         public async Task SendBidPlacedNotificationAsync(Models.Product.Product product, ApplicationUser bidder, decimal amount)
         {
             await CreateNotificationAsync(
-                product.SellerId, "Yeni Teklif Aldınız!", $"'{product.Title}' adlı ürününüze {amount:C} tutarında yeni bir teklif verildi.",
-                NotificationType.BidPlaced, product.Id.ToString(), "Product"
+              product.SellerId, "Yeni Teklif Aldınız!", $"'{product.Title}' adlı ürününüze {amount:C} tutarında yeni bir teklif verildi.",
+              NotificationType.BidPlaced, product.Id.ToString(), "Product"
             );
         }
 
@@ -179,7 +156,7 @@ namespace Sattim.Web.Services.Notification
             await CreateNotificationAsync(outbidUser.Id, "Teklifiniz Geçildi!", msg, NotificationType.BidOutbid, product.Id.ToString(), "Product");
 
             var placeholders = new Dictionary<string, string>
-            { { "{{ProductName}}", product.Title }, { "{{NewPrice}}", product.CurrentPrice.ToString("C") }, { "{{ProductLink}}", $"/Product/Detail/{product.Id}" } };
+      { { "{{ProductName}}", product.Title }, { "{{NewPrice}}", product.CurrentPrice.ToString("C") }, { "{{ProductLink}}", $"/Product/Detail/{product.Id}" } };
             await SendEmailFromTemplateAsync(outbidUser, EmailTemplateType.BidOutbid, placeholders);
         }
 
@@ -191,19 +168,18 @@ namespace Sattim.Web.Services.Notification
                 await CreateNotificationAsync(user.Id, "İhale Bitiyor!", msg, NotificationType.AuctionEnding, product.Id.ToString(), "Product");
 
                 var placeholders = new Dictionary<string, string>
-                { { "{{ProductName}}", product.Title }, { "{{ProductLink}}", $"/Product/Detail/{product.Id}" } };
+        { { "{{ProductName}}", product.Title }, { "{{ProductLink}}", $"/Product/Detail/{product.Id}" } };
                 await SendEmailFromTemplateAsync(user, EmailTemplateType.AuctionEnding, placeholders);
             }
         }
 
-        // --- Sipariş & Satış ---
         public async Task SendAuctionWonNotificationAsync(ApplicationUser winner, Models.Product.Product product)
         {
             string msg = $"'{product.Title}' adlı ürünü {product.CurrentPrice:C} bedelle kazandınız. Lütfen ödemeyi tamamlayın.";
             await CreateNotificationAsync(winner.Id, "Tebrikler, İhaleyi Kazandınız!", msg, NotificationType.AuctionWon, product.Id.ToString(), "Product");
 
             var placeholders = new Dictionary<string, string>
-            { { "{{ProductName}}", product.Title }, { "{{FinalPrice}}", product.CurrentPrice.ToString("C") }, { "{{PaymentLink}}", $"/Order/Pay/{product.Id}" } };
+      { { "{{ProductName}}", product.Title }, { "{{FinalPrice}}", product.CurrentPrice.ToString("C") }, { "{{PaymentLink}}", $"/Order/Pay/{product.Id}" } };
             await SendEmailFromTemplateAsync(winner, EmailTemplateType.AuctionWon, placeholders);
         }
 
@@ -227,14 +203,13 @@ namespace Sattim.Web.Services.Notification
             await CreateNotificationAsync(seller.Id, "Ürününüz Satılmadı", msg, NotificationType.AuctionLost, product.Id.ToString(), "Product");
         }
 
-        // --- Ödeme & Kargo ---
         public async Task SendPaymentSuccessNotificationAsync(ApplicationUser buyer, Models.Product.Product product)
         {
             string msg = $"'{product.Title}' adlı ürün için yaptığınız {product.CurrentPrice:C} tutarındaki ödeme başarıyla alındı.";
             await CreateNotificationAsync(buyer.Id, "Ödeme Başarılı", msg, NotificationType.PaymentReceived, product.Id.ToString(), "Product");
 
             var placeholders = new Dictionary<string, string>
-            { { "{{ProductName}}", product.Title }, { "{{Amount}}", product.CurrentPrice.ToString("C") } };
+      { { "{{ProductName}}", product.Title }, { "{{Amount}}", product.CurrentPrice.ToString("C") } };
             await SendEmailFromTemplateAsync(buyer, EmailTemplateType.PaymentConfirmation, placeholders);
         }
 
@@ -250,7 +225,7 @@ namespace Sattim.Web.Services.Notification
             await CreateNotificationAsync(buyer.Id, "Ürününüz Kargolandı!", msg, NotificationType.System, product.Id.ToString(), "Product");
 
             var placeholders = new Dictionary<string, string>
-            { { "{{ProductName}}", product.Title }, { "{{Carrier}}", shippingInfo.Carrier }, { "{{TrackingNumber}}", shippingInfo.TrackingNumber } };
+      { { "{{ProductName}}", product.Title }, { "{{Carrier}}", shippingInfo.Carrier }, { "{{TrackingNumber}}", shippingInfo.TrackingNumber } };
             await SendEmailFromTemplateAsync(buyer, EmailTemplateType.ShippingNotification, placeholders);
         }
 
@@ -260,12 +235,10 @@ namespace Sattim.Web.Services.Notification
             await CreateNotificationAsync(seller.Id, "Ürün Teslim Edildi", msg, NotificationType.System, product.Id.ToString(), "Product");
         }
 
-        // --- Cüzdan & Para Çekme (EKLENDİ) ---
         public async Task SendFundsReleasedNotificationAsync(ApplicationUser seller, decimal netAmount)
         {
             string msg = $"Bir satıştan elde ettiğiniz {netAmount:C} tutarındaki gelir cüzdanınıza aktarıldı.";
             await CreateNotificationAsync(seller.Id, "Cüzdanınıza Para Aktarıldı", msg, NotificationType.PaymentReceived, null, "Wallet");
-            // (E-posta da gönderilebilir)
         }
 
         public async Task SendPayoutRequestedNotificationAsync(ApplicationUser user, PayoutRequest request)
@@ -279,38 +252,31 @@ namespace Sattim.Web.Services.Notification
         {
             string msg = $"{request.Amount:C} tutarındaki para çekme talebiniz onaylandı. Ödemeniz en kısa sürede banka hesabınıza aktarılacaktır.";
             await CreateNotificationAsync(user.Id, "Para Çekme Talebi Onaylandı", msg, NotificationType.System, request.Id.ToString(), "PayoutRequest");
-            // (E-posta da gönderilebilir)
         }
 
         public async Task SendPayoutRejectedNotificationAsync(ApplicationUser user, PayoutRequest request, string reason)
         {
             string msg = $"{request.Amount:C} tutarındaki para çekme talebiniz reddedildi. Tutar cüzdanınıza iade edildi. Sebep: {reason}";
             await CreateNotificationAsync(user.Id, "Para Çekme Talebi Reddedildi", msg, NotificationType.System, request.Id.ToString(), "PayoutRequest");
-            // (E-posta da gönderilebilir)
         }
 
         public async Task SendPayoutCompletedNotificationAsync(ApplicationUser user, PayoutRequest request)
         {
             string msg = $"{request.Amount:C} tutarındaki para çekme talebiniz başarıyla tamamlandı ve banka hesabınıza gönderildi.";
             await CreateNotificationAsync(user.Id, "Para Çekme İşlemi Tamamlandı", msg, NotificationType.PaymentReceived, request.Id.ToString(), "PayoutRequest");
-            // (E-posta da gönderilebilir)
         }
 
-        // --- İletişim & Moderasyon (EKLENDİ) ---
         public async Task SendNewMessageNotificationAsync(ApplicationUser receiver, ApplicationUser sender, int messageId)
         {
             string msg = $"{sender.FullName} size yeni bir mesaj gönderdi.";
             await CreateNotificationAsync(receiver.Id, "Yeni Mesajınız Var", msg, NotificationType.MessageReceived, messageId.ToString(), "Message");
-            // (E-posta da gönderilebilir)
         }
 
         public async Task SendDisputeOpenedNotificationAsync(ApplicationUser buyer, ApplicationUser seller, Models.Dispute.Dispute dispute)
         {
-            // Satıcıya bildir
             string sellerMsg = $"Alıcı ({buyer.FullName}), '{dispute.Product.Title}' ürünü için bir ihtilaf başlattı.";
             await CreateNotificationAsync(seller.Id, "Hakkınızda İhtilaf Açıldı", sellerMsg, NotificationType.System, dispute.Id.ToString(), "Dispute");
 
-            // Adminlere bildir
             await NotifyAdminsAsync("Yeni İhtilaf Açıldı", $"Alıcı ({buyer.FullName}), '{dispute.Product.Title}' ürünü için bir ihtilaf başlattı.", NotificationType.System, dispute.Id.ToString(), "Dispute");
         }
 
@@ -342,10 +308,6 @@ namespace Sattim.Web.Services.Notification
             await NotifyAdminsAsync("Yeni Şikayet", msg, NotificationType.System, report.Id.ToString(), "Report");
         }
 
-        // ====================================================================
-        //  3. QUERIES (Bildirim Okuma)
-        // ====================================================================
-
         public async Task<List<ViewModels.Notification.NotificationViewModel>> GetUserNotificationsAsync(string userId, bool unreadOnly = false)
         {
             var query = _context.Notifications.AsNoTracking().Where(n => n.UserId == userId);
@@ -355,19 +317,18 @@ namespace Sattim.Web.Services.Notification
             }
 
             return await query
-                .OrderByDescending(n => n.CreatedDate)
-                .Take(50) // Performans limiti
-                .Select(n => new NotificationViewModel
-                {
-                    Id = n.Id,
-                    Title = n.Title,
-                    Message = n.Message,
-                    Type = n.Type,
-                    IsRead = n.IsRead,
-                    CreatedDate = n.CreatedDate,
-                    
-                })
-                .ToListAsync();
+              .OrderByDescending(n => n.CreatedDate)
+              .Take(50)
+              .Select(n => new NotificationViewModel
+              {
+                  Id = n.Id,
+                  Title = n.Title,
+                  Message = n.Message,
+                  Type = n.Type,
+                  IsRead = n.IsRead,
+                  CreatedDate = n.CreatedDate,
+              })
+              .ToListAsync();
         }
 
         private string GenerateClickUrl(NotificationType type, string? entityId, string? entityType)
@@ -384,9 +345,9 @@ namespace Sattim.Web.Services.Notification
             if (entityType == "PayoutRequest")
                 return $"/Wallet/Payouts";
             if (entityType == "BlogComment")
-                return $"/Admin/Moderation/Comment/{entityId}"; // Admin için
+                return $"/Admin/Moderation/Comment/{entityId}";
             if (entityType == "Report")
-                return $"/Admin/Moderation/Report/{entityId}"; // Admin için
+                return $"/Admin/Moderation/Report/{entityId}";
 
             return "/Account/Notifications";
         }
@@ -394,8 +355,8 @@ namespace Sattim.Web.Services.Notification
         public async Task<int> GetUnreadNotificationCountAsync(string userId)
         {
             return await _context.Notifications
-                .AsNoTracking()
-                .CountAsync(n => n.UserId == userId && !n.IsRead);
+              .AsNoTracking()
+              .CountAsync(n => n.UserId == userId && !n.IsRead);
         }
 
         public async Task<bool> MarkNotificationAsReadAsync(int notificationId, string userId)
@@ -411,21 +372,18 @@ namespace Sattim.Web.Services.Notification
 
         public async Task<bool> MarkAllNotificationsAsReadAsync(string userId)
         {
-            // KURAL 2: YÜKLE
             var notificationsToMark = await _context.Notifications
-                .Where(n => n.UserId == userId && !n.IsRead)
-                .ToListAsync();
+              .Where(n => n.UserId == userId && !n.IsRead)
+              .ToListAsync();
 
             if (!notificationsToMark.Any())
                 return true;
 
-            // KURAL 3: EYLEME GEÇ
             foreach (var notification in notificationsToMark)
             {
                 notification.MarkAsRead();
             }
 
-            // KURAL 5: KAYDET
             await _context.SaveChangesAsync();
             return true;
         }

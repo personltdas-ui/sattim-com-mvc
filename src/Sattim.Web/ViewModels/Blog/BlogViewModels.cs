@@ -4,11 +4,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Sattim.Web.ViewModels.Blog
 {
-    
-
-    /// <summary>
-    /// PostCommentAsync metodu için yeni yorum formu verisi.
-    /// </summary>
     public class PostCommentViewModel
     {
         [Required]
@@ -20,12 +15,6 @@ namespace Sattim.Web.ViewModels.Blog
         public string Content { get; set; }
     }
 
-    
-
-    /// <summary>
-    /// Blog ana sayfasındaki bir yazı özetini temsil eder.
-    /// (GetPublishedPostsAsync tarafından döndürülür)
-    /// </summary>
     public class BlogSummaryViewModel
     {
         public string Title { get; set; }
@@ -36,10 +25,6 @@ namespace Sattim.Web.ViewModels.Blog
         public string AuthorName { get; set; }
     }
 
-    /// <summary>
-    /// Tek bir blog yazısı detayını temsil eder.
-    /// (GetPostBySlugAsync tarafından döndürülür)
-    /// </summary>
     public class BlogPostDetailViewModel
     {
         public int Id { get; set; }
@@ -54,19 +39,13 @@ namespace Sattim.Web.ViewModels.Blog
         public List<BlogCommentViewModel> Comments { get; set; } = new List<BlogCommentViewModel>();
     }
 
-    /// <summary>
-    /// Blog yazarı detaylarını temsil eder (BlogPostDetailViewModel içinde kullanılır).
-    /// </summary>
     public class BlogAuthorViewModel
     {
         public string FullName { get; set; }
         public string ProfileImageUrl { get; set; }
-        public string Bio { get; set; } // (UserProfile'dan gelir)
+        public string Bio { get; set; }
     }
 
-    /// <summary>
-    /// Onaylanmış bir yorumu temsil eder (BlogPostDetailViewModel içinde kullanılır).
-    /// </summary>
     public class BlogCommentViewModel
     {
         public string AuthorFullName { get; set; }
@@ -75,14 +54,10 @@ namespace Sattim.Web.ViewModels.Blog
         public DateTime CreatedDate { get; set; }
     }
 
-    /// <summary>
-    /// Etiket bulutundaki tek bir etiketi temsil eder.
-    /// (GetTagCloudAsync tarafından döndürülür)
-    /// </summary>
     public class BlogTagCloudViewModel
     {
         public string Name { get; set; }
         public string Slug { get; set; }
-        public int PostCount { get; set; } 
+        public int PostCount { get; set; }
     }
 }
